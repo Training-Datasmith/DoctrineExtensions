@@ -97,10 +97,8 @@ class Validator
     /**
      * @param ClassMetadata<object> $meta
      * @param string                $field
-     *
-     * @return void
      */
-    public static function validateFileNameField(ClassMetadata $meta, $field)
+    public static function validateFileNameField(ClassMetadata $meta, $field): void
     {
         self::validateField($meta, $field, self::UPLOADABLE_FILE_NAME, self::$validFileNameTypes);
     }
@@ -108,10 +106,8 @@ class Validator
     /**
      * @param ClassMetadata<object> $meta
      * @param string                $field
-     *
-     * @return void
      */
-    public static function validateFileMimeTypeField(ClassMetadata $meta, $field)
+    public static function validateFileMimeTypeField(ClassMetadata $meta, $field): void
     {
         self::validateField($meta, $field, self::UPLOADABLE_FILE_MIME_TYPE, self::$validFileMimeTypeTypes);
     }
@@ -119,10 +115,8 @@ class Validator
     /**
      * @param ClassMetadata<object> $meta
      * @param string                $field
-     *
-     * @return void
      */
-    public static function validateFilePathField(ClassMetadata $meta, $field)
+    public static function validateFilePathField(ClassMetadata $meta, $field): void
     {
         self::validateField($meta, $field, self::UPLOADABLE_FILE_PATH, self::$validFilePathTypes);
     }
@@ -130,23 +124,19 @@ class Validator
     /**
      * @param ClassMetadata<object> $meta
      * @param string                $field
-     *
-     * @return void
      */
-    public static function validateFileSizeField(ClassMetadata $meta, $field)
+    public static function validateFileSizeField(ClassMetadata $meta, $field): void
     {
         self::validateField($meta, $field, self::UPLOADABLE_FILE_SIZE, self::$validFileSizeTypes);
     }
 
     /**
      * @param ClassMetadata<object> $meta
-     * @param string                $field
      * @param string                $uploadableField
      * @param string[]              $validFieldTypes
      *
-     * @return void
      */
-    public static function validateField($meta, $field, $uploadableField, $validFieldTypes)
+    public static function validateField($meta, string $field, $uploadableField, $validFieldTypes): void
     {
         if ($meta->isMappedSuperclass) {
             return;
@@ -163,10 +153,8 @@ class Validator
 
     /**
      * @param string $path
-     *
-     * @return void
      */
-    public static function validatePath($path)
+    public static function validatePath($path): void
     {
         if (!is_string($path) || '' === $path) {
             throw new UploadableInvalidPathException('Path must be a string containing the path to a valid directory.');
@@ -193,7 +181,7 @@ class Validator
      *
      * @todo Stop receiving by reference the `$config` parameter and use `array` as return type declaration
      */
-    public static function validateConfiguration(ClassMetadata $meta, array &$config)
+    public static function validateConfiguration(ClassMetadata $meta, array &$config): array
     {
         if (!$config['filePathField'] && !$config['fileNameField']) {
             throw new InvalidMappingException(sprintf('Class "%s" must have an UploadableFilePath or UploadableFileName field.', $meta->getName()));

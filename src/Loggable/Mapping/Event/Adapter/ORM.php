@@ -23,7 +23,7 @@ use Gedmo\Tool\Wrapper\EntityWrapper;
  */
 final class ORM extends BaseAdapterORM implements LoggableAdapter
 {
-    public function getDefaultLogEntryClass()
+    public function getDefaultLogEntryClass(): string
     {
         return LogEntry::class;
     }

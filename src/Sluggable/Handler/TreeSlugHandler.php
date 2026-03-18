@@ -37,10 +37,7 @@ class TreeSlugHandler implements SlugHandlerWithUniqueCallbackInterface
      */
     protected $om;
 
-    /**
-     * @var SluggableListener
-     */
-    protected $sluggable;
+    protected \Gedmo\Sluggable\SluggableListener $sluggable;
 
     private string $prefix = '';
 
@@ -66,7 +63,7 @@ class TreeSlugHandler implements SlugHandlerWithUniqueCallbackInterface
         $this->sluggable = $sluggable;
     }
 
-    public function onChangeDecision(SluggableAdapter $ea, array &$config, $object, &$slug, &$needToChangeSlug)
+    public function onChangeDecision(SluggableAdapter $ea, array &$config, $object, &$slug, &$needToChangeSlug): void
     {
         $this->om = $ea->getObjectManager();
         $this->isInsert = $this->om->getUnitOfWork()->isScheduledForInsert($object);
@@ -84,7 +81,7 @@ class TreeSlugHandler implements SlugHandlerWithUniqueCallbackInterface
         }
     }
 
-    public function postSlugBuild(SluggableAdapter $ea, array &$config, $object, &$slug)
+    public function postSlugBuild(SluggableAdapter $ea, array &$config, $object, &$slug): void
     {
         $options = $config['handlers'][static::class];
         $this->parentSlug = '';
@@ -104,19 +101,19 @@ class TreeSlugHandler implements SlugHandlerWithUniqueCallbackInterface
     /**
      * @param ClassMetadata<object> $meta
      */
-    public static function validate(array $options, ClassMetadata $meta)
+    public static function validate(array $options, ClassMetadata $meta): void
     {
         if (!$meta->isSingleValuedAssociation($options['parentRelationField'])) {
             throw new InvalidMappingException("Unable to find tree parent slug relation through field - [{$options['parentRelationField']}] in class - {$meta->getName()}");
         }
     }
 
-    public function beforeMakingUnique(SluggableAdapter $ea, array &$config, $object, &$slug)
+    public function beforeMakingUnique(SluggableAdapter $ea, array &$config, $object, &$slug): void
     {
         $slug = $this->transliterate($slug, $config['separator'], $object);
     }
 
-    public function onSlugCompletion(SluggableAdapter $ea, array &$config, $object, &$slug)
+    public function onSlugCompletion(SluggableAdapter $ea, array &$config, $object, &$slug): void
     {
         if (!$this->isInsert) {
             $wrapped = AbstractWrapper::wrap($object, $this->om);
@@ -152,27 +149,23 @@ class TreeSlugHandler implements SlugHandlerWithUniqueCallbackInterface
      * Transliterates the slug and prefixes the slug
      * by collection of parent slugs
      *
-     * @param string $text
      * @param string $separator
      * @param object $object
      *
-     * @return string
      */
-    public function transliterate($text, $separator, $object)
+    public function transliterate(string $text, $separator, $object): string
     {
         $slug = $text.$this->suffix;
 
         if (strlen($this->parentSlug)) {
-            $slug = $this->parentSlug.$this->usedPathSeparator.$slug;
-        } else {
-            // if no parentSlug, apply our prefix
-            $slug = $this->prefix.$slug;
+            return $this->parentSlug.$this->usedPathSeparator.$slug;
         }
 
-        return $slug;
+        // if no parentSlug, apply our prefix
+        return $this->prefix.$slug;
     }
 
-    public function handlesUrlization()
+    public function handlesUrlization(): bool
     {
         return false;
     }

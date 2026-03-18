@@ -46,17 +46,17 @@ class ORM implements AdapterInterface
         return call_user_func_array([$this->args, $method], $args);
     }
 
-    public function setEventArgs(EventArgs $args)
+    public function setEventArgs(EventArgs $args): void
     {
         $this->args = $args;
     }
 
-    public function getDomainObjectName()
+    public function getDomainObjectName(): string
     {
         return 'Entity';
     }
 
-    public function getManagerName()
+    public function getManagerName(): string
     {
         return 'ORM';
     }
@@ -71,10 +71,8 @@ class ORM implements AdapterInterface
 
     /**
      * Set the entity manager
-     *
-     * @return void
      */
-    public function setEntityManager(EntityManagerInterface $em)
+    public function setEntityManager(EntityManagerInterface $em): void
     {
         $this->em = $em;
     }
@@ -159,7 +157,7 @@ class ORM implements AdapterInterface
     /**
      * @param ClassMetadata<object> $meta
      */
-    public function recomputeSingleObjectChangeSet($uow, $meta, $object)
+    public function recomputeSingleObjectChangeSet($uow, $meta, $object): void
     {
         $uow->recomputeSingleEntityChangeSet($meta, $object);
     }
@@ -179,12 +177,12 @@ class ORM implements AdapterInterface
         return $uow->getScheduledEntityDeletions();
     }
 
-    public function setOriginalObjectProperty($uow, $object, $property, $value)
+    public function setOriginalObjectProperty($uow, $object, $property, $value): void
     {
         $uow->setOriginalEntityProperty(spl_object_id($object), $property, $value);
     }
 
-    public function clearObjectChangeSet($uow, $object)
+    public function clearObjectChangeSet($uow, $object): void
     {
         $changeSet = &$uow->getEntityChangeSet($object);
         $changeSet = [];

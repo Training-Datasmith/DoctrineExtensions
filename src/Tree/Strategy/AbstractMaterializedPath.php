@@ -34,10 +34,7 @@ abstract class AbstractMaterializedPath implements Strategy
     public const ACTION_UPDATE = 'update';
     public const ACTION_REMOVE = 'remove';
 
-    /**
-     * @var TreeListener
-     */
-    protected $listener;
+    protected \Gedmo\Tree\TreeListener $listener;
 
     /**
      * Array of objects which were scheduled for path processes
@@ -93,7 +90,7 @@ abstract class AbstractMaterializedPath implements Strategy
         return Strategy::MATERIALIZED_PATH;
     }
 
-    public function processScheduledInsertion($om, $node, AdapterInterface $ea)
+    public function processScheduledInsertion($om, $node, AdapterInterface $ea): void
     {
         $meta = $om->getClassMetadata(get_class($node));
 
@@ -107,7 +104,7 @@ abstract class AbstractMaterializedPath implements Strategy
         }
     }
 
-    public function processScheduledUpdate($om, $node, AdapterInterface $ea)
+    public function processScheduledUpdate($om, $node, AdapterInterface $ea): void
     {
         $meta = $om->getClassMetadata(get_class($node));
         $config = $this->listener->getConfiguration($om, $meta->getName());
@@ -126,7 +123,7 @@ abstract class AbstractMaterializedPath implements Strategy
         }
     }
 
-    public function processPostPersist($om, $node, AdapterInterface $ea)
+    public function processPostPersist($om, $node, AdapterInterface $ea): void
     {
         $oid = spl_object_id($node);
 
@@ -147,32 +144,32 @@ abstract class AbstractMaterializedPath implements Strategy
         $this->processPostEventsActions($om, $ea, $node, self::ACTION_INSERT);
     }
 
-    public function processPostUpdate($om, $node, AdapterInterface $ea)
+    public function processPostUpdate($om, $node, AdapterInterface $ea): void
     {
         $this->processPostEventsActions($om, $ea, $node, self::ACTION_UPDATE);
     }
 
-    public function processPostRemove($om, $node, AdapterInterface $ea)
+    public function processPostRemove($om, $node, AdapterInterface $ea): void
     {
         $this->processPostEventsActions($om, $ea, $node, self::ACTION_REMOVE);
     }
 
-    public function onFlushEnd($om, AdapterInterface $ea)
+    public function onFlushEnd($om, AdapterInterface $ea): void
     {
         $this->lockTrees($om, $ea);
     }
 
-    public function processPreRemove($om, $node)
+    public function processPreRemove($om, $node): void
     {
         $this->processPreLockingActions($om, $node, self::ACTION_REMOVE);
     }
 
-    public function processPrePersist($om, $node)
+    public function processPrePersist($om, $node): void
     {
         $this->processPreLockingActions($om, $node, self::ACTION_INSERT);
     }
 
-    public function processPreUpdate($om, $node)
+    public function processPreUpdate($om, $node): void
     {
         $this->processPreLockingActions($om, $node, self::ACTION_UPDATE);
     }
@@ -181,7 +178,7 @@ abstract class AbstractMaterializedPath implements Strategy
     {
     }
 
-    public function processScheduledDelete($om, $node)
+    public function processScheduledDelete($om, $node): void
     {
         $meta = $om->getClassMetadata(get_class($node));
         $config = $this->listener->getConfiguration($om, $meta->getName());
@@ -194,10 +191,8 @@ abstract class AbstractMaterializedPath implements Strategy
      *
      * @param object           $node target node
      * @param AdapterInterface $ea   event adapter
-     *
-     * @return void
      */
-    public function updateNode(ObjectManager $om, $node, AdapterInterface $ea)
+    public function updateNode(ObjectManager $om, $node, AdapterInterface $ea): void
     {
         $meta = $om->getClassMetadata(get_class($node));
         $config = $this->listener->getConfiguration($om, $meta->getName());
@@ -311,10 +306,8 @@ abstract class AbstractMaterializedPath implements Strategy
      *
      * @param object $node
      * @param string $originalPath
-     *
-     * @return void
      */
-    public function updateChildren(ObjectManager $om, $node, AdapterInterface $ea, $originalPath)
+    public function updateChildren(ObjectManager $om, $node, AdapterInterface $ea, $originalPath): void
     {
         $meta = $om->getClassMetadata(get_class($node));
         $config = $this->listener->getConfiguration($om, $meta->getName());
@@ -328,13 +321,11 @@ abstract class AbstractMaterializedPath implements Strategy
     /**
      * Process pre-locking actions
      *
-     * @param ObjectManager $om
      * @param object        $node
      * @param string        $action
      *
-     * @return void
      */
-    public function processPreLockingActions($om, $node, $action)
+    public function processPreLockingActions(\Doctrine\Persistence\ObjectManager $om, $node, $action): void
     {
         $meta = $om->getClassMetadata(get_class($node));
         $config = $this->listener->getConfiguration($om, $meta->getName());
@@ -395,10 +386,8 @@ abstract class AbstractMaterializedPath implements Strategy
      *
      * @param object $node
      * @param string $action
-     *
-     * @return void
      */
-    public function processPostEventsActions(ObjectManager $om, AdapterInterface $ea, $node, $action)
+    public function processPostEventsActions(ObjectManager $om, AdapterInterface $ea, $node, $action): void
     {
         $meta = $om->getClassMetadata(get_class($node));
         $config = $this->listener->getConfiguration($om, $meta->getName());

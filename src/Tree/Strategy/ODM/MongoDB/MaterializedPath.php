@@ -30,7 +30,7 @@ class MaterializedPath extends AbstractMaterializedPath
      * @param DocumentManager       $om
      * @param ClassMetadata<object> $meta
      */
-    public function removeNode($om, $meta, $config, $node)
+    public function removeNode($om, $meta, $config, $node): void
     {
         $uow = $om->getUnitOfWork();
         $wrapped = AbstractWrapper::wrap($node, $om);

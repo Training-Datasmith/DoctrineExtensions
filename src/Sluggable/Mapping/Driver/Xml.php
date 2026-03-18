@@ -69,10 +69,8 @@ class Xml extends BaseXml
      *
      * @param ClassMetadata<object> $meta
      * @param string                $field
-     *
-     * @return bool
      */
-    protected function isValidField($meta, $field)
+    protected function isValidField($meta, $field): bool
     {
         $mapping = $meta->getFieldMapping($field);
 
@@ -145,8 +143,7 @@ class Xml extends BaseXml
                 'suffix' => $this->_isAttributeSet($slug, 'suffix') ?
                     $this->_getAttribute($slug, 'suffix') : '',
                 'handlers' => $handlers,
-                'uniqueOverTranslations' => $this->_isAttributeSet($slug, 'uniqueOverTranslations') ?
-                    $this->_getBooleanAttribute($slug, 'uniqueOverTranslations') : false,
+                'uniqueOverTranslations' => $this->_isAttributeSet($slug, 'uniqueOverTranslations') && $this->_getBooleanAttribute($slug, 'uniqueOverTranslations'),
             ];
             if (!$meta->isMappedSuperclass && $meta->isIdentifier($field) && !$config['slugs'][$field]['unique']) {
                 throw new InvalidMappingException("Identifier field - [{$field}] slug must be unique in order to maintain primary key in class - {$meta->getName()}");

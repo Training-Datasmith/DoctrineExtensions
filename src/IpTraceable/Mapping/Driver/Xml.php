@@ -44,9 +44,6 @@ class Xml extends BaseXml
         $mapping = $this->_getMapping($meta->getName());
 
         if (isset($mapping->field)) {
-            /**
-             * @var \SimpleXmlElement
-             */
             foreach ($mapping->field as $fieldMapping) {
                 $fieldMappingDoctrine = $fieldMapping;
                 $fieldMapping = $fieldMapping->children(self::GEDMO_NAMESPACE_URI);
@@ -123,10 +120,8 @@ class Xml extends BaseXml
      *
      * @param ClassMetadata<object> $meta
      * @param string                $field
-     *
-     * @return bool
      */
-    protected function isValidField($meta, $field)
+    protected function isValidField($meta, $field): bool
     {
         $mapping = $meta->getFieldMapping($field);
 

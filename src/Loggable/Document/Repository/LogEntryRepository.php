@@ -74,10 +74,8 @@ class LogEntryRepository extends DocumentRepository
      * @phpstan-param T $document
      *
      * @throws UnexpectedValueException
-     *
-     * @return void
      */
-    public function revert($document, $version = 1)
+    public function revert($document, $version = 1): void
     {
         $wrapped = new MongoDocumentWrapper($document, $this->dm);
         $objectMeta = $wrapped->getMetadata();

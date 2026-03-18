@@ -56,23 +56,17 @@ class ExtensionMetadataFactory
 
     /**
      * Extension namespace
-     *
-     * @var string
      */
-    protected $extensionNamespace;
+    protected string $extensionNamespace;
 
     /**
      * Metadata annotation reader
-     *
-     * @var Reader|AttributeReader|object|null
      */
-    protected $annotationReader;
+    protected ?object $annotationReader;
 
     private ?CacheItemPoolInterface $cacheItemPool = null;
 
     /**
-     * @param Reader|AttributeReader|object|null $annotationReader
-     *
      * @note Providing any object as the third argument is deprecated, as of 4.0 an {@see AttributeReader} will be required
      */
     public function __construct(ObjectManager $objectManager, string $extensionNamespace, ?object $annotationReader = null, ?CacheItemPoolInterface $cacheItemPool = null)
@@ -113,7 +107,7 @@ class ExtensionMetadataFactory
      *
      * @return array<string, mixed> the metadata configuration
      */
-    public function getExtensionMetadata($meta)
+    public function getExtensionMetadata($meta): array
     {
         if ($meta->isMappedSuperclass) {
             return []; // ignore mappedSuperclasses for now
@@ -176,10 +170,8 @@ class ExtensionMetadataFactory
      *
      * @param string $className
      * @param string $extensionNamespace
-     *
-     * @return string
      */
-    public static function getCacheId($className, $extensionNamespace)
+    public static function getCacheId($className, $extensionNamespace): string
     {
         return str_replace('\\', '_', $className).'__'.strtoupper(str_replace('\\', '_', $extensionNamespace)).'_CLASSMETADATA';
     }
@@ -194,7 +186,7 @@ class ExtensionMetadataFactory
      *
      * @return Driver
      */
-    protected function getDriver($omDriver)
+    protected function getDriver($omDriver): object
     {
         if ($omDriver instanceof DoctrineBundleMappingDriver) {
             $omDriver = $omDriver->getDriver();

@@ -260,7 +260,7 @@ class MaterializedPathRepository extends AbstractTreeRepository
         return $nodes;
     }
 
-    protected function validate()
+    protected function validate(): bool
     {
         return Strategy::MATERIALIZED_PATH === $this->listener->getStrategy($this->getEntityManager(), $this->getClassMetadata()->name)->getName();
     }

@@ -55,7 +55,7 @@ final class ODM extends BaseAdapterODM implements SluggableAdapter
      *
      * {@inheritdoc}
      */
-    public function replaceRelative($object, array $config, $target, $replacement)
+    public function replaceRelative($object, array $config, $target, $replacement): int
     {
         $dm = $this->getObjectManager();
         $meta = $dm->getClassMetadata($config['useObjectClass']);
@@ -93,7 +93,7 @@ final class ODM extends BaseAdapterODM implements SluggableAdapter
      *
      * {@inheritdoc}
      */
-    public function replaceInverseRelative($object, array $config, $target, $replacement)
+    public function replaceInverseRelative($object, array $config, $target, $replacement): int
     {
         $dm = $this->getObjectManager();
         $wrapped = AbstractWrapper::wrap($object, $dm);

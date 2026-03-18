@@ -83,10 +83,8 @@ class Xml extends BaseXml
      *
      * @param ClassMetadata<object> $meta
      * @param string                $field
-     *
-     * @return bool
      */
-    protected function isValidField($meta, $field)
+    protected function isValidField($meta, $field): bool
     {
         $mapping = $meta->getFieldMapping($field);
 

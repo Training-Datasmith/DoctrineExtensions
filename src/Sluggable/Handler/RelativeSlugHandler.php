@@ -35,10 +35,7 @@ class RelativeSlugHandler implements SlugHandlerInterface
      */
     protected $om;
 
-    /**
-     * @var SluggableListener
-     */
-    protected $sluggable;
+    protected \Gedmo\Sluggable\SluggableListener $sluggable;
 
     /**
      * Used options
@@ -59,7 +56,7 @@ class RelativeSlugHandler implements SlugHandlerInterface
         $this->sluggable = $sluggable;
     }
 
-    public function onChangeDecision(SluggableAdapter $ea, array &$config, $object, &$slug, &$needToChangeSlug)
+    public function onChangeDecision(SluggableAdapter $ea, array &$config, $object, &$slug, &$needToChangeSlug): void
     {
         $this->om = $ea->getObjectManager();
         $isInsert = $this->om->getUnitOfWork()->isScheduledForInsert($object);
@@ -75,7 +72,7 @@ class RelativeSlugHandler implements SlugHandlerInterface
         }
     }
 
-    public function postSlugBuild(SluggableAdapter $ea, array &$config, $object, &$slug)
+    public function postSlugBuild(SluggableAdapter $ea, array &$config, $object, &$slug): void
     {
         $this->originalTransliterator = $this->sluggable->getTransliterator();
         $this->sluggable->setTransliterator([$this, 'transliterate']);
@@ -84,7 +81,7 @@ class RelativeSlugHandler implements SlugHandlerInterface
     /**
      * @param ClassMetadata<object> $meta
      */
-    public static function validate(array $options, ClassMetadata $meta)
+    public static function validate(array $options, ClassMetadata $meta): void
     {
         if (!$meta->isSingleValuedAssociation($options['relationField'])) {
             throw new InvalidMappingException("Unable to find slug relation through field - [{$options['relationField']}] in class - {$meta->getName()}");
@@ -136,7 +133,7 @@ class RelativeSlugHandler implements SlugHandlerInterface
         return $result;
     }
 
-    public function handlesUrlization()
+    public function handlesUrlization(): bool
     {
         return true;
     }

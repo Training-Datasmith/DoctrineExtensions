@@ -32,10 +32,8 @@ abstract class AbstractTreeRepository extends DocumentRepository implements Repo
 {
     /**
      * Tree listener on event manager
-     *
-     * @var TreeListener
      */
-    protected $listener;
+    protected \Gedmo\Tree\TreeListener $listener;
 
     /**
      * Repository utils
@@ -106,7 +104,7 @@ abstract class AbstractTreeRepository extends DocumentRepository implements Repo
     /**
      * @see RepositoryUtilsInterface::setChildrenIndex
      */
-    public function setChildrenIndex($childrenIndex)
+    public function setChildrenIndex($childrenIndex): void
     {
         $this->repoUtils->setChildrenIndex($childrenIndex);
     }

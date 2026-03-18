@@ -56,10 +56,8 @@ class TreeObjectHydrator extends ObjectHydrator
      * @param object $object
      * @param string $property
      * @param mixed  $value
-     *
-     * @return void
      */
-    public function setPropertyValue($object, $property, $value)
+    public function setPropertyValue($object, $property, $value): void
     {
         $meta = $this->getEntityManager()->getClassMetadata(get_class($object));
         $meta->setFieldValue($object, $property, $value);

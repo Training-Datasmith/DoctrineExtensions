@@ -60,10 +60,8 @@ abstract class MappedEventSubscriber implements EventSubscriber
 
     /**
      * Listener name, etc: sluggable
-     *
-     * @var string
      */
-    protected $name;
+    protected string $name;
 
     /**
      * ExtensionMetadataFactory used to read the extension
@@ -186,11 +184,10 @@ abstract class MappedEventSubscriber implements EventSubscriber
      *
      * @param Reader|AttributeReader|object $reader
      *
-     * @return void
      *
      * @note Providing any object is deprecated, as of 4.0 an {@see AttributeReader} will be required
      */
-    public function setAnnotationReader($reader)
+    public function setAnnotationReader($reader): void
     {
         if ($reader instanceof Reader) {
             Deprecation::trigger(
@@ -229,10 +226,8 @@ abstract class MappedEventSubscriber implements EventSubscriber
      * event subscribers must subscribe to loadClassMetadata event
      *
      * @param ClassMetadata<object> $metadata
-     *
-     * @return void
      */
-    public function loadMetadataForObjectClass(ObjectManager $objectManager, $metadata)
+    public function loadMetadataForObjectClass(ObjectManager $objectManager, $metadata): void
     {
         assert($metadata instanceof DocumentClassMetadata || $metadata instanceof EntityClassMetadata || $metadata instanceof LegacyEntityClassMetadata);
 

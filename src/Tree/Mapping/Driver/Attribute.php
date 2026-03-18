@@ -103,7 +103,7 @@ class Attribute extends AbstractAnnotationDriver
         'materializedPath',
     ];
 
-    public function readExtendedMetadata($meta, array &$config)
+    public function readExtendedMetadata($meta, array &$config): array
     {
         $validator = new Validator();
         $class = $this->getMetaReflectionClass($meta);
@@ -118,7 +118,7 @@ class Attribute extends AbstractAnnotationDriver
 
             $config['strategy'] = $annot->type;
             $config['activate_locking'] = $annot->activateLocking;
-            $config['locking_timeout'] = (int) $annot->lockingTimeout;
+            $config['locking_timeout'] = $annot->lockingTimeout;
 
             if ($config['locking_timeout'] < 1) {
                 throw new InvalidMappingException('Tree Locking Timeout must be at least of 1 second.');
@@ -137,13 +137,15 @@ class Attribute extends AbstractAnnotationDriver
 
         // property annotations
         foreach ($class->getProperties() as $property) {
-            if ($meta->isMappedSuperclass && !$property->isPrivate()
-                || $meta->isInheritedField($property->name)
-                || isset($meta->associationMappings[$property->name]['inherited'])
-            ) {
+            if ($meta->isMappedSuperclass && !$property->isPrivate()) {
                 continue;
             }
-
+            if ($meta->isInheritedField($property->name)) {
+                continue;
+            }
+            if (isset($meta->associationMappings[$property->name]['inherited'])) {
+                continue;
+            }
             // left
             if ($this->reader->getPropertyAnnotation($property, self::LEFT)) {
                 $field = $property->getName();
@@ -220,7 +222,7 @@ class Attribute extends AbstractAnnotationDriver
                 }
 
                 $config['level'] = $field;
-                $config['level_base'] = (int) $annot->base;
+                $config['level_base'] = $annot->base;
             }
 
             // path

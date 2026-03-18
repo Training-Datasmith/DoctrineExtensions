@@ -49,19 +49,21 @@ class Attribute extends AbstractAnnotationDriver
         'integer',
     ];
 
-    public function readExtendedMetadata($meta, array &$config)
+    public function readExtendedMetadata($meta, array &$config): array
     {
         $class = $this->getMetaReflectionClass($meta);
 
         // property annotations
         foreach ($class->getProperties() as $property) {
-            if ($meta->isMappedSuperclass && !$property->isPrivate()
-                || $meta->isInheritedField($property->name)
-                || isset($meta->associationMappings[$property->name]['inherited'])
-            ) {
+            if ($meta->isMappedSuperclass && !$property->isPrivate()) {
                 continue;
             }
-
+            if ($meta->isInheritedField($property->name)) {
+                continue;
+            }
+            if (isset($meta->associationMappings[$property->name]['inherited'])) {
+                continue;
+            }
             if ($timestampable = $this->reader->getPropertyAnnotation($property, self::TIMESTAMPABLE)) {
                 \assert($timestampable instanceof Timestampable);
 

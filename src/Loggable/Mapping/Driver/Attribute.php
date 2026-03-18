@@ -38,7 +38,7 @@ class Attribute extends AbstractAnnotationDriver
      */
     public const VERSIONED = Versioned::class;
 
-    public function validateFullMetadata(ClassMetadata $meta, array $config)
+    public function validateFullMetadata(ClassMetadata $meta, array $config): void
     {
         if ($config && $meta instanceof ClassMetadataODM && count($meta->getIdentifier()) > 1) {
             throw new InvalidMappingException("Loggable does not support composite identifiers in class - {$meta->getName()}");
@@ -49,7 +49,7 @@ class Attribute extends AbstractAnnotationDriver
         }
     }
 
-    public function readExtendedMetadata($meta, array &$config)
+    public function readExtendedMetadata($meta, array &$config): array
     {
         $class = $this->getMetaReflectionClass($meta);
 
@@ -111,10 +111,8 @@ class Attribute extends AbstractAnnotationDriver
     /**
      * @param ClassMetadata<object> $meta
      * @param string                $field
-     *
-     * @return bool
      */
-    protected function isMappingValid(ClassMetadata $meta, $field)
+    protected function isMappingValid(ClassMetadata $meta, $field): bool
     {
         return false == $meta->isCollectionValuedAssociation($field);
     }
@@ -122,10 +120,8 @@ class Attribute extends AbstractAnnotationDriver
     /**
      * @param ClassMetadata<object> $meta
      * @param array<string, mixed>  $config
-     *
-     * @return bool
      */
-    protected function isClassAnnotationInValid(ClassMetadata $meta, array &$config)
+    protected function isClassAnnotationInValid(ClassMetadata $meta, array &$config): bool
     {
         return isset($config['versioned']) && !isset($config['loggable']) && (!isset($meta->isEmbeddedClass) || !$meta->isEmbeddedClass);
     }

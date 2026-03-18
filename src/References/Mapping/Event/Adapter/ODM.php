@@ -47,7 +47,7 @@ final class ODM extends BaseAdapterODM implements ReferencesAdapter
             }
 
             if ($single) {
-                $id = current($id);
+                return current($id);
             }
 
             return $id;

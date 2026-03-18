@@ -116,10 +116,8 @@ abstract class AbstractLogEntry implements LogEntryInterface
      * Set action
      *
      * @param string $action
-     *
-     * @return void
      */
-    public function setAction($action)
+    public function setAction($action): void
     {
         $this->action = $action;
     }
@@ -138,10 +136,8 @@ abstract class AbstractLogEntry implements LogEntryInterface
      * Set object class
      *
      * @param string $objectClass
-     *
-     * @return void
      */
-    public function setObjectClass($objectClass)
+    public function setObjectClass($objectClass): void
     {
         $this->objectClass = $objectClass;
     }
@@ -160,10 +156,8 @@ abstract class AbstractLogEntry implements LogEntryInterface
      * Set object id
      *
      * @param string $objectId
-     *
-     * @return void
      */
-    public function setObjectId($objectId)
+    public function setObjectId($objectId): void
     {
         $this->objectId = $objectId;
     }
@@ -182,10 +176,8 @@ abstract class AbstractLogEntry implements LogEntryInterface
      * Set username
      *
      * @param string $username
-     *
-     * @return void
      */
-    public function setUsername($username)
+    public function setUsername($username): void
     {
         $this->username = $username;
     }
@@ -202,10 +194,8 @@ abstract class AbstractLogEntry implements LogEntryInterface
 
     /**
      * Set loggedAt to "now"
-     *
-     * @return void
      */
-    public function setLoggedAt()
+    public function setLoggedAt(): void
     {
         $this->loggedAt = new \DateTime();
     }
@@ -224,10 +214,8 @@ abstract class AbstractLogEntry implements LogEntryInterface
      * Set data
      *
      * @param array<string, mixed> $data
-     *
-     * @return void
      */
-    public function setData($data)
+    public function setData($data): void
     {
         $this->data = $data;
     }
@@ -236,10 +224,8 @@ abstract class AbstractLogEntry implements LogEntryInterface
      * Set current version
      *
      * @param int $version
-     *
-     * @return void
      */
-    public function setVersion($version)
+    public function setVersion($version): void
     {
         $this->version = $version;
     }

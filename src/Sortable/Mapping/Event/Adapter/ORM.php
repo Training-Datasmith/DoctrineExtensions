@@ -35,7 +35,7 @@ final class ORM extends BaseAdapterORM implements SortableAdapter
      *
      * @return int|null
      */
-    public function getMaxPosition(array $config, $meta, $groups)
+    public function getMaxPosition(array $config, \Doctrine\Persistence\Mapping\ClassMetadata $meta, iterable $groups)
     {
         $em = $this->getObjectManager();
 
@@ -58,10 +58,8 @@ final class ORM extends BaseAdapterORM implements SortableAdapter
      *
      * @phpstan-param SortableRelocation    $relocation
      * @phpstan-param SortableConfiguration $config
-     *
-     * @return void
      */
-    public function updatePositions($relocation, $delta, $config)
+    public function updatePositions($relocation, array $delta, $config): void
     {
         $sign = $delta['delta'] < 0 ? '-' : '+';
         $absDelta = abs($delta['delta']);

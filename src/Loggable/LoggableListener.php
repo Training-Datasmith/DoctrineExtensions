@@ -105,10 +105,8 @@ class LoggableListener extends MappedEventSubscriber
      * @param mixed $username
      *
      * @throws InvalidArgumentException Invalid username
-     *
-     * @return void
      */
-    public function setUsername($username)
+    public function setUsername($username): void
     {
         if (is_string($username)) {
             $this->username = $username;
@@ -126,7 +124,7 @@ class LoggableListener extends MappedEventSubscriber
     /**
      * @return string[]
      */
-    public function getSubscribedEvents()
+    public function getSubscribedEvents(): array
     {
         return [
             'onFlush',
@@ -141,10 +139,8 @@ class LoggableListener extends MappedEventSubscriber
      * @param LoadClassMetadataEventArgs $eventArgs
      *
      * @phpstan-param LoadClassMetadataEventArgs<ClassMetadata<object>, ObjectManager> $eventArgs
-     *
-     * @return void
      */
-    public function loadClassMetadata(EventArgs $eventArgs)
+    public function loadClassMetadata(EventArgs $eventArgs): void
     {
         $this->loadMetadataForObjectClass($eventArgs->getObjectManager(), $eventArgs->getClassMetadata());
     }
@@ -156,10 +152,8 @@ class LoggableListener extends MappedEventSubscriber
      * @param LifecycleEventArgs $args
      *
      * @phpstan-param LifecycleEventArgs<ObjectManager> $args
-     *
-     * @return void
      */
-    public function postPersist(EventArgs $args)
+    public function postPersist(EventArgs $args): void
     {
         $ea = $this->getEventAdapter($args);
         $object = $ea->getObject();
@@ -207,10 +201,8 @@ class LoggableListener extends MappedEventSubscriber
      * @param ManagerEventArgs $eventArgs
      *
      * @phpstan-param ManagerEventArgs<ObjectManager> $eventArgs
-     *
-     * @return void
      */
-    public function onFlush(EventArgs $eventArgs)
+    public function onFlush(EventArgs $eventArgs): void
     {
         $ea = $this->getEventAdapter($eventArgs);
         $om = $ea->getObjectManager();
@@ -230,15 +222,13 @@ class LoggableListener extends MappedEventSubscriber
     /**
      * Get the LogEntry class
      *
-     * @param string $class
      *
      * @phpstan-param class-string $class
      *
      * @return string
-     *
      * @phpstan-return class-string<LogEntryInterface<T>>
      */
-    protected function getLogEntryClass(LoggableAdapter $ea, $class)
+    protected function getLogEntryClass(LoggableAdapter $ea, string $class)
     {
         return self::$configurations[$this->name][$class]['logEntryClass'] ?? $ea->getDefaultLogEntryClass();
     }
@@ -294,7 +284,7 @@ class LoggableListener extends MappedEventSubscriber
     {
     }
 
-    protected function getNamespace()
+    protected function getNamespace(): string
     {
         return __NAMESPACE__;
     }
@@ -311,7 +301,7 @@ class LoggableListener extends MappedEventSubscriber
      *
      * @return array<string, mixed>
      */
-    protected function getObjectChangeSetData($ea, $object, $logEntry)
+    protected function getObjectChangeSetData($ea, $object, $logEntry): array
     {
         $om = $ea->getObjectManager();
         $wrapped = AbstractWrapper::wrap($object, $om);
@@ -321,7 +311,10 @@ class LoggableListener extends MappedEventSubscriber
         $newValues = [];
 
         foreach ($ea->getObjectChangeSet($uow, $object) as $field => $changes) {
-            if (empty($config['versioned']) || !in_array($field, $config['versioned'], true)) {
+            if (empty($config['versioned'])) {
+                continue;
+            }
+            if (!in_array($field, $config['versioned'], true)) {
                 continue;
             }
             $value = $changes[1];

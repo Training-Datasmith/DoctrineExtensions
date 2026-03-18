@@ -123,10 +123,8 @@ class Yaml extends File implements Driver
      *
      * @param ClassMetadata<object> $meta
      * @param string                $field
-     *
-     * @return bool
      */
-    protected function isValidField($meta, $field)
+    protected function isValidField($meta, $field): bool
     {
         $mapping = $meta->getFieldMapping($field);
 

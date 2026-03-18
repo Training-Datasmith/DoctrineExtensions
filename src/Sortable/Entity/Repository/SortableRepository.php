@@ -30,10 +30,8 @@ class SortableRepository extends EntityRepository
 {
     /**
      * Sortable listener on event manager
-     *
-     * @var SortableListener
      */
-    protected $listener;
+    protected \Gedmo\Sortable\SortableListener $listener;
 
     /**
      * @var array<string, mixed>

@@ -64,10 +64,8 @@ final class ODM extends BaseAdapterODM implements SortableAdapter
      *
      * @phpstan-param SortableRelocation    $relocation
      * @phpstan-param SortableConfiguration $config
-     *
-     * @return void
      */
-    public function updatePositions($relocation, $delta, $config)
+    public function updatePositions($relocation, $delta, $config): void
     {
         $dm = $this->getObjectManager();
 

@@ -119,7 +119,7 @@ abstract class AbstractLogEntry implements LogEntryInterface
     /**
      * Set action
      */
-    public function setAction($action)
+    public function setAction($action): void
     {
         $this->action = $action;
     }
@@ -135,7 +135,7 @@ abstract class AbstractLogEntry implements LogEntryInterface
     /**
      * Set object class
      */
-    public function setObjectClass($objectClass)
+    public function setObjectClass($objectClass): void
     {
         $this->objectClass = $objectClass;
     }
@@ -153,7 +153,7 @@ abstract class AbstractLogEntry implements LogEntryInterface
      *
      * @param string $objectId
      */
-    public function setObjectId($objectId)
+    public function setObjectId($objectId): void
     {
         $this->objectId = $objectId;
     }
@@ -171,7 +171,7 @@ abstract class AbstractLogEntry implements LogEntryInterface
      *
      * @param string $username
      */
-    public function setUsername($username)
+    public function setUsername($username): void
     {
         $this->username = $username;
     }
@@ -187,7 +187,7 @@ abstract class AbstractLogEntry implements LogEntryInterface
     /**
      * Set loggedAt to "now"
      */
-    public function setLoggedAt()
+    public function setLoggedAt(): void
     {
         $this->loggedAt = new \DateTime();
     }
@@ -203,7 +203,7 @@ abstract class AbstractLogEntry implements LogEntryInterface
     /**
      * Set data
      */
-    public function setData($data)
+    public function setData($data): void
     {
         $this->data = $data;
     }
@@ -213,7 +213,7 @@ abstract class AbstractLogEntry implements LogEntryInterface
      *
      * @param int $version
      */
-    public function setVersion($version)
+    public function setVersion($version): void
     {
         $this->version = $version;
     }

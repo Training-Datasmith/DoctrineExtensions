@@ -58,11 +58,10 @@ abstract class AbstractAnnotationDriver implements AttributeDriverInterface
      *
      * @param Reader|AttributeReader|object $reader
      *
-     * @return void
      *
      * @note Providing any object is deprecated, as of 4.0 an {@see AttributeReader} will be required
      */
-    public function setAnnotationReader($reader)
+    public function setAnnotationReader($reader): void
     {
         if ($reader instanceof Reader) {
             Deprecation::trigger(
@@ -90,10 +89,8 @@ abstract class AbstractAnnotationDriver implements AttributeDriverInterface
      * Passes in the mapping read by original driver
      *
      * @param MappingDriver $driver
-     *
-     * @return void
      */
-    public function setOriginalDriver($driver)
+    public function setOriginalDriver($driver): void
     {
         $this->_originalDriver = $driver;
     }
@@ -145,7 +142,7 @@ abstract class AbstractAnnotationDriver implements AttributeDriverInterface
      *
      * @phpstan-return class-string|''
      */
-    protected function getRelatedClassName($metadata, $name)
+    protected function getRelatedClassName($metadata, string $name)
     {
         if (class_exists($name) || interface_exists($name)) {
             return $name;

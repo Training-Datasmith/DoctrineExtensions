@@ -49,17 +49,17 @@ class ODM implements AdapterInterface
         return call_user_func_array([$this->args, $method], $args);
     }
 
-    public function setEventArgs(EventArgs $args)
+    public function setEventArgs(EventArgs $args): void
     {
         $this->args = $args;
     }
 
-    public function getDomainObjectName()
+    public function getDomainObjectName(): string
     {
         return 'Document';
     }
 
-    public function getManagerName()
+    public function getManagerName(): string
     {
         return 'ODM';
     }
@@ -74,10 +74,8 @@ class ODM implements AdapterInterface
 
     /**
      * Set the document manager
-     *
-     * @return void
      */
-    public function setDocumentManager(DocumentManager $dm)
+    public function setDocumentManager(DocumentManager $dm): void
     {
         $this->dm = $dm;
     }
@@ -128,12 +126,12 @@ class ODM implements AdapterInterface
     /**
      * @param ClassMetadata<object> $meta
      */
-    public function recomputeSingleObjectChangeSet($uow, $meta, $object)
+    public function recomputeSingleObjectChangeSet($uow, $meta, $object): void
     {
         $uow->recomputeSingleDocumentChangeSet($meta, $object);
     }
 
-    public function getScheduledObjectUpdates($uow)
+    public function getScheduledObjectUpdates($uow): array
     {
         $updates = $uow->getScheduledDocumentUpdates();
         $upserts = $uow->getScheduledDocumentUpserts();
@@ -151,12 +149,12 @@ class ODM implements AdapterInterface
         return $uow->getScheduledDocumentDeletions();
     }
 
-    public function setOriginalObjectProperty($uow, $object, $property, $value)
+    public function setOriginalObjectProperty($uow, $object, $property, $value): void
     {
         $uow->setOriginalDocumentProperty($this->getOid($uow, $object), $property, $value);
     }
 
-    public function clearObjectChangeSet($uow, $object)
+    public function clearObjectChangeSet($uow, $object): void
     {
         $uow->clearDocumentChangeSet($this->getOid($uow, $object));
     }

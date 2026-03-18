@@ -64,19 +64,13 @@ class QueryAnalyzer implements SQLLogger
         $this->platform = $platform;
     }
 
-    /**
-     * @return void
-     */
-    public function startQuery($sql, ?array $params = null, ?array $types = null)
+    public function startQuery(string $sql, ?array $params = null, ?array $types = null): void
     {
         $this->queryStartTime = microtime(true);
         $this->queries[] = $this->generateSql($sql, $params, $types);
     }
 
-    /**
-     * @return void
-     */
-    public function stopQuery()
+    public function stopQuery(): void
     {
         $ms = (int) (round(microtime(true) - $this->queryStartTime, 4) * 1000);
         $this->queryExecutionTimes[] = $ms;
@@ -85,10 +79,8 @@ class QueryAnalyzer implements SQLLogger
 
     /**
      * Clean all collected data
-     *
-     * @return QueryAnalyzer
      */
-    public function cleanUp()
+    public function cleanUp(): self
     {
         $this->queries = [];
         $this->queryExecutionTimes = [];
@@ -101,10 +93,8 @@ class QueryAnalyzer implements SQLLogger
      * Dump the statistics of executed queries
      *
      * @param bool $dumpOnlySql
-     *
-     * @return string
      */
-    public function getOutput($dumpOnlySql = false)
+    public function getOutput($dumpOnlySql = false): string
     {
         $output = '';
         if (!$dumpOnlySql) {
@@ -117,9 +107,8 @@ class QueryAnalyzer implements SQLLogger
             }
             $output .= $sql.';'.PHP_EOL;
         }
-        $output .= PHP_EOL;
 
-        return $output;
+        return $output . PHP_EOL;
     }
 
     /**
@@ -143,10 +132,8 @@ class QueryAnalyzer implements SQLLogger
 
     /**
      * Get total execution time of queries
-     *
-     * @return float
      */
-    public function getTotalExecutionTime()
+    public function getTotalExecutionTime(): int
     {
         return $this->totalExecutionTime;
     }
@@ -156,17 +143,15 @@ class QueryAnalyzer implements SQLLogger
      *
      * @return string[]
      */
-    public function getExecutedQueries()
+    public function getExecutedQueries(): array
     {
         return $this->queries;
     }
 
     /**
      * Get number of executed queries
-     *
-     * @return int
      */
-    public function getNumExecutedQueries()
+    public function getNumExecutedQueries(): int
     {
         return count($this->queries);
     }
@@ -176,7 +161,7 @@ class QueryAnalyzer implements SQLLogger
      *
      * @return float[]
      */
-    public function getExecutionTimes()
+    public function getExecutionTimes(): array
     {
         return $this->queryExecutionTimes;
     }

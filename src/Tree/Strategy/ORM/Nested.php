@@ -63,10 +63,8 @@ class Nested implements Strategy
 
     /**
      * TreeListener
-     *
-     * @var TreeListener
      */
-    protected $listener;
+    protected \Gedmo\Tree\TreeListener $listener;
 
     /**
      * The max number of "right" field of the
@@ -101,7 +99,7 @@ class Nested implements Strategy
         $this->listener = $listener;
     }
 
-    public function getName()
+    public function getName(): string
     {
         return Strategy::NESTED;
     }
@@ -109,12 +107,10 @@ class Nested implements Strategy
     /**
      * Set node position strategy
      *
-     * @param int    $oid
      * @param string $position
      *
-     * @return void
      */
-    public function setNodePosition($oid, $position)
+    public function setNodePosition(int $oid, $position): void
     {
         if (!in_array($position, self::ALLOWED_NODE_POSITIONS, true)) {
             throw new InvalidArgumentException("Position: {$position} is not valid in nested set tree");
@@ -122,7 +118,7 @@ class Nested implements Strategy
         $this->nodePositions[$oid] = $position;
     }
 
-    public function processScheduledInsertion($em, $node, AdapterInterface $ea)
+    public function processScheduledInsertion($em, $node, AdapterInterface $ea): void
     {
         /** @var ClassMetadata<object> $meta */
         $meta = $em->getClassMetadata(get_class($node));
@@ -143,7 +139,7 @@ class Nested implements Strategy
     /**
      * @param EntityManagerInterface $em
      */
-    public function processScheduledUpdate($em, $node, AdapterInterface $ea)
+    public function processScheduledUpdate($em, $node, AdapterInterface $ea): void
     {
         $meta = $em->getClassMetadata(get_class($node));
         $config = $this->listener->getConfiguration($em, $meta->getName());
@@ -184,7 +180,7 @@ class Nested implements Strategy
     /**
      * @param EntityManagerInterface $em
      */
-    public function processPostPersist($em, $node, AdapterInterface $ea)
+    public function processPostPersist($em, $node, AdapterInterface $ea): void
     {
         $meta = $em->getClassMetadata(get_class($node));
 
@@ -196,7 +192,7 @@ class Nested implements Strategy
     /**
      * @param EntityManagerInterface $em
      */
-    public function processScheduledDelete($em, $node)
+    public function processScheduledDelete($em, $node): void
     {
         $meta = $em->getClassMetadata(get_class($node));
         $config = $this->listener->getConfiguration($em, $meta->getName());
@@ -232,7 +228,7 @@ class Nested implements Strategy
         $this->shiftRL($em, $config['useObjectClass'], $rightValue + 1, -$diff, $rootId);
     }
 
-    public function onFlushEnd($em, AdapterInterface $ea)
+    public function onFlushEnd($em, AdapterInterface $ea): void
     {
         // reset values
         $this->treeEdges = [];
@@ -272,10 +268,8 @@ class Nested implements Strategy
      * @phpstan-param value-of<self::ALLOWED_NODE_POSITIONS> $position
      *
      * @throws UnexpectedValueException
-     *
-     * @return void
      */
-    public function updateNode(EntityManagerInterface $em, $node, $parent, $position = self::FIRST_CHILD)
+    public function updateNode(EntityManagerInterface $em, $node, $parent, $position = self::FIRST_CHILD): void
     {
         $wrapped = AbstractWrapper::wrap($node, $em);
 
@@ -455,7 +449,7 @@ class Nested implements Strategy
                     break;
             }
 
-            $this->shiftRL($em, $config['useObjectClass'], $start, $treeSize, null);
+            $this->shiftRL($em, $config['useObjectClass'], $start, $treeSize);
 
             if (!$isNewNode && $left >= $start) {
                 $left += $treeSize;
@@ -551,10 +545,8 @@ class Nested implements Strategy
      * @param int    $rootId
      *
      * @phpstan-param class-string $class
-     *
-     * @return int
      */
-    public function max(EntityManagerInterface $em, $class, $rootId = 0)
+    public function max(EntityManagerInterface $em, $class, $rootId = 0): int
     {
         $meta = $em->getClassMetadata($class);
         $config = $this->listener->getConfiguration($em, $meta->getName());
@@ -581,10 +573,8 @@ class Nested implements Strategy
      * @param int|string $root
      *
      * @phpstan-param class-string $class
-     *
-     * @return void
      */
-    public function shiftRL(EntityManagerInterface $em, $class, $first, $delta, $root = null)
+    public function shiftRL(EntityManagerInterface $em, $class, $first, $delta, $root = null): void
     {
         $meta = $em->getClassMetadata($class);
         $config = $this->listener->getConfiguration($em, $class);
@@ -668,10 +658,8 @@ class Nested implements Strategy
      * @param int        $levelDelta
      *
      * @phpstan-param class-string $class
-     *
-     * @return void
      */
-    public function shiftRangeRL(EntityManagerInterface $em, $class, $first, $last, $delta, $root = null, $destRoot = null, $levelDelta = null)
+    public function shiftRangeRL(EntityManagerInterface $em, $class, $first, $last, $delta, $root = null, $destRoot = null, $levelDelta = null): void
     {
         // @todo: Remove the following condition and assignment in the next major release and use 0 as default value for
         // the `$levelDelta` parameter.

@@ -677,10 +677,8 @@ class NestedTreeRepository extends AbstractTreeRepository
      * @param object $node
      *
      * @throws \RuntimeException if something fails in transaction
-     *
-     * @return void
      */
-    public function removeFromTree($node)
+    public function removeFromTree($node): void
     {
         $meta = $this->getClassMetadata();
         if (is_a($node, $meta->getName())) {
@@ -806,10 +804,8 @@ class NestedTreeRepository extends AbstractTreeRepository
      * @param string      $direction   sort direction : "ASC" or "DESC"
      * @param bool        $verify      true to verify tree first
      * @param bool        $recursive   true to also reorder further descendants, not just the direct children
-     *
-     * @return void
      */
-    public function reorder($node, $sortByField = null, $direction = 'ASC', $verify = true, $recursive = true)
+    public function reorder($node, $sortByField = null, $direction = 'ASC', $verify = true, $recursive = true): void
     {
         $meta = $this->getClassMetadata();
         if (null === $node || is_a($node, $meta->getName())) {
@@ -839,10 +835,8 @@ class NestedTreeRepository extends AbstractTreeRepository
      * @param string $sortByField field name to sort by
      * @param string $direction   sort direction : "ASC" or "DESC"
      * @param bool   $verify      true to verify tree first
-     *
-     * @return void
      */
-    public function reorderAll($sortByField = null, $direction = 'ASC', $verify = true)
+    public function reorderAll($sortByField = null, $direction = 'ASC', $verify = true): void
     {
         $this->reorder(null, $sortByField, $direction, $verify);
     }
@@ -989,10 +983,8 @@ class NestedTreeRepository extends AbstractTreeRepository
      * - skipVerify:    (bool)   Whether to skip verification and recover anyway. Defaults to false.
      * - sortByField:   (string) Optionally sort siblings by specified field while recovering. Defaults to null.
      * - sortDirection: (string) The order to sort siblings in, when sortByField is specified ('ASC', 'DESC'). Defaults to 'ASC'.
-     *
-     * @return void
      */
-    public function recover(/* array $options = [] */) // @phpstan-ignore-line
+    public function recover(/* array $options = [] */): void // @phpstan-ignore-line
     {
         $options = func_get_args()[0] ?? [];
         if (!\is_array($options)) {
@@ -1016,7 +1008,7 @@ class NestedTreeRepository extends AbstractTreeRepository
         $config = $this->listener->getConfiguration($this->getEntityManager(), $meta->getName());
         $em = $this->getEntityManager();
 
-        $doRecover = function ($root, &$count, &$lvl) use ($meta, $config, $em, $options, &$doRecover) {
+        $doRecover = function ($root, &$count, &$lvl) use ($meta, $config, $em, $options, &$doRecover): void {
             $left = $count++;
             foreach ($this->getChildren($root, true, $options['sortByField'], $options['sortDirection']) as $child) {
                 $depth = ($lvl + 1);
@@ -1181,7 +1173,7 @@ class NestedTreeRepository extends AbstractTreeRepository
         return parent::__call($method, $args);
     }
 
-    protected function validate()
+    protected function validate(): bool
     {
         return Strategy::NESTED === $this->listener->getStrategy($this->getEntityManager(), $this->getClassMetadata()->name)->getName();
     }

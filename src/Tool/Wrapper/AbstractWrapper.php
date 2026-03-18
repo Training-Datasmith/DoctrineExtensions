@@ -77,10 +77,7 @@ abstract class AbstractWrapper implements WrapperInterface
         throw new UnsupportedObjectManagerException('Given object manager is not managed by wrapper');
     }
 
-    /**
-     * @return void
-     */
-    public static function clear()
+    public static function clear(): void
     {
         Deprecation::trigger(
             'gedmo/doctrine-extensions',

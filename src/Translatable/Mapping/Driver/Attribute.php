@@ -50,7 +50,7 @@ class Attribute extends AbstractAnnotationDriver
      */
     public const LANGUAGE = Language::class;
 
-    public function readExtendedMetadata($meta, array &$config)
+    public function readExtendedMetadata($meta, array &$config): array
     {
         $class = $this->getMetaReflectionClass($meta);
 
@@ -67,13 +67,15 @@ class Attribute extends AbstractAnnotationDriver
 
         // property annotations
         foreach ($class->getProperties() as $property) {
-            if ($meta->isMappedSuperclass && !$property->isPrivate()
-                || $meta->isInheritedField($property->name)
-                || isset($meta->associationMappings[$property->name]['inherited'])
-            ) {
+            if ($meta->isMappedSuperclass && !$property->isPrivate()) {
                 continue;
             }
-
+            if ($meta->isInheritedField($property->name)) {
+                continue;
+            }
+            if (isset($meta->associationMappings[$property->name]['inherited'])) {
+                continue;
+            }
             // translatable property
             if ($translatable = $this->reader->getPropertyAnnotation($property, self::TRANSLATABLE)) {
                 \assert($translatable instanceof Translatable);

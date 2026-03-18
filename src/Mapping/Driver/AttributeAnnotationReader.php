@@ -50,16 +50,14 @@ final class AttributeAnnotationReader implements Reader
     }
 
     /**
-     * @param string $annotationName
      *
      * @phpstan-param \ReflectionClass<object> $class
      * @phpstan-param class-string<T> $annotationName the name of the annotation
      *
      * @return T|null the Annotation or NULL, if the requested annotation does not exist
-     *
      * @template T
      */
-    public function getClassAnnotation(\ReflectionClass $class, $annotationName)
+    public function getClassAnnotation(\ReflectionClass $class, string $annotationName)
     {
         $annotation = $this->attributeReader->getClassAnnotation($class, $annotationName);
 
@@ -87,7 +85,7 @@ final class AttributeAnnotationReader implements Reader
      *
      * @template T
      */
-    public function getPropertyAnnotation(\ReflectionProperty $property, $annotationName)
+    public function getPropertyAnnotation(\ReflectionProperty $property, string $annotationName)
     {
         $annotation = $this->attributeReader->getPropertyAnnotation($property, $annotationName);
 
@@ -99,10 +97,7 @@ final class AttributeAnnotationReader implements Reader
         throw new \BadMethodCallException('Not implemented');
     }
 
-    /**
-     * @return mixed
-     */
-    public function getMethodAnnotation(\ReflectionMethod $method, $annotationName)
+    public function getMethodAnnotation(\ReflectionMethod $method, $annotationName): void
     {
         throw new \BadMethodCallException('Not implemented');
     }

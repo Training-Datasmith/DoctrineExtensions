@@ -92,10 +92,8 @@ class Validator
      *
      * @param ClassMetadata<object> $meta
      * @param string                $field
-     *
-     * @return bool
      */
-    public function isValidField($meta, $field)
+    public function isValidField($meta, $field): bool
     {
         $mapping = $meta->getFieldMapping($field);
 
@@ -107,10 +105,8 @@ class Validator
      *
      * @param ClassMetadata<object> $meta
      * @param string                $field
-     *
-     * @return bool
      */
-    public function isValidFieldForPath($meta, $field)
+    public function isValidFieldForPath($meta, $field): bool
     {
         $mapping = $meta->getFieldMapping($field);
 
@@ -122,10 +118,8 @@ class Validator
      *
      * @param ClassMetadata<object> $meta
      * @param string                $field
-     *
-     * @return bool
      */
-    public function isValidFieldForPathSource($meta, $field)
+    public function isValidFieldForPathSource($meta, $field): bool
     {
         $mapping = $meta->getFieldMapping($field);
 
@@ -137,10 +131,8 @@ class Validator
      *
      * @param ClassMetadata<object> $meta
      * @param string                $field
-     *
-     * @return bool
      */
-    public function isValidFieldForPathHash($meta, $field)
+    public function isValidFieldForPathHash($meta, $field): bool
     {
         $mapping = $meta->getFieldMapping($field);
 
@@ -152,10 +144,8 @@ class Validator
      *
      * @param ClassMetadata<object> $meta
      * @param string                $field
-     *
-     * @return bool
      */
-    public function isValidFieldForLockTime($meta, $field)
+    public function isValidFieldForLockTime($meta, $field): bool
     {
         $mapping = $meta->getFieldMapping($field);
 
@@ -167,10 +157,8 @@ class Validator
      *
      * @param ClassMetadata<object> $meta
      * @param string                $field
-     *
-     * @return bool
      */
-    public function isValidFieldForRoot($meta, $field)
+    public function isValidFieldForRoot($meta, $field): bool
     {
         $mapping = $meta->getFieldMapping($field);
 
@@ -184,10 +172,8 @@ class Validator
      * @param array<string, mixed>  $config
      *
      * @throws InvalidMappingException
-     *
-     * @return void
      */
-    public function validateNestedTreeMetadata($meta, array $config)
+    public function validateNestedTreeMetadata($meta, array $config): void
     {
         $missingFields = [];
         if (!isset($config['parent'])) {
@@ -211,10 +197,8 @@ class Validator
      * @param array<string, mixed>  $config
      *
      * @throws InvalidMappingException
-     *
-     * @return void
      */
-    public function validateClosureTreeMetadata($meta, array $config)
+    public function validateClosureTreeMetadata($meta, array $config): void
     {
         $missingFields = [];
         if (!isset($config['parent'])) {
@@ -235,10 +219,8 @@ class Validator
      * @param array<string, mixed>  $config
      *
      * @throws InvalidMappingException
-     *
-     * @return void
      */
-    public function validateMaterializedPathTreeMetadata($meta, array $config)
+    public function validateMaterializedPathTreeMetadata($meta, array $config): void
     {
         $missingFields = [];
         if (!isset($config['parent'])) {
@@ -258,7 +240,7 @@ class Validator
     /**
      * @param FieldMapping|array<string, scalar> $mapping
      */
-    private function getMappingType($mapping): string
+    private function getMappingType(array $mapping): string
     {
         if ($mapping instanceof FieldMapping) {
             return $mapping->type;

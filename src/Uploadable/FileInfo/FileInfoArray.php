@@ -24,7 +24,7 @@ class FileInfoArray implements FileInfoInterface
      *
      * @phpstan-var array{error: int, size: int, type: string, tmp_name: string, name: string}
      */
-    protected $fileInfo;
+    protected array $fileInfo;
 
     /**
      * @param array<string, int|string> $fileInfo
@@ -70,7 +70,7 @@ class FileInfoArray implements FileInfoInterface
         return $this->fileInfo['error'];
     }
 
-    public function isUploadedFile()
+    public function isUploadedFile(): bool
     {
         return true;
     }

@@ -72,7 +72,7 @@ class SoftDeleteableFilter extends SQLFilter
 
         $addCondSql = $targetTableAlias.'.'.$column.' IS NULL';
         if (isset($config['timeAware']) && $config['timeAware']) {
-            $addCondSql = "({$addCondSql} OR {$targetTableAlias}.{$column} > {$platform->getCurrentTimestampSQL()})";
+            return "({$addCondSql} OR {$targetTableAlias}.{$column} > {$platform->getCurrentTimestampSQL()})";
         }
 
         return $addCondSql;
@@ -82,10 +82,8 @@ class SoftDeleteableFilter extends SQLFilter
      * @param string $class
      *
      * @phpstan-param class-string $class
-     *
-     * @return void
      */
-    public function disableForEntity($class)
+    public function disableForEntity($class): void
     {
         $this->disabled[$class] = true;
         // Make sure the hash (@see SQLFilter::__toString()) for this filter will be changed to invalidate the query cache.
@@ -96,10 +94,8 @@ class SoftDeleteableFilter extends SQLFilter
      * @param string $class
      *
      * @phpstan-param class-string $class
-     *
-     * @return void
      */
-    public function enableForEntity($class)
+    public function enableForEntity($class): void
     {
         $this->disabled[$class] = false;
         // Make sure the hash (@see SQLFilter::__toString()) for this filter will be changed to invalidate the query cache.

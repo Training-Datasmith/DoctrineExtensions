@@ -68,10 +68,8 @@ class IpTraceableListener extends AbstractTrackingListener
      * @param string|null $ip
      *
      * @throws InvalidArgumentException
-     *
-     * @return void
      */
-    public function setIpValue($ip = null)
+    public function setIpValue($ip = null): void
     {
         if (isset($ip) && false === filter_var($ip, FILTER_VALIDATE_IP)) {
             throw new InvalidArgumentException("ip address is not valid $ip");
@@ -80,7 +78,7 @@ class IpTraceableListener extends AbstractTrackingListener
         $this->ip = $ip;
     }
 
-    protected function getNamespace()
+    protected function getNamespace(): string
     {
         return __NAMESPACE__;
     }

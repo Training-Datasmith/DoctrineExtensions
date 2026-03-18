@@ -22,7 +22,7 @@ use Gedmo\Mapping\Event\Adapter\ODM as BaseAdapterODM;
  */
 final class ODM extends BaseAdapterODM implements LoggableAdapter
 {
-    public function getDefaultLogEntryClass()
+    public function getDefaultLogEntryClass(): string
     {
         return LogEntry::class;
     }
@@ -30,7 +30,7 @@ final class ODM extends BaseAdapterODM implements LoggableAdapter
     /**
      * @param ClassMetadata<object> $meta
      */
-    public function isPostInsertGenerator($meta)
+    public function isPostInsertGenerator($meta): bool
     {
         return false;
     }
@@ -56,7 +56,7 @@ final class ODM extends BaseAdapterODM implements LoggableAdapter
 
         $result = $q->getSingleResult();
         if ($result) {
-            $result = $result['version'] + 1;
+            return $result['version'] + 1;
         }
 
         return $result;

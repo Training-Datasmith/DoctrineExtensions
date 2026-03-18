@@ -56,10 +56,7 @@ class SoftDeleteableWalker extends SqlOutputWalker
      */
     protected $platform;
 
-    /**
-     * @var SoftDeleteableListener
-     */
-    protected $listener;
+    protected \Gedmo\SoftDeleteable\SoftDeleteableListener $listener;
 
     /**
      * @var array<string, mixed>

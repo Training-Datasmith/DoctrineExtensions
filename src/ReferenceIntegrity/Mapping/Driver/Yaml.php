@@ -35,7 +35,7 @@ class Yaml extends File implements Driver
      */
     protected $_extension = '.dcm.yml';
 
-    public function readExtendedMetadata($meta, array &$config)
+    public function readExtendedMetadata($meta, array &$config): array
     {
         $mapping = $this->_getMapping($meta->getName());
         $validator = new Validator();

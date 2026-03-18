@@ -42,10 +42,8 @@ class Closure implements Strategy
 {
     /**
      * TreeListener
-     *
-     * @var TreeListener
      */
-    protected $listener;
+    protected \Gedmo\Tree\TreeListener $listener;
 
     /**
      * List of pending Nodes, which needs to
@@ -82,7 +80,7 @@ class Closure implements Strategy
         $this->listener = $listener;
     }
 
-    public function getName()
+    public function getName(): string
     {
         return Strategy::CLOSURE;
     }
@@ -91,7 +89,7 @@ class Closure implements Strategy
      * @param EntityManagerInterface   $em
      * @param ORMClassMetadata<object> $meta
      */
-    public function processMetadataLoad($em, $meta)
+    public function processMetadataLoad($em, $meta): void
     {
         // TODO: Remove the body of this method in the next major version.
         $config = $this->listener->getConfiguration($em, $meta->getName());
@@ -262,7 +260,7 @@ class Closure implements Strategy
     {
     }
 
-    public function processPrePersist($em, $node)
+    public function processPrePersist($em, $node): void
     {
         $this->pendingChildNodeInserts[spl_object_id($em)][spl_object_id($node)] = $node;
     }
@@ -283,7 +281,7 @@ class Closure implements Strategy
     {
     }
 
-    public function processPostUpdate($em, $entity, AdapterInterface $ea)
+    public function processPostUpdate($em, $entity, AdapterInterface $ea): void
     {
         \assert($em instanceof EntityManagerInterface);
         $meta = $em->getClassMetadata(get_class($entity));
@@ -302,7 +300,7 @@ class Closure implements Strategy
     /**
      * @param EntityManagerInterface $em
      */
-    public function processPostPersist($em, $entity, AdapterInterface $ea)
+    public function processPostPersist($em, $entity, AdapterInterface $ea): void
     {
         $uow = $em->getUnitOfWork();
         $emHash = spl_object_id($em);
@@ -392,7 +390,7 @@ class Closure implements Strategy
     /**
      * @param EntityManagerInterface $em
      */
-    public function processScheduledUpdate($em, $node, AdapterInterface $ea)
+    public function processScheduledUpdate($em, $node, AdapterInterface $ea): void
     {
         $meta = $em->getClassMetadata(get_class($node));
         $config = $this->listener->getConfiguration($em, $meta->getName());
@@ -420,10 +418,8 @@ class Closure implements Strategy
      *
      * @param object $node
      * @param object $oldParent
-     *
-     * @return void
      */
-    public function updateNode(EntityManagerInterface $em, $node, $oldParent)
+    public function updateNode(EntityManagerInterface $em, $node, $oldParent): void
     {
         $wrapped = AbstractWrapper::wrap($node, $em);
         $meta = $wrapped->getMetadata();

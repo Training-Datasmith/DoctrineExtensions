@@ -38,7 +38,7 @@ class Xml extends BaseXml
         'materializedPath',
     ];
 
-    public function readExtendedMetadata($meta, array &$config)
+    public function readExtendedMetadata($meta, array &$config): array
     {
         /**
          * @var \SimpleXmlElement

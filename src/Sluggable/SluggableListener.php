@@ -147,7 +147,7 @@ class SluggableListener extends MappedEventSubscriber
      *
      * @return string[]
      */
-    public function getSubscribedEvents()
+    public function getSubscribedEvents(): array
     {
         return [
             'onFlush',
@@ -165,10 +165,8 @@ class SluggableListener extends MappedEventSubscriber
      * @phpstan-param callable(string $text, string $separator, object $object): string $callable
      *
      * @throws InvalidArgumentException
-     *
-     * @return void
      */
-    public function setTransliterator($callable)
+    public function setTransliterator($callable): void
     {
         if (!is_callable($callable)) {
             throw new InvalidArgumentException('Invalid transliterator callable parameter given');
@@ -185,10 +183,8 @@ class SluggableListener extends MappedEventSubscriber
      * @phpstan-param callable(string $text, string $separator, object $object): string $callable
      *
      * @throws InvalidArgumentException
-     *
-     * @return void
      */
-    public function setUrlizer($callable)
+    public function setUrlizer($callable): void
     {
         if (!is_callable($callable)) {
             throw new InvalidArgumentException('Invalid urlizer callable parameter given');
@@ -223,12 +219,10 @@ class SluggableListener extends MappedEventSubscriber
     /**
      * Enables or disables the given filter when slugs are generated
      *
-     * @param string $name
      * @param bool   $disable True by default
      *
-     * @return void
      */
-    public function addManagedFilter($name, $disable = true)
+    public function addManagedFilter(string $name, $disable = true): void
     {
         $this->managedFilters[$name] = ['disabled' => $disable];
     }
@@ -236,11 +230,9 @@ class SluggableListener extends MappedEventSubscriber
     /**
      * Removes a filter from the managed set
      *
-     * @param string $name
      *
-     * @return void
      */
-    public function removeManagedFilter($name)
+    public function removeManagedFilter(string $name): void
     {
         unset($this->managedFilters[$name]);
     }
@@ -251,10 +243,8 @@ class SluggableListener extends MappedEventSubscriber
      * @param LoadClassMetadataEventArgs $eventArgs
      *
      * @phpstan-param LoadClassMetadataEventArgs<ClassMetadata<object>, ObjectManager> $eventArgs
-     *
-     * @return void
      */
-    public function loadClassMetadata(EventArgs $eventArgs)
+    public function loadClassMetadata(EventArgs $eventArgs): void
     {
         $this->loadMetadataForObjectClass($eventArgs->getObjectManager(), $eventArgs->getClassMetadata());
     }
@@ -265,10 +255,8 @@ class SluggableListener extends MappedEventSubscriber
      * @param LifecycleEventArgs $args
      *
      * @phpstan-param LifecycleEventArgs<ObjectManager> $args
-     *
-     * @return void
      */
-    public function prePersist(EventArgs $args)
+    public function prePersist(EventArgs $args): void
     {
         $ea = $this->getEventAdapter($args);
         $om = $ea->getObjectManager();
@@ -291,10 +279,8 @@ class SluggableListener extends MappedEventSubscriber
      * @param ManagerEventArgs $args
      *
      * @phpstan-param ManagerEventArgs<ObjectManager> $args
-     *
-     * @return void
      */
-    public function onFlush(EventArgs $args)
+    public function onFlush(EventArgs $args): void
     {
         $this->persisted = [];
         $ea = $this->getEventAdapter($args);
@@ -327,7 +313,7 @@ class SluggableListener extends MappedEventSubscriber
         $this->manageFiltersAfterGeneration($om);
     }
 
-    protected function getNamespace()
+    protected function getNamespace(): string
     {
         return __NAMESPACE__;
     }
@@ -550,7 +536,7 @@ class SluggableListener extends MappedEventSubscriber
             $generatedSlug = $preferredSlug;
             $sameSlugs = [];
 
-            foreach ((array) $result as $list) {
+            foreach ($result as $list) {
                 $sameSlugs[] = $list[$config['slug']];
             }
 

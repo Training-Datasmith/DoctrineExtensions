@@ -28,7 +28,7 @@ class MaterializedPath extends AbstractMaterializedPath
      * @param EntityManagerInterface $om
      * @param ClassMetadata<object>  $meta
      */
-    public function removeNode($om, $meta, $config, $node)
+    public function removeNode($om, $meta, $config, $node): void
     {
         $wrapped = AbstractWrapper::wrap($node, $om);
 

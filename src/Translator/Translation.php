@@ -41,7 +41,7 @@ abstract class Translation implements TranslationInterface
      *
      * @param object $translatable
      */
-    public function setTranslatable($translatable)
+    public function setTranslatable($translatable): void
     {
         $this->translatable = $translatable;
     }
@@ -61,7 +61,7 @@ abstract class Translation implements TranslationInterface
      *
      * @param string $locale
      */
-    public function setLocale($locale)
+    public function setLocale($locale): void
     {
         $this->locale = $locale;
     }
@@ -81,7 +81,7 @@ abstract class Translation implements TranslationInterface
      *
      * @param string $property
      */
-    public function setProperty($property)
+    public function setProperty($property): void
     {
         $this->property = $property;
     }

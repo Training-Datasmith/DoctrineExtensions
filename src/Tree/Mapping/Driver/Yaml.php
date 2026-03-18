@@ -46,7 +46,7 @@ class Yaml extends File implements Driver
         'materializedPath',
     ];
 
-    public function readExtendedMetadata($meta, array &$config)
+    public function readExtendedMetadata($meta, array &$config): array
     {
         $mapping = $this->_getMapping($meta->getName());
         $validator = new Validator();
@@ -77,14 +77,16 @@ class Yaml extends File implements Driver
 
         if (isset($mapping['id'])) {
             foreach ($mapping['id'] as $field => $fieldMapping) {
-                if (isset($fieldMapping['gedmo'])) {
-                    if (in_array('treePathSource', $fieldMapping['gedmo'], true)) {
-                        if (!$validator->isValidFieldForPathSource($meta, $field)) {
-                            throw new InvalidMappingException("Tree PathSource field - [{$field}] type is not valid. It can be any of the integer variants, double, float or string in class - {$meta->getName()}");
-                        }
-                        $config['path_source'] = $field;
-                    }
+                if (!isset($fieldMapping['gedmo'])) {
+                    continue;
                 }
+                if (!in_array('treePathSource', $fieldMapping['gedmo'], true)) {
+                    continue;
+                }
+                if (!$validator->isValidFieldForPathSource($meta, $field)) {
+                    throw new InvalidMappingException("Tree PathSource field - [{$field}] type is not valid. It can be any of the integer variants, double, float or string in class - {$meta->getName()}");
+                }
+                $config['path_source'] = $field;
             }
         }
 

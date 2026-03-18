@@ -65,10 +65,8 @@ class ReferencesListener extends MappedEventSubscriber
      * @param LoadClassMetadataEventArgs $eventArgs
      *
      * @phpstan-param LoadClassMetadataEventArgs<ClassMetadata<object>, ObjectManager> $eventArgs
-     *
-     * @return void
      */
-    public function loadClassMetadata(EventArgs $eventArgs)
+    public function loadClassMetadata(EventArgs $eventArgs): void
     {
         $this->loadMetadataForObjectClass(
             $eventArgs->getObjectManager(), $eventArgs->getClassMetadata()
@@ -79,10 +77,8 @@ class ReferencesListener extends MappedEventSubscriber
      * @param LifecycleEventArgs $eventArgs
      *
      * @phpstan-param LifecycleEventArgs<ObjectManager> $eventArgs
-     *
-     * @return void
      */
-    public function postLoad(EventArgs $eventArgs)
+    public function postLoad(EventArgs $eventArgs): void
     {
         $ea = $this->getEventAdapter($eventArgs);
         $om = $ea->getObjectManager();
@@ -134,7 +130,7 @@ class ReferencesListener extends MappedEventSubscriber
                         $property->setValue(
                             $object,
                             new LazyCollection(
-                                static fn () => new ArrayCollection(
+                                static fn (): \Doctrine\Common\Collections\ArrayCollection => new ArrayCollection(
                                     $manager->getRepository($class)
                                         ->findBy([
                                             $identifier => $id,
@@ -154,10 +150,8 @@ class ReferencesListener extends MappedEventSubscriber
      * @param LifecycleEventArgs $eventArgs
      *
      * @phpstan-param LifecycleEventArgs<ObjectManager> $eventArgs
-     *
-     * @return void
      */
-    public function prePersist(EventArgs $eventArgs)
+    public function prePersist(EventArgs $eventArgs): void
     {
         $this->updateReferences($eventArgs);
     }
@@ -166,10 +160,8 @@ class ReferencesListener extends MappedEventSubscriber
      * @param LifecycleEventArgs $eventArgs
      *
      * @phpstan-param LifecycleEventArgs<ObjectManager> $eventArgs
-     *
-     * @return void
      */
-    public function preUpdate(EventArgs $eventArgs)
+    public function preUpdate(EventArgs $eventArgs): void
     {
         $this->updateReferences($eventArgs);
     }
@@ -177,7 +169,7 @@ class ReferencesListener extends MappedEventSubscriber
     /**
      * @return string[]
      */
-    public function getSubscribedEvents()
+    public function getSubscribedEvents(): array
     {
         return [
             'postLoad',
@@ -188,22 +180,18 @@ class ReferencesListener extends MappedEventSubscriber
     }
 
     /**
-     * @param string        $type
      * @param ObjectManager $manager
      *
-     * @return void
      */
-    public function registerManager($type, $manager)
+    public function registerManager(string $type, $manager): void
     {
         $this->managers[$type] = $manager;
     }
 
     /**
-     * @param string $type
-     *
      * @return ObjectManager
      */
-    public function getManager($type)
+    public function getManager(string $type)
     {
         return $this->managers[$type];
     }
@@ -212,10 +200,8 @@ class ReferencesListener extends MappedEventSubscriber
      * @param LifecycleEventArgs $eventArgs
      *
      * @phpstan-param LifecycleEventArgs<ObjectManager> $eventArgs
-     *
-     * @return void
      */
-    public function updateManyEmbedReferences(EventArgs $eventArgs)
+    public function updateManyEmbedReferences(EventArgs $eventArgs): void
     {
         $ea = $this->getEventAdapter($eventArgs);
         $om = $ea->getObjectManager();
@@ -243,7 +229,7 @@ class ReferencesListener extends MappedEventSubscriber
                 $property->setValue(
                     $object,
                     new LazyCollection(
-                        static fn () => new ArrayCollection(
+                        static fn (): \Doctrine\Common\Collections\ArrayCollection => new ArrayCollection(
                             $manager->getRepository($class)
                                 ->findBy([
                                     $identifier => $id,
@@ -255,7 +241,7 @@ class ReferencesListener extends MappedEventSubscriber
         }
     }
 
-    protected function getNamespace()
+    protected function getNamespace(): string
     {
         return __NAMESPACE__;
     }

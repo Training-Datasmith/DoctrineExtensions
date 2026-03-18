@@ -19,7 +19,7 @@ namespace Gedmo\Uploadable\FilenameGenerator;
  */
 class FilenameGeneratorSha1 implements FilenameGeneratorInterface
 {
-    public static function generate($filename, $extension, $object = null)
+    public static function generate($filename, $extension, $object = null): string
     {
         return sha1(uniqid($filename.$extension, true)).$extension;
     }

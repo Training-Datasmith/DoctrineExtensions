@@ -35,7 +35,7 @@ class Attribute extends AbstractAnnotationDriver
      */
     public const ACTION = 'Gedmo\\Mapping\\Annotation\\ReferenceIntegrityAction';
 
-    public function readExtendedMetadata($meta, array &$config)
+    public function readExtendedMetadata($meta, array &$config): array
     {
         $validator = new Validator();
         $reflClass = $this->getMetaReflectionClass($meta);

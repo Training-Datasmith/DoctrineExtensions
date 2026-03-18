@@ -70,7 +70,7 @@ class SortableListener extends MappedEventSubscriber
      *
      * @return string[]
      */
-    public function getSubscribedEvents()
+    public function getSubscribedEvents(): array
     {
         return [
             'onFlush',
@@ -89,10 +89,8 @@ class SortableListener extends MappedEventSubscriber
      * @param LoadClassMetadataEventArgs $args
      *
      * @phpstan-param LoadClassMetadataEventArgs<ClassMetadata<object>, ObjectManager> $args
-     *
-     * @return void
      */
-    public function loadClassMetadata(EventArgs $args)
+    public function loadClassMetadata(EventArgs $args): void
     {
         $ea = $this->getEventAdapter($args);
         $this->loadMetadataForObjectClass($ea->getObjectManager(), $args->getClassMetadata());
@@ -111,10 +109,8 @@ class SortableListener extends MappedEventSubscriber
      * @param ManagerEventArgs $args
      *
      * @phpstan-param ManagerEventArgs<ObjectManager> $args
-     *
-     * @return void
      */
-    public function onFlush(EventArgs $args)
+    public function onFlush(EventArgs $args): void
     {
         $this->persistenceNeeded = true;
 
@@ -159,10 +155,8 @@ class SortableListener extends MappedEventSubscriber
      * @param LifecycleEventArgs $args
      *
      * @phpstan-param LifecycleEventArgs<ObjectManager> $args
-     *
-     * @return void
      */
-    public function prePersist(EventArgs $args)
+    public function prePersist(EventArgs $args): void
     {
         $ea = $this->getEventAdapter($args);
         $om = $ea->getObjectManager();
@@ -187,10 +181,8 @@ class SortableListener extends MappedEventSubscriber
      * @param LifecycleEventArgs $args
      *
      * @phpstan-param LifecycleEventArgs<ObjectManager> $args
-     *
-     * @return void
      */
-    public function postPersist(EventArgs $args)
+    public function postPersist(EventArgs $args): void
     {
         // persist position updates here, so that the update queries
         // are executed within transaction
@@ -201,10 +193,8 @@ class SortableListener extends MappedEventSubscriber
      * @param LifecycleEventArgs $args
      *
      * @phpstan-param LifecycleEventArgs<ObjectManager> $args
-     *
-     * @return void
      */
-    public function preUpdate(EventArgs $args)
+    public function preUpdate(EventArgs $args): void
     {
         // persist position updates here, so that the update queries
         // are executed within transaction
@@ -215,10 +205,8 @@ class SortableListener extends MappedEventSubscriber
      * @param LifecycleEventArgs $args
      *
      * @phpstan-param LifecycleEventArgs<ObjectManager> $args
-     *
-     * @return void
      */
-    public function postRemove(EventArgs $args)
+    public function postRemove(EventArgs $args): void
     {
         // persist position updates here, so that the update queries
         // are executed within transaction
@@ -231,10 +219,8 @@ class SortableListener extends MappedEventSubscriber
      * @param ManagerEventArgs $args
      *
      * @phpstan-param ManagerEventArgs<ObjectManager> $args
-     *
-     * @return void
      */
-    public function postFlush(EventArgs $args)
+    public function postFlush(EventArgs $args): void
     {
         $ea = $this->getEventAdapter($args);
         $em = $ea->getObjectManager();
@@ -244,17 +230,22 @@ class SortableListener extends MappedEventSubscriber
         foreach ($this->relocations as $hash => $relocation) {
             $config = $this->getConfiguration($em, $relocation['name']);
             foreach ($relocation['deltas'] as $delta) {
-                if ($delta['start'] > $this->maxPositions[$hash] || 0 == $delta['delta']) {
+                if ($delta['start'] > $this->maxPositions[$hash]) {
                     continue;
                 }
-
+                if (0 == $delta['delta']) {
+                    continue;
+                }
                 $meta = $em->getClassMetadata($relocation['name']);
 
                 // now walk through the unit of work in memory objects and sync those
                 $uow = $em->getUnitOfWork();
                 foreach ($uow->getIdentityMap() as $className => $objects) {
                     // for inheritance mapped classes, only root is always in the identity map
-                    if ($className !== $ea->getRootObjectClass($meta) || !$this->getConfiguration($em, $className)) {
+                    if ($className !== $ea->getRootObjectClass($meta)) {
+                        continue;
+                    }
+                    if (!$this->getConfiguration($em, $className)) {
                         continue;
                     }
                     foreach ($objects as $object) {
@@ -589,7 +580,10 @@ class SortableListener extends MappedEventSubscriber
         foreach ($this->relocations as $hash => $relocation) {
             $config = $this->getConfiguration($em, $relocation['name']);
             foreach ($relocation['deltas'] as $delta) {
-                if ($delta['start'] > $this->maxPositions[$hash] || 0 == $delta['delta']) {
+                if ($delta['start'] > $this->maxPositions[$hash]) {
+                    continue;
+                }
+                if (0 == $delta['delta']) {
                     continue;
                 }
                 $ea->updatePositions($relocation, $delta, $config);
@@ -604,10 +598,8 @@ class SortableListener extends MappedEventSubscriber
      * @param array<string, mixed> $config
      *
      * @phpstan-param SortableConfiguration $config
-     *
-     * @return string
      */
-    protected function getHash($groups, array $config)
+    protected function getHash($groups, array $config): string
     {
         $data = $config['useObjectClass'];
         foreach ($groups as $group => $val) {
@@ -691,7 +683,7 @@ class SortableListener extends MappedEventSubscriber
 
         try {
             $newDelta = ['start' => $start, 'stop' => $stop, 'delta' => $delta, 'exclude' => $exclude];
-            array_walk($this->relocations[$hash]['deltas'], static function (&$val, $idx, $needle) {
+            array_walk($this->relocations[$hash]['deltas'], static function (array &$val, $idx, array $needle): void {
                 if ($val['start'] == $needle['start'] && $val['stop'] == $needle['stop']) {
                     $val['delta'] += $needle['delta'];
                     $val['exclude'] = array_merge($val['exclude'], $needle['exclude']);
@@ -719,7 +711,7 @@ class SortableListener extends MappedEventSubscriber
      *
      * @return array<string, mixed>
      */
-    protected function getGroups($meta, $config, $object)
+    protected function getGroups($meta, $config, $object): array
     {
         $groups = [];
         if (isset($config['groups'])) {
@@ -731,7 +723,7 @@ class SortableListener extends MappedEventSubscriber
         return $groups;
     }
 
-    protected function getNamespace()
+    protected function getNamespace(): string
     {
         return __NAMESPACE__;
     }

@@ -37,7 +37,7 @@ final class ODM extends BaseAdapterODM implements TranslatableAdapter
         ;
     }
 
-    public function getDefaultTranslationClass()
+    public function getDefaultTranslationClass(): string
     {
         return Translation::class;
     }
@@ -131,7 +131,7 @@ final class ODM extends BaseAdapterODM implements TranslatableAdapter
         return $q->execute();
     }
 
-    public function insertTranslationRecord($translation)
+    public function insertTranslationRecord($translation): void
     {
         $dm = $this->getObjectManager();
         $meta = $dm->getClassMetadata(get_class($translation));
@@ -166,7 +166,7 @@ final class ODM extends BaseAdapterODM implements TranslatableAdapter
         return $type->convertToDatabaseValue($value);
     }
 
-    public function setTranslationValue($object, $field, $value)
+    public function setTranslationValue($object, $field, $value): void
     {
         $dm = $this->getObjectManager();
         $wrapped = AbstractWrapper::wrap($object, $dm);

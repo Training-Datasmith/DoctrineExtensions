@@ -70,13 +70,15 @@ class Attribute extends AbstractAnnotationDriver
 
         // property annotations
         foreach ($class->getProperties() as $property) {
-            if ($meta->isMappedSuperclass && !$property->isPrivate()
-                || $meta->isInheritedField($property->name)
-                || isset($meta->associationMappings[$property->name]['inherited'])
-            ) {
+            if ($meta->isMappedSuperclass && !$property->isPrivate()) {
                 continue;
             }
-
+            if ($meta->isInheritedField($property->name)) {
+                continue;
+            }
+            if (isset($meta->associationMappings[$property->name]['inherited'])) {
+                continue;
+            }
             $config = $this->retrieveSlug($meta, $config, $property);
         }
 
@@ -179,7 +181,7 @@ class Attribute extends AbstractAnnotationDriver
             }
         }
 
-        if ([] !== $meta->getIdentifier() && $meta->isIdentifier($fieldName) && !(bool) $slug->unique) {
+        if ([] !== $meta->getIdentifier() && $meta->isIdentifier($fieldName) && !$slug->unique) {
             throw new InvalidMappingException("Identifier field - [{$fieldName}] slug must be unique in order to maintain primary key in class - {$meta->getName()}");
         }
 

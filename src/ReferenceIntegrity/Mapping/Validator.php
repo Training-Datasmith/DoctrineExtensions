@@ -42,7 +42,7 @@ class Validator
      *
      * @phpstan-return array<int, self::NULLIFY|self::PULL|self::RESTRICT>
      */
-    public function getIntegrityActions()
+    public function getIntegrityActions(): array
     {
         return self::INTEGRITY_ACTIONS;
     }

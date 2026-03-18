@@ -29,7 +29,7 @@ class TranslationProxy
     /**
      * @var string[]
      */
-    protected $properties = [];
+    protected array $properties;
     /**
      * @var string
      *
@@ -68,12 +68,10 @@ class TranslationProxy
     }
 
     /**
-     * @param string  $method
      * @param mixed[] $arguments
-     *
      * @return mixed
      */
-    public function __call($method, $arguments)
+    public function __call(string $method, array $arguments)
     {
         $matches = [];
         if (preg_match('/^(set|get)(.*)$/', $method, $matches)) {
@@ -103,11 +101,9 @@ class TranslationProxy
     }
 
     /**
-     * @param string $property
-     *
      * @return mixed
      */
-    public function __get($property)
+    public function __get(string $property)
     {
         if (in_array($property, $this->properties, true)) {
             if (method_exists($this, $getter = 'get'.ucfirst($property))) {
@@ -121,10 +117,9 @@ class TranslationProxy
     }
 
     /**
-     * @param string $property
      * @param mixed  $value
      */
-    public function __set($property, $value)
+    public function __set(string $property, $value)
     {
         if (in_array($property, $this->properties, true)) {
             if (method_exists($this, $setter = 'set'.ucfirst($property))) {
@@ -142,11 +137,9 @@ class TranslationProxy
     }
 
     /**
-     * @param string $property
-     *
      * @return bool
      */
-    public function __isset($property)
+    public function __isset(string $property)
     {
         return in_array($property, $this->properties, true);
     }
@@ -168,7 +161,7 @@ class TranslationProxy
      *
      * @return mixed
      */
-    public function getTranslatedValue($property)
+    public function getTranslatedValue(string $property)
     {
         return $this
             ->findOrCreateTranslationForProperty($property, $this->getProxyLocale())
@@ -180,10 +173,8 @@ class TranslationProxy
      *
      * @param string $property property name
      * @param string $value    value
-     *
-     * @return void
      */
-    public function setTranslatedValue($property, $value)
+    public function setTranslatedValue(string $property, $value): void
     {
         $this
             ->findOrCreateTranslationForProperty($property, $this->getProxyLocale())

@@ -39,7 +39,7 @@ final class ORM extends BaseAdapterORM implements TranslatableAdapter
         ;
     }
 
-    public function getDefaultTranslationClass()
+    public function getDefaultTranslationClass(): string
     {
         return Translation::class;
     }
@@ -188,7 +188,7 @@ final class ORM extends BaseAdapterORM implements TranslatableAdapter
         return $qb->getQuery()->getSingleScalarResult();
     }
 
-    public function insertTranslationRecord($translation)
+    public function insertTranslationRecord($translation): void
     {
         $em = $this->getObjectManager();
         $meta = $em->getClassMetadata(get_class($translation));
@@ -219,7 +219,7 @@ final class ORM extends BaseAdapterORM implements TranslatableAdapter
         return $em->getConnection()->convertToDatabaseValue($value, $meta->getTypeOfField($field));
     }
 
-    public function setTranslationValue($object, $field, $value)
+    public function setTranslationValue($object, $field, $value): void
     {
         $em = $this->getObjectManager();
         $wrapped = AbstractWrapper::wrap($object, $em);

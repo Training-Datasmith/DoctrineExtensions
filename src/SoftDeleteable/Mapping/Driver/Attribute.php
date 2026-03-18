@@ -29,7 +29,7 @@ class Attribute extends AbstractAnnotationDriver
      */
     public const SOFT_DELETEABLE = SoftDeleteable::class;
 
-    public function readExtendedMetadata($meta, array &$config)
+    public function readExtendedMetadata($meta, array &$config): array
     {
         $class = $this->getMetaReflectionClass($meta);
 

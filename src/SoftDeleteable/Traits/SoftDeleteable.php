@@ -48,10 +48,8 @@ trait SoftDeleteable
 
     /**
      * Check if the entity has been soft deleted.
-     *
-     * @return bool
      */
-    public function isDeleted()
+    public function isDeleted(): bool
     {
         return null !== $this->deletedAt;
     }

@@ -33,10 +33,8 @@ abstract class AbstractTreeRepository extends EntityRepository implements Reposi
 {
     /**
      * Tree listener on event manager
-     *
-     * @var TreeListener
      */
-    protected $listener;
+    protected \Gedmo\Tree\TreeListener $listener;
 
     /**
      * Repository utils
@@ -157,7 +155,7 @@ abstract class AbstractTreeRepository extends EntityRepository implements Reposi
     /**
      * @see RepositoryUtilsInterface::setChildrenIndex
      */
-    public function setChildrenIndex($childrenIndex)
+    public function setChildrenIndex($childrenIndex): void
     {
         $this->repoUtils->setChildrenIndex($childrenIndex);
     }

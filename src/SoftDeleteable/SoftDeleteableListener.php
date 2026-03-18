@@ -73,7 +73,7 @@ class SoftDeleteableListener extends MappedEventSubscriber
     /**
      * @return string[]
      */
-    public function getSubscribedEvents()
+    public function getSubscribedEvents(): array
     {
         return [
             'loadClassMetadata',
@@ -89,10 +89,8 @@ class SoftDeleteableListener extends MappedEventSubscriber
      * @param ManagerEventArgs $args
      *
      * @phpstan-param ManagerEventArgs<ObjectManager> $args
-     *
-     * @return void
      */
-    public function onFlush(EventArgs $args)
+    public function onFlush(EventArgs $args): void
     {
         $ea = $this->getEventAdapter($args);
         /** @var EntityManagerInterface|DocumentManager $om */
@@ -158,10 +156,8 @@ class SoftDeleteableListener extends MappedEventSubscriber
 
     /**
      * Detach soft-deleted objects from object manager.
-     *
-     * @return void
      */
-    public function postFlush(EventArgs $args)
+    public function postFlush(EventArgs $args): void
     {
         if (!$this->handlePostFlushEvent) {
             return;
@@ -181,10 +177,8 @@ class SoftDeleteableListener extends MappedEventSubscriber
      * @param LoadClassMetadataEventArgs $eventArgs
      *
      * @phpstan-param LoadClassMetadataEventArgs<ClassMetadata<object>, ObjectManager> $eventArgs
-     *
-     * @return void
      */
-    public function loadClassMetadata(EventArgs $eventArgs)
+    public function loadClassMetadata(EventArgs $eventArgs): void
     {
         $this->loadMetadataForObjectClass($eventArgs->getObjectManager(), $eventArgs->getClassMetadata());
     }
@@ -199,7 +193,7 @@ class SoftDeleteableListener extends MappedEventSubscriber
         return $this->handlePostFlushEvent;
     }
 
-    protected function getNamespace()
+    protected function getNamespace(): string
     {
         return __NAMESPACE__;
     }

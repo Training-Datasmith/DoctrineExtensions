@@ -87,15 +87,13 @@ class BlameableListener extends AbstractTrackingListener
      * If an actor provider is also provided, it will take precedence over this value.
      *
      * @param mixed $user
-     *
-     * @return void
      */
-    public function setUserValue($user)
+    public function setUserValue($user): void
     {
         $this->user = $user;
     }
 
-    protected function getNamespace()
+    protected function getNamespace(): string
     {
         return __NAMESPACE__;
     }

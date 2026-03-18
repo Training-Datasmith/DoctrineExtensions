@@ -46,10 +46,8 @@ class Yaml extends File implements Driver
                 $uploadable = $classMapping['uploadable'];
 
                 $config['uploadable'] = true;
-                $config['allowOverwrite'] = isset($uploadable['allowOverwrite']) ?
-                    (bool) $uploadable['allowOverwrite'] : false;
-                $config['appendNumber'] = isset($uploadable['appendNumber']) ?
-                    (bool) $uploadable['appendNumber'] : false;
+                $config['allowOverwrite'] = isset($uploadable['allowOverwrite']) && (bool) $uploadable['allowOverwrite'];
+                $config['appendNumber'] = isset($uploadable['appendNumber']) && (bool) $uploadable['appendNumber'];
                 $config['path'] = $uploadable['path'] ?? '';
                 $config['pathMethod'] = $uploadable['pathMethod'] ?? '';
                 $config['callback'] = $uploadable['callback'] ?? '';

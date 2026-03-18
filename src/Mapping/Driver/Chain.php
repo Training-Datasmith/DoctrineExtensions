@@ -36,11 +36,9 @@ class Chain implements Driver
     /**
      * Add a nested driver.
      *
-     * @param string $namespace
      *
-     * @return void
      */
-    public function addDriver(Driver $nestedDriver, $namespace)
+    public function addDriver(Driver $nestedDriver, string $namespace): void
     {
         $this->_drivers[$namespace] = $nestedDriver;
     }
@@ -50,27 +48,23 @@ class Chain implements Driver
      *
      * @return array<string, Driver>
      */
-    public function getDrivers()
+    public function getDrivers(): array
     {
         return $this->_drivers;
     }
 
     /**
      * Get the default driver.
-     *
-     * @return Driver|null
      */
-    public function getDefaultDriver()
+    public function getDefaultDriver(): ?\Gedmo\Mapping\Driver
     {
         return $this->defaultDriver;
     }
 
     /**
      * Set the default driver.
-     *
-     * @return void
      */
-    public function setDefaultDriver(Driver $driver)
+    public function setDefaultDriver(Driver $driver): void
     {
         $this->defaultDriver = $driver;
     }
@@ -112,7 +106,7 @@ class Chain implements Driver
     /**
      * Passes in the mapping read by original driver
      */
-    public function setOriginalDriver($driver)
+    public function setOriginalDriver($driver): void
     {
         // not needed here
     }

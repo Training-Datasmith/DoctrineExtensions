@@ -38,7 +38,10 @@ class Yaml extends File implements Driver
         'referenceManyEmbed' => [],
     ];
 
-    public function readExtendedMetadata($meta, array &$config)
+    /**
+     * @return mixed[]
+     */
+    public function readExtendedMetadata($meta, array &$config): array
     {
         $mapping = $this->_getMapping($meta->getName());
 

@@ -41,7 +41,7 @@ class Xml extends BaseXml
         'referenceManyEmbed',
     ];
 
-    public function readExtendedMetadata($meta, array &$config)
+    public function readExtendedMetadata($meta, array &$config): array
     {
         /**
          * @var \SimpleXmlElement
@@ -53,9 +53,6 @@ class Xml extends BaseXml
 
         if (in_array($xmlDoctrine->getName(), ['mapped-superclass', 'entity', 'document'], true)) {
             if (isset($xml->reference)) {
-                /**
-                 * @var \SimpleXMLElement
-                 */
                 foreach ($xml->reference as $element) {
                     if (!$this->_isAttributeSet($element, 'type')) {
                         throw new InvalidMappingException("Reference type (document or entity) is not set in class - {$meta->getName()}");

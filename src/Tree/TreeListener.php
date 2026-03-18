@@ -88,7 +88,7 @@ class TreeListener extends MappedEventSubscriber
      *
      * @return string[]
      */
-    public function getSubscribedEvents()
+    public function getSubscribedEvents(): array
     {
         return [
             'prePersist',
@@ -143,10 +143,8 @@ class TreeListener extends MappedEventSubscriber
      * @param ManagerEventArgs $args
      *
      * @phpstan-param ManagerEventArgs<ObjectManager> $args
-     *
-     * @return void
      */
-    public function onFlush(EventArgs $args)
+    public function onFlush(EventArgs $args): void
     {
         $ea = $this->getEventAdapter($args);
         $om = $ea->getObjectManager();
@@ -189,10 +187,8 @@ class TreeListener extends MappedEventSubscriber
      * @param LifecycleEventArgs $args
      *
      * @phpstan-param LifecycleEventArgs<ObjectManager> $args
-     *
-     * @return void
      */
-    public function preRemove(EventArgs $args)
+    public function preRemove(EventArgs $args): void
     {
         $ea = $this->getEventAdapter($args);
         $om = $ea->getObjectManager();
@@ -210,10 +206,8 @@ class TreeListener extends MappedEventSubscriber
      * @param LifecycleEventArgs $args
      *
      * @phpstan-param LifecycleEventArgs<ObjectManager> $args
-     *
-     * @return void
      */
-    public function prePersist(EventArgs $args)
+    public function prePersist(EventArgs $args): void
     {
         $ea = $this->getEventAdapter($args);
         $om = $ea->getObjectManager();
@@ -231,10 +225,8 @@ class TreeListener extends MappedEventSubscriber
      * @param LifecycleEventArgs $args
      *
      * @phpstan-param LifecycleEventArgs<ObjectManager> $args
-     *
-     * @return void
      */
-    public function preUpdate(EventArgs $args)
+    public function preUpdate(EventArgs $args): void
     {
         $ea = $this->getEventAdapter($args);
         $om = $ea->getObjectManager();
@@ -253,10 +245,8 @@ class TreeListener extends MappedEventSubscriber
      * @param LifecycleEventArgs $args
      *
      * @phpstan-param LifecycleEventArgs<ObjectManager> $args
-     *
-     * @return void
      */
-    public function postPersist(EventArgs $args)
+    public function postPersist(EventArgs $args): void
     {
         $ea = $this->getEventAdapter($args);
         $om = $ea->getObjectManager();
@@ -275,10 +265,8 @@ class TreeListener extends MappedEventSubscriber
      * @param LifecycleEventArgs $args
      *
      * @phpstan-param LifecycleEventArgs<ObjectManager> $args
-     *
-     * @return void
      */
-    public function postUpdate(EventArgs $args)
+    public function postUpdate(EventArgs $args): void
     {
         $ea = $this->getEventAdapter($args);
         $om = $ea->getObjectManager();
@@ -297,10 +285,8 @@ class TreeListener extends MappedEventSubscriber
      * @param LifecycleEventArgs $args
      *
      * @phpstan-param LifecycleEventArgs<ObjectManager> $args
-     *
-     * @return void
      */
-    public function postRemove(EventArgs $args)
+    public function postRemove(EventArgs $args): void
     {
         $ea = $this->getEventAdapter($args);
         $om = $ea->getObjectManager();
@@ -318,10 +304,8 @@ class TreeListener extends MappedEventSubscriber
      * @param LoadClassMetadataEventArgs $eventArgs
      *
      * @phpstan-param LoadClassMetadataEventArgs<ClassMetadata<object>, ObjectManager> $eventArgs
-     *
-     * @return void
      */
-    public function loadClassMetadata(EventArgs $eventArgs)
+    public function loadClassMetadata(EventArgs $eventArgs): void
     {
         $om = $eventArgs->getObjectManager();
         $meta = $eventArgs->getClassMetadata();
@@ -331,7 +315,7 @@ class TreeListener extends MappedEventSubscriber
         }
     }
 
-    protected function getNamespace()
+    protected function getNamespace(): string
     {
         return __NAMESPACE__;
     }
@@ -346,7 +330,7 @@ class TreeListener extends MappedEventSubscriber
      *
      * @phpstan-return array<value-of<self::strategies>, Strategy>
      */
-    protected function getStrategiesUsedForObjects(array $classes)
+    protected function getStrategiesUsedForObjects(array $classes): array
     {
         $strategies = [];
         foreach ($classes as $name => $opt) {

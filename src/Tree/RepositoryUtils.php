@@ -31,7 +31,7 @@ class RepositoryUtils implements RepositoryUtilsInterface
     protected $listener;
 
     /** @var ObjectManager&(DocumentManager|EntityManagerInterface) */
-    protected $om;
+    protected \Doctrine\Persistence\ObjectManager $om;
 
     /** @var RepositoryInterface<T> */
     protected $repo;
@@ -101,7 +101,7 @@ class RepositoryUtils implements RepositoryUtilsInterface
             'rootClose' => '</ul>',
             'childOpen' => '<li>',
             'childClose' => '</li>',
-            'nodeDecorator' => static function ($node) use ($meta) {
+            'nodeDecorator' => static function (array $node) use ($meta) {
                 // override and change it, guessing which field to use
                 if ($meta->hasField('title')) {
                     $field = 'title';
@@ -126,7 +126,7 @@ class RepositoryUtils implements RepositoryUtilsInterface
 
         $childrenIndex = $this->childrenIndex;
 
-        $build = static function ($tree) use (&$build, &$options, $childrenIndex) {
+        $build = static function ($tree) use (&$build, &$options, $childrenIndex): string {
             $output = is_string($options['rootOpen']) ? $options['rootOpen'] : $options['rootOpen']($tree);
             foreach ($tree as $node) {
                 $output .= is_string($options['childOpen']) ? $options['childOpen'] : $options['childOpen']($node);
@@ -143,7 +143,10 @@ class RepositoryUtils implements RepositoryUtilsInterface
         return $build($nestedTree);
     }
 
-    public function buildTreeArray(array $nodes)
+    /**
+     * @return mixed[]
+     */
+    public function buildTreeArray(array $nodes): array
     {
         $meta = $this->getClassMetadata();
         $config = $this->listener->getConfiguration($this->om, $meta->getName());
@@ -181,7 +184,7 @@ class RepositoryUtils implements RepositoryUtilsInterface
         return $nestedTree;
     }
 
-    public function setChildrenIndex($childrenIndex)
+    public function setChildrenIndex($childrenIndex): void
     {
         $this->childrenIndex = $childrenIndex;
     }

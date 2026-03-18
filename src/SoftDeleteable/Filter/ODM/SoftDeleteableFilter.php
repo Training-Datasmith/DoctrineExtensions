@@ -79,10 +79,8 @@ class SoftDeleteableFilter extends BsonFilter
      * @param string $class
      *
      * @phpstan-param class-string $class
-     *
-     * @return void
      */
-    public function disableForDocument($class)
+    public function disableForDocument($class): void
     {
         $this->disabled[$class] = true;
     }
@@ -91,10 +89,8 @@ class SoftDeleteableFilter extends BsonFilter
      * @param string $class
      *
      * @phpstan-param class-string $class
-     *
-     * @return void
      */
-    public function enableForDocument($class)
+    public function enableForDocument($class): void
     {
         $this->disabled[$class] = false;
     }

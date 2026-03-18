@@ -53,7 +53,7 @@ class EntityWrapper extends AbstractWrapper
         return $this->meta->getFieldValue($this->object, $property);
     }
 
-    public function setPropertyValue($property, $value)
+    public function setPropertyValue($property, $value): self
     {
         $this->initialize();
         $this->meta->setFieldValue($this->object, $property, $value);
@@ -61,7 +61,7 @@ class EntityWrapper extends AbstractWrapper
         return $this;
     }
 
-    public function hasValidIdentifier()
+    public function hasValidIdentifier(): bool
     {
         return null !== $this->getIdentifier();
     }
@@ -105,7 +105,7 @@ class EntityWrapper extends AbstractWrapper
         return $this->identifier;
     }
 
-    public function isEmbeddedAssociation($field)
+    public function isEmbeddedAssociation($field): bool
     {
         return false;
     }

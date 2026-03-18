@@ -117,7 +117,7 @@ class UploadableListener extends MappedEventSubscriber
     /**
      * @return string[]
      */
-    public function getSubscribedEvents()
+    public function getSubscribedEvents(): array
     {
         return [
             'loadClassMetadata',
@@ -136,10 +136,8 @@ class UploadableListener extends MappedEventSubscriber
      * @param ManagerEventArgs $args
      *
      * @phpstan-param ManagerEventArgs<ObjectManager> $args
-     *
-     * @return void
      */
-    public function preFlush(EventArgs $args)
+    public function preFlush(EventArgs $args): void
     {
         if ([] === $this->fileInfoObjects) {
             // Nothing to do
@@ -179,10 +177,8 @@ class UploadableListener extends MappedEventSubscriber
      * @param ManagerEventArgs $args
      *
      * @phpstan-param ManagerEventArgs<ObjectManager> $args
-     *
-     * @return void
      */
-    public function onFlush(EventArgs $args)
+    public function onFlush(EventArgs $args): void
     {
         $ea = $this->getEventAdapter($args);
         $om = $ea->getObjectManager();
@@ -216,10 +212,8 @@ class UploadableListener extends MappedEventSubscriber
 
     /**
      * Handle removal of files
-     *
-     * @return void
      */
-    public function postFlush(EventArgs $args)
+    public function postFlush(EventArgs $args): void
     {
         if ([] !== $this->pendingFileRemovals) {
             foreach ($this->pendingFileRemovals as $file) {
@@ -243,10 +237,8 @@ class UploadableListener extends MappedEventSubscriber
      * @throws UploadableCouldntGuessMimeTypeException
      * @throws UploadableMaxSizeException
      * @throws UploadableInvalidMimeTypeException
-     *
-     * @return void
      */
-    public function processFile(AdapterInterface $ea, $object, $action)
+    public function processFile(AdapterInterface $ea, $object, $action): void
     {
         $oid = spl_object_id($object);
         $om = $ea->getObjectManager();
@@ -402,7 +394,6 @@ class UploadableListener extends MappedEventSubscriber
     /**
      * Moves the file to the specified path
      *
-     * @param string      $path
      * @param string|bool $filenameGeneratorClass
      * @param bool        $overwrite
      * @param bool        $appendNumber
@@ -419,10 +410,9 @@ class UploadableListener extends MappedEventSubscriber
      * @throws UploadablePartialException
      * @throws UploadableNoTmpDirException
      * @throws UploadableCantWriteException
-     *
      * @return array<string, int|string|null>
      */
-    public function moveFile(FileInfoInterface $fileInfo, $path, $filenameGeneratorClass = false, $overwrite = false, $appendNumber = false, $object = null)
+    public function moveFile(FileInfoInterface $fileInfo, string $path, $filenameGeneratorClass = false, $overwrite = false, $appendNumber = false, $object = null): array
     {
         if ($fileInfo->getError() > 0) {
             switch ($fileInfo->getError()) {
@@ -537,10 +527,8 @@ class UploadableListener extends MappedEventSubscriber
      * @param string $source         Source file
      * @param string $dest           Destination file
      * @param bool   $isUploadedFile Whether this is an uploaded file?
-     *
-     * @return bool
      */
-    public function doMoveFile($source, $dest, $isUploadedFile = true)
+    public function doMoveFile($source, $dest, $isUploadedFile = true): bool
     {
         return $isUploadedFile ? @move_uploaded_file($source, $dest) : @copy($source, $dest);
     }
@@ -551,10 +539,8 @@ class UploadableListener extends MappedEventSubscriber
      * @param LoadClassMetadataEventArgs $eventArgs
      *
      * @phpstan-param LoadClassMetadataEventArgs<ClassMetadata<object>, ObjectManager> $eventArgs
-     *
-     * @return void
      */
-    public function loadClassMetadata(EventArgs $eventArgs)
+    public function loadClassMetadata(EventArgs $eventArgs): void
     {
         $this->loadMetadataForObjectClass($eventArgs->getObjectManager(), $eventArgs->getClassMetadata());
     }
@@ -563,10 +549,8 @@ class UploadableListener extends MappedEventSubscriber
      * Sets the default path
      *
      * @param string $path
-     *
-     * @return void
      */
-    public function setDefaultPath($path)
+    public function setDefaultPath($path): void
     {
         $this->defaultPath = $path;
     }
@@ -585,10 +569,8 @@ class UploadableListener extends MappedEventSubscriber
      * Sets file info default class
      *
      * @param string $defaultFileInfoClass
-     *
-     * @return void
      */
-    public function setDefaultFileInfoClass($defaultFileInfoClass)
+    public function setDefaultFileInfoClass($defaultFileInfoClass): void
     {
         if (!is_string($defaultFileInfoClass) || !class_exists($defaultFileInfoClass)
             || !is_subclass_of($defaultFileInfoClass, FileInfoInterface::class)
@@ -604,7 +586,7 @@ class UploadableListener extends MappedEventSubscriber
      *
      * @return class-string<FileInfoInterface>
      */
-    public function getDefaultFileInfoClass()
+    public function getDefaultFileInfoClass(): string
     {
         return $this->defaultFileInfoClass;
     }
@@ -616,10 +598,8 @@ class UploadableListener extends MappedEventSubscriber
      * @param array<string, mixed>|FileInfoInterface $fileInfo
      *
      * @throws \RuntimeException
-     *
-     * @return void
      */
-    public function addEntityFileInfo($entity, $fileInfo)
+    public function addEntityFileInfo($entity, $fileInfo): void
     {
         $fileInfoClass = $this->getDefaultFileInfoClass();
         $fileInfo = is_array($fileInfo) ? new $fileInfoClass($fileInfo) : $fileInfo;
@@ -652,18 +632,12 @@ class UploadableListener extends MappedEventSubscriber
         return $this->fileInfoObjects[$oid]['fileInfo'];
     }
 
-    /**
-     * @return void
-     */
-    public function setMimeTypeGuesser(MimeTypeGuesserInterface $mimeTypeGuesser)
+    public function setMimeTypeGuesser(MimeTypeGuesserInterface $mimeTypeGuesser): void
     {
         $this->mimeTypeGuesser = $mimeTypeGuesser;
     }
 
-    /**
-     * @return MimeTypeGuesserInterface
-     */
-    public function getMimeTypeGuesser()
+    public function getMimeTypeGuesser(): \Gedmo\Uploadable\MimeType\MimeTypeGuesserInterface
     {
         return $this->mimeTypeGuesser;
     }
@@ -674,10 +648,8 @@ class UploadableListener extends MappedEventSubscriber
      * @param object                $object Entity
      *
      * @throws UploadableNoPathDefinedException
-     *
-     * @return string
      */
-    protected function getPath(ClassMetadata $meta, array $config, $object)
+    protected function getPath(ClassMetadata $meta, array $config, ?object $object): string
     {
         $path = $config['path'];
 
@@ -708,7 +680,7 @@ class UploadableListener extends MappedEventSubscriber
      *
      * @return void
      */
-    protected function addFileRemoval($meta, $config, $object)
+    protected function addFileRemoval(\Doctrine\Persistence\Mapping\ClassMetadata $meta, array $config, $object)
     {
         if ($config['filePathField']) {
             $this->pendingFileRemovals[] = $this->getFilePathFieldValue($meta, $config, $object);
@@ -742,7 +714,7 @@ class UploadableListener extends MappedEventSubscriber
      *
      * @return mixed
      */
-    protected function getPropertyValueFromObject(ClassMetadata $meta, $propertyName, $object)
+    protected function getPropertyValueFromObject(ClassMetadata $meta, $propertyName, ?object $object)
     {
         $getFilePath = \Closure::bind(fn (string $propertyName) => $this->{$propertyName}, $object, $meta->getReflectionClass()->getName());
 
@@ -777,7 +749,7 @@ class UploadableListener extends MappedEventSubscriber
         return $this->getPropertyValueFromObject($meta, $config['fileNameField'], $object);
     }
 
-    protected function getNamespace()
+    protected function getNamespace(): string
     {
         return __NAMESPACE__;
     }

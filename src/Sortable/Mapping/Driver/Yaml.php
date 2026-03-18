@@ -53,14 +53,16 @@ class Yaml extends File implements Driver
 
         if (isset($mapping['fields'])) {
             foreach ($mapping['fields'] as $field => $fieldMapping) {
-                if (isset($fieldMapping['gedmo'])) {
-                    if (in_array('sortablePosition', $fieldMapping['gedmo'], true)) {
-                        if (!$this->isValidField($meta, $field)) {
-                            throw new InvalidMappingException("Sortable position field - [{$field}] type is not valid and must be 'integer' in class - {$meta->getName()}");
-                        }
-                        $config['position'] = $field;
-                    }
+                if (!isset($fieldMapping['gedmo'])) {
+                    continue;
                 }
+                if (!in_array('sortablePosition', $fieldMapping['gedmo'], true)) {
+                    continue;
+                }
+                if (!$this->isValidField($meta, $field)) {
+                    throw new InvalidMappingException("Sortable position field - [{$field}] type is not valid and must be 'integer' in class - {$meta->getName()}");
+                }
+                $config['position'] = $field;
             }
             $config = $this->readSortableGroups($mapping['fields'], $config);
         }
@@ -90,10 +92,8 @@ class Yaml extends File implements Driver
      *
      * @param ClassMetadata<object> $meta
      * @param string                $field
-     *
-     * @return bool
      */
-    protected function isValidField($meta, $field)
+    protected function isValidField($meta, $field): bool
     {
         $mapping = $meta->getFieldMapping($field);
 
@@ -109,14 +109,16 @@ class Yaml extends File implements Driver
     private function readSortableGroups(iterable $mapping, array $config): array
     {
         foreach ($mapping as $field => $fieldMapping) {
-            if (isset($fieldMapping['gedmo'])) {
-                if (in_array('sortableGroup', $fieldMapping['gedmo'], true)) {
-                    if (!isset($config['groups'])) {
-                        $config['groups'] = [];
-                    }
-                    $config['groups'][] = $field;
-                }
+            if (!isset($fieldMapping['gedmo'])) {
+                continue;
             }
+            if (!in_array('sortableGroup', $fieldMapping['gedmo'], true)) {
+                continue;
+            }
+            if (!isset($config['groups'])) {
+                $config['groups'] = [];
+            }
+            $config['groups'][] = $field;
         }
 
         return $config;

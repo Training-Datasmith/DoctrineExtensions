@@ -50,7 +50,7 @@ class Attribute extends AbstractAnnotationDriver
         'referenceManyEmbed' => self::REFERENCE_MANY_EMBED,
     ];
 
-    public function readExtendedMetadata($meta, array &$config)
+    public function readExtendedMetadata($meta, array &$config): array
     {
         $class = $meta->getReflectionClass();
 
@@ -58,13 +58,15 @@ class Attribute extends AbstractAnnotationDriver
             $config[$key] = [];
 
             foreach ($class->getProperties() as $property) {
-                if ($meta->isMappedSuperclass && !$property->isPrivate()
-                    || $meta->isInheritedField($property->name)
-                    || isset($meta->associationMappings[$property->name]['inherited'])
-                ) {
+                if ($meta->isMappedSuperclass && !$property->isPrivate()) {
                     continue;
                 }
-
+                if ($meta->isInheritedField($property->name)) {
+                    continue;
+                }
+                if (isset($meta->associationMappings[$property->name]['inherited'])) {
+                    continue;
+                }
                 if ($reference = $this->reader->getPropertyAnnotation($property, $annotation)) {
                     \assert($reference instanceof Reference);
 

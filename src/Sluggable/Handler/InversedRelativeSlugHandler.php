@@ -33,10 +33,7 @@ class InversedRelativeSlugHandler implements SlugHandlerInterface
      */
     protected $om;
 
-    /**
-     * @var SluggableListener
-     */
-    protected $sluggable;
+    protected \Gedmo\Sluggable\SluggableListener $sluggable;
 
     public function __construct(SluggableListener $sluggable)
     {
@@ -54,7 +51,7 @@ class InversedRelativeSlugHandler implements SlugHandlerInterface
     /**
      * @param ClassMetadata<object> $meta
      */
-    public static function validate(array $options, ClassMetadata $meta)
+    public static function validate(array $options, ClassMetadata $meta): void
     {
         if (!isset($options['relationClass']) || !strlen($options['relationClass'])) {
             throw new InvalidMappingException("'relationClass' option must be specified for object slug mapping - {$meta->getName()}");
@@ -67,7 +64,7 @@ class InversedRelativeSlugHandler implements SlugHandlerInterface
         }
     }
 
-    public function onSlugCompletion(SluggableAdapter $ea, array &$config, $object, &$slug)
+    public function onSlugCompletion(SluggableAdapter $ea, array &$config, $object, &$slug): void
     {
         $this->om = $ea->getObjectManager();
         $isInsert = $this->om->getUnitOfWork()->isScheduledForInsert($object);
@@ -117,7 +114,7 @@ class InversedRelativeSlugHandler implements SlugHandlerInterface
         }
     }
 
-    public function handlesUrlization()
+    public function handlesUrlization(): bool
     {
         return false;
     }

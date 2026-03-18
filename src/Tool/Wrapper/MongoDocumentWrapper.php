@@ -56,7 +56,7 @@ class MongoDocumentWrapper extends AbstractWrapper
         return $this->meta->rootDocumentName;
     }
 
-    public function setPropertyValue($property, $value)
+    public function setPropertyValue($property, $value): self
     {
         $this->initialize();
         $this->meta->setFieldValue($this->object, $property, $value);
@@ -64,17 +64,15 @@ class MongoDocumentWrapper extends AbstractWrapper
         return $this;
     }
 
-    public function hasValidIdentifier()
+    public function hasValidIdentifier(): bool
     {
         return (bool) $this->getIdentifier();
     }
 
     /**
      * @param bool $flatten
-     *
-     * @return string
      */
-    public function getIdentifier($single = true, $flatten = false)
+    public function getIdentifier($single = true, $flatten = false): string
     {
         if (!$this->identifier) {
             if ($this->object instanceof GhostObjectInterface) {

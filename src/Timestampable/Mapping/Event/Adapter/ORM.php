@@ -52,7 +52,7 @@ final class ORM extends BaseAdapterORM implements TimestampableAdapter, ClockAwa
      *
      * @return \DateTimeInterface|int
      */
-    private function getRawDateValue($mapping)
+    private function getRawDateValue(array $mapping)
     {
         $datetime = $this->clock instanceof ClockInterface ? $this->clock->now() : new \DateTimeImmutable();
         $type = $mapping instanceof FieldMapping ? $mapping->type : ($mapping['type'] ?? '');

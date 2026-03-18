@@ -87,10 +87,8 @@ class LogEntryRepository extends EntityRepository
      * @param int $version
      *
      * @throws UnexpectedValueException
-     *
-     * @return void
      */
-    public function revert($entity, $version = 1)
+    public function revert($entity, $version = 1): void
     {
         $wrapped = new EntityWrapper($entity, $this->getEntityManager());
         $objectMeta = $wrapped->getMetadata();

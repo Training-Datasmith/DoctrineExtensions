@@ -57,10 +57,8 @@ abstract class AbstractTrackingListener extends MappedEventSubscriber
      * @param LoadClassMetadataEventArgs $eventArgs
      *
      * @phpstan-param LoadClassMetadataEventArgs<ClassMetadata<object>, ObjectManager> $eventArgs
-     *
-     * @return void
      */
-    public function loadClassMetadata(EventArgs $eventArgs)
+    public function loadClassMetadata(EventArgs $eventArgs): void
     {
         $this->loadMetadataForObjectClass($eventArgs->getObjectManager(), $eventArgs->getClassMetadata());
     }
@@ -71,10 +69,8 @@ abstract class AbstractTrackingListener extends MappedEventSubscriber
      * @param ManagerEventArgs $args
      *
      * @phpstan-param ManagerEventArgs<ObjectManager> $args
-     *
-     * @return void
      */
-    public function onFlush(EventArgs $args)
+    public function onFlush(EventArgs $args): void
     {
         $ea = $this->getEventAdapter($args);
         $om = $ea->getObjectManager();
@@ -177,10 +173,8 @@ abstract class AbstractTrackingListener extends MappedEventSubscriber
      * @param LifecycleEventArgs $args
      *
      * @phpstan-param LifecycleEventArgs<ObjectManager> $args
-     *
-     * @return void
      */
-    public function prePersist(EventArgs $args)
+    public function prePersist(EventArgs $args): void
     {
         $ea = $this->getEventAdapter($args);
         $om = $ea->getObjectManager();

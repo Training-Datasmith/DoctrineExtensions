@@ -82,7 +82,7 @@ class MaterializedPathRepository extends AbstractTreeRepository
         return $this->getRootNodesQuery($sortByField, $direction)->getIterator();
     }
 
-    public function childCount($node = null, $direct = false)
+    public function childCount($node = null, $direct = false): int
     {
         $meta = $this->getClassMetadata();
 
@@ -188,7 +188,7 @@ class MaterializedPathRepository extends AbstractTreeRepository
         return $query->toArray();
     }
 
-    protected function validate()
+    protected function validate(): bool
     {
         return Strategy::MATERIALIZED_PATH === $this->listener->getStrategy($this->dm, $this->getClassMetadata()->name)->getName();
     }

@@ -26,7 +26,10 @@ use Gedmo\Mapping\Driver\Xml as BaseXml;
  */
 class Xml extends BaseXml
 {
-    public function readExtendedMetadata($meta, array &$config)
+    /**
+     * @return mixed[]
+     */
+    public function readExtendedMetadata($meta, array &$config): array
     {
         /**
          * @var \SimpleXmlElement

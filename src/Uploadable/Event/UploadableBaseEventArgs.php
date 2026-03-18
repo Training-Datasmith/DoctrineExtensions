@@ -32,11 +32,6 @@ abstract class UploadableBaseEventArgs extends EventArgs
     private EntityManagerInterface $em;
 
     /**
-     * @todo Check if this property must be removed, as it is not used.
-     */
-    private array $config = [];
-
-    /**
      * The Uploadable entity
      *
      * @var object
@@ -70,7 +65,6 @@ abstract class UploadableBaseEventArgs extends EventArgs
     {
         $this->uploadableListener = $listener;
         $this->em = $em;
-        $this->config = $config;
         $this->fileInfo = $fileInfo;
         $this->entity = $entity;
         $this->action = $action;

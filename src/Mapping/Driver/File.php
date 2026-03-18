@@ -51,10 +51,7 @@ abstract class File implements Driver
      */
     protected $_paths = [];
 
-    /**
-     * @return void
-     */
-    public function setLocator(FileLocator $locator)
+    public function setLocator(FileLocator $locator): void
     {
         $this->locator = $locator;
     }
@@ -65,10 +62,8 @@ abstract class File implements Driver
      * @deprecated since gedmo/doctrine-extensions 3.3, will be removed in version 4.0.
      *
      * @param string[] $paths
-     *
-     * @return void
      */
-    public function setPaths($paths)
+    public function setPaths($paths): void
     {
         $this->_paths = (array) $paths;
     }
@@ -77,10 +72,8 @@ abstract class File implements Driver
      * Set the file extension
      *
      * @param string $extension
-     *
-     * @return void
      */
-    public function setExtension($extension)
+    public function setExtension($extension): void
     {
         $this->_extension = $extension;
     }
@@ -89,10 +82,8 @@ abstract class File implements Driver
      * Passes in the mapping read by original driver
      *
      * @param MappingDriver $driver
-     *
-     * @return void
      */
-    public function setOriginalDriver($driver)
+    public function setOriginalDriver($driver): void
     {
         $this->_originalDriver = $driver;
     }
@@ -112,13 +103,11 @@ abstract class File implements Driver
     /**
      * Tries to get a mapping for a given class
      *
-     * @param string $className
      *
      * @phpstan-param class-string $className
-     *
      * @return array<string, mixed>|object|null
      */
-    protected function _getMapping($className)
+    protected function _getMapping(string $className)
     {
         // try loading mapping from original driver first
         $mapping = null;
@@ -149,7 +138,7 @@ abstract class File implements Driver
      *
      * @phpstan-return class-string|''
      */
-    protected function getRelatedClassName($metadata, $name)
+    protected function getRelatedClassName($metadata, string $name)
     {
         if (class_exists($name) || interface_exists($name)) {
             return $name;

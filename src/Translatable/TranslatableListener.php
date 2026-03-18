@@ -138,7 +138,7 @@ class TranslatableListener extends MappedEventSubscriber
      *
      * @return string[]
      */
-    public function getSubscribedEvents()
+    public function getSubscribedEvents(): array
     {
         return [
             'postLoad',
@@ -156,7 +156,7 @@ class TranslatableListener extends MappedEventSubscriber
      *
      * @return static
      */
-    public function setSkipOnLoad($bool)
+    public function setSkipOnLoad($bool): self
     {
         $this->skipOnLoad = (bool) $bool;
 
@@ -171,7 +171,7 @@ class TranslatableListener extends MappedEventSubscriber
      *
      * @return static
      */
-    public function setPersistDefaultLocaleTranslation($bool)
+    public function setPersistDefaultLocaleTranslation($bool): self
     {
         $this->persistDefaultLocaleTranslation = (bool) $bool;
 
@@ -181,24 +181,20 @@ class TranslatableListener extends MappedEventSubscriber
     /**
      * Check if should persist default locale
      * translation or keep it in original record
-     *
-     * @return bool
      */
-    public function getPersistDefaultLocaleTranslation()
+    public function getPersistDefaultLocaleTranslation(): bool
     {
-        return (bool) $this->persistDefaultLocaleTranslation;
+        return $this->persistDefaultLocaleTranslation;
     }
 
     /**
      * Add additional $translation for pending $oid object
      * which is being inserted
      *
-     * @param int    $oid
      * @param object $translation
      *
-     * @return void
      */
-    public function addPendingTranslationInsert($oid, $translation)
+    public function addPendingTranslationInsert(int $oid, $translation): void
     {
         $this->pendingTranslationInserts[$oid][] = $translation;
     }
@@ -209,10 +205,8 @@ class TranslatableListener extends MappedEventSubscriber
      * @param LoadClassMetadataEventArgs $eventArgs
      *
      * @phpstan-param LoadClassMetadataEventArgs<ClassMetadata<object>, ObjectManager> $eventArgs
-     *
-     * @return void
      */
-    public function loadClassMetadata(EventArgs $eventArgs)
+    public function loadClassMetadata(EventArgs $eventArgs): void
     {
         $this->loadMetadataForObjectClass($eventArgs->getObjectManager(), $eventArgs->getClassMetadata());
     }
@@ -221,15 +215,13 @@ class TranslatableListener extends MappedEventSubscriber
      * Get the translation class to be used
      * for the object $class
      *
-     * @param string $class
      *
      * @phpstan-param class-string $class
      *
      * @return string
-     *
      * @phpstan-return class-string
      */
-    public function getTranslationClass(TranslatableAdapter $ea, $class)
+    public function getTranslationClass(TranslatableAdapter $ea, string $class)
     {
         return self::$configurations[$this->name][$class]['translationClass'] ?? $ea->getDefaultTranslationClass()
         ;
@@ -243,7 +235,7 @@ class TranslatableListener extends MappedEventSubscriber
      *
      * @return static
      */
-    public function setTranslationFallback($bool)
+    public function setTranslationFallback($bool): self
     {
         $this->translationFallback = (bool) $bool;
 
@@ -253,10 +245,8 @@ class TranslatableListener extends MappedEventSubscriber
     /**
      * Weather or not is using the translation
      * fallback to original record
-     *
-     * @return bool
      */
-    public function getTranslationFallback()
+    public function getTranslationFallback(): bool
     {
         return $this->translationFallback;
     }
@@ -268,7 +258,7 @@ class TranslatableListener extends MappedEventSubscriber
      *
      * @return static
      */
-    public function setTranslatableLocale($locale)
+    public function setTranslatableLocale($locale): self
     {
         $this->validateLocale($locale);
         $this->locale = $locale;
@@ -292,11 +282,10 @@ class TranslatableListener extends MappedEventSubscriber
      * to not update the original record field if locale
      * which is used for updating is not default
      *
-     * @param string $locale
      *
      * @return static
      */
-    public function setDefaultLocale($locale)
+    public function setDefaultLocale(string $locale): self
     {
         $this->validateLocale($locale);
         $this->defaultLocale = $locale;
@@ -306,10 +295,8 @@ class TranslatableListener extends MappedEventSubscriber
 
     /**
      * Gets the default locale
-     *
-     * @return string
      */
-    public function getDefaultLocale()
+    public function getDefaultLocale(): string
     {
         return $this->defaultLocale;
     }
@@ -379,10 +366,8 @@ class TranslatableListener extends MappedEventSubscriber
      * @param ManagerEventArgs $args
      *
      * @phpstan-param ManagerEventArgs<ObjectManager> $args
-     *
-     * @return void
      */
-    public function preFlush(EventArgs $args)
+    public function preFlush(EventArgs $args): void
     {
         $ea = $this->getEventAdapter($args);
         $om = $ea->getObjectManager();
@@ -420,10 +405,8 @@ class TranslatableListener extends MappedEventSubscriber
      * @param ManagerEventArgs $args
      *
      * @phpstan-param ManagerEventArgs<ObjectManager> $args
-     *
-     * @return void
      */
-    public function onFlush(EventArgs $args)
+    public function onFlush(EventArgs $args): void
     {
         $ea = $this->getEventAdapter($args);
         $om = $ea->getObjectManager();
@@ -464,10 +447,8 @@ class TranslatableListener extends MappedEventSubscriber
      * @param LifecycleEventArgs $args
      *
      * @phpstan-param LifecycleEventArgs<ObjectManager> $args
-     *
-     * @return void
      */
-    public function postPersist(EventArgs $args)
+    public function postPersist(EventArgs $args): void
     {
         $ea = $this->getEventAdapter($args);
         $om = $ea->getObjectManager();
@@ -501,10 +482,8 @@ class TranslatableListener extends MappedEventSubscriber
      * @param ManagerEventArgs $args
      *
      * @phpstan-param ManagerEventArgs<ObjectManager> $args
-     *
-     * @return void
      */
-    public function postLoad(EventArgs $args)
+    public function postLoad(EventArgs $args): void
     {
         $ea = $this->getEventAdapter($args);
         $om = $ea->getObjectManager();
@@ -568,10 +547,8 @@ class TranslatableListener extends MappedEventSubscriber
      * @param int                 $oid   hash of basic entity
      * @param string              $field field of basic entity
      * @param object|Translatable $trans Translation object
-     *
-     * @return void
      */
-    public function setTranslationInDefaultLocale($oid, $field, $trans)
+    public function setTranslationInDefaultLocale($oid, string $field, $trans): void
     {
         if (!isset($this->translationInDefaultLocale[$oid])) {
             $this->translationInDefaultLocale[$oid] = [];
@@ -579,10 +556,7 @@ class TranslatableListener extends MappedEventSubscriber
         $this->translationInDefaultLocale[$oid][$field] = $trans;
     }
 
-    /**
-     * @return bool
-     */
-    public function isSkipOnLoad()
+    public function isSkipOnLoad(): bool
     {
         return $this->skipOnLoad;
     }
@@ -592,15 +566,13 @@ class TranslatableListener extends MappedEventSubscriber
      * This is for internal use only.
      *
      * @param int $oid hash of the basic entity
-     *
-     * @return bool
      */
-    public function hasTranslationsInDefaultLocale($oid)
+    public function hasTranslationsInDefaultLocale($oid): bool
     {
         return array_key_exists($oid, $this->translationInDefaultLocale);
     }
 
-    protected function getNamespace()
+    protected function getNamespace(): string
     {
         return __NAMESPACE__;
     }
@@ -676,12 +648,15 @@ class TranslatableListener extends MappedEventSubscriber
 
             // lookup persisted translations
             foreach ($ea->getScheduledObjectInsertions($uow) as $trans) {
-                if (get_class($trans) !== $translationClass
-                    || $trans->getLocale() !== $locale
-                    || $trans->getField() !== $field) {
+                if (get_class($trans) !== $translationClass) {
                     continue;
                 }
-
+                if ($trans->getLocale() !== $locale) {
+                    continue;
+                }
+                if ($trans->getField() !== $field) {
+                    continue;
+                }
                 if ($ea->usesPersonalTranslation($translationClass)) {
                     $wasPersistedSeparetely = $trans->getObject() === $object;
                 } else {
@@ -763,12 +738,14 @@ class TranslatableListener extends MappedEventSubscriber
             $this->validateLocale($this->defaultLocale);
             $modifiedChangeSet = $changeSet;
             foreach ($changeSet as $field => $changes) {
-                if (in_array($field, $translatableFields, true)) {
-                    if ($locale !== $this->defaultLocale) {
-                        $ea->setOriginalObjectProperty($uow, $object, $field, $changes[0]);
-                        unset($modifiedChangeSet[$field]);
-                    }
+                if (!in_array($field, $translatableFields, true)) {
+                    continue;
                 }
+                if ($locale === $this->defaultLocale) {
+                    continue;
+                }
+                $ea->setOriginalObjectProperty($uow, $object, $field, $changes[0]);
+                unset($modifiedChangeSet[$field]);
             }
             $ea->recomputeSingleObjectChangeset($uow, $meta, $object);
             // cleanup current changeset only if working in a another locale different than de default one, otherwise the changeset will always be reverted

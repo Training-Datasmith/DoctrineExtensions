@@ -48,7 +48,7 @@ class Yaml extends File implements Driver
      */
     protected $_extension = '.dcm.yml';
 
-    public function readExtendedMetadata($meta, array &$config)
+    public function readExtendedMetadata($meta, array &$config): array
     {
         $mapping = $this->_getMapping($meta->getName());
 
@@ -127,10 +127,8 @@ class Yaml extends File implements Driver
      *
      * @param ClassMetadata<object> $meta
      * @param string                $field
-     *
-     * @return bool
      */
-    protected function isValidField($meta, $field)
+    protected function isValidField($meta, $field): bool
     {
         $mapping = $meta->getFieldMapping($field);
 
