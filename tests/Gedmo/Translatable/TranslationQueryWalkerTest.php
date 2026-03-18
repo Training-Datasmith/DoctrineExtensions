@@ -446,7 +446,8 @@ final class TranslationQueryWalkerTest extends BaseTestCaseORM
             $result[$key] = implode(' - ', $value);
         });
         static::assertSame(
-            ['Alfabet - 1', 'Food - 99', 'Cabbages - 2222', 'Woman - 3333'], $result,
+            ['Alfabet - 1', 'Food - 99', 'Cabbages - 2222', 'Woman - 3333'],
+            $result,
             'Original of localizible integers should be sorted numerically'
         );
 
@@ -457,7 +458,8 @@ final class TranslationQueryWalkerTest extends BaseTestCaseORM
             $result[$key] = implode(' - ', $value);
         });
         static::assertSame(
-            ['Moteris - 33', 'Alfabetas - 111', 'Maistas - 999', 'Kopustai - 22222'], $result,
+            ['Moteris - 33', 'Alfabetas - 111', 'Maistas - 999', 'Kopustai - 22222'],
+            $result,
             'Localized integers should be sorted numerically'
         );
     }

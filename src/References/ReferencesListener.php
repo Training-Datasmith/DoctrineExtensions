@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the Doctrine Behavioral Extensions package.
  * (c) Gediminas Morkevicius <gediminas.morkevicius@gmail.com> http://www.gediminasm.org
@@ -69,7 +71,8 @@ class ReferencesListener extends MappedEventSubscriber
     public function loadClassMetadata(EventArgs $eventArgs): void
     {
         $this->loadMetadataForObjectClass(
-            $eventArgs->getObjectManager(), $eventArgs->getClassMetadata()
+            $eventArgs->getObjectManager(),
+            $eventArgs->getClassMetadata()
         );
     }
 

@@ -165,8 +165,12 @@ final class SoftDeleteableEntityTest extends BaseTestCaseORM
 
         // Now we try with a DQL Delete query
         $this->em->getFilters()->enable(self::SOFT_DELETEABLE_FILTER_NAME);
-        $dql = sprintf('DELETE FROM %s a WHERE a.%s = :%s',
-            Article::class, $field, $field);
+        $dql = sprintf(
+            'DELETE FROM %s a WHERE a.%s = :%s',
+            Article::class,
+            $field,
+            $field
+        );
         $query = $this->em->createQuery($dql);
         $query->setParameter($field, $value);
         $query->setHint(
@@ -204,8 +208,10 @@ final class SoftDeleteableEntityTest extends BaseTestCaseORM
         $this->em->persist($module);
         $this->em->flush();
 
-        $dql = sprintf('DELETE FROM %s p',
-            Page::class);
+        $dql = sprintf(
+            'DELETE FROM %s p',
+            Page::class
+        );
         $query = $this->em->createQuery($dql);
         $query->setHint(
             Query::HINT_CUSTOM_OUTPUT_WALKER,
@@ -321,8 +327,12 @@ final class SoftDeleteableEntityTest extends BaseTestCaseORM
 
         // Now we try with a DQL Delete query
         $this->em->getFilters()->enable(self::SOFT_DELETEABLE_FILTER_NAME);
-        $dql = sprintf('DELETE FROM %s a WHERE a.%s = :%s',
-            Article::class, $field, $field);
+        $dql = sprintf(
+            'DELETE FROM %s a WHERE a.%s = :%s',
+            Article::class,
+            $field,
+            $field
+        );
         $query = $this->em->createQuery($dql);
         $query->setParameter($field, $value);
         $query->setHint(
@@ -360,8 +370,10 @@ final class SoftDeleteableEntityTest extends BaseTestCaseORM
         $this->em->persist($module);
         $this->em->flush();
 
-        $dql = sprintf('DELETE FROM %s p',
-            Page::class);
+        $dql = sprintf(
+            'DELETE FROM %s p',
+            Page::class
+        );
         $query = $this->em->createQuery($dql);
         $query->setHint(
             Query::HINT_CUSTOM_OUTPUT_WALKER,

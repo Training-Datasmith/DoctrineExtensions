@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the Doctrine Behavioral Extensions package.
  * (c) Gediminas Morkevicius <gediminas.morkevicius@gmail.com> http://www.gediminasm.org
@@ -469,7 +471,8 @@ class NestedTreeRepository extends AbstractTreeRepository
         $qb = $this->getQueryBuilder();
         $qb->select('node')
             ->from($config['useObjectClass'], 'node')
-            ->where($includeSelf ?
+            ->where(
+                $includeSelf ?
                 $qb->expr()->gte('node.'.$config['left'], $left) :
                 $qb->expr()->gt('node.'.$config['left'], $left)
             )
@@ -549,7 +552,8 @@ class NestedTreeRepository extends AbstractTreeRepository
         $qb = $this->getQueryBuilder();
         $qb->select('node')
             ->from($config['useObjectClass'], 'node')
-            ->where($includeSelf ?
+            ->where(
+                $includeSelf ?
                 $qb->expr()->lte('node.'.$config['left'], $left) :
                 $qb->expr()->lt('node.'.$config['left'], $left)
             )

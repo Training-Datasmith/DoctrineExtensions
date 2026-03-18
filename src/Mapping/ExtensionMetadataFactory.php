@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the Doctrine Behavioral Extensions package.
  * (c) Gediminas Morkevicius <gediminas.morkevicius@gmail.com> http://www.gediminasm.org
@@ -236,7 +238,7 @@ class ExtensionMetadataFactory
             if ($driver instanceof FileDriver) {
                 if ($omDriver instanceof MappingDriver) {
                     $driver->setLocator($omDriver->getLocator());
-                // BC for Doctrine 2.2
+                    // BC for Doctrine 2.2
                 } elseif ($isSimplified) {
                     $driver->setLocator(new SymfonyFileLocator($omDriver->getNamespacePrefixes(), $omDriver->getFileExtension()));
                 } else {

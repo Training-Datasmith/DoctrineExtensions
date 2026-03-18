@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the Doctrine Behavioral Extensions package.
  * (c) Gediminas Morkevicius <gediminas.morkevicius@gmail.com> http://www.gediminasm.org
@@ -191,7 +193,8 @@ class MaterializedPathRepository extends AbstractTreeRepository
             }
         } elseif ($direct) {
             $expr = $qb->expr()->not(
-                $qb->expr()->like($alias.'.'.$path,
+                $qb->expr()->like(
+                    $alias.'.'.$path,
                     $qb->expr()->literal(
                         ($config['path_starts_with_separator'] ? $separator : '')
                         .'%'.$separator.'%'

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the Doctrine Behavioral Extensions package.
  * (c) Gediminas Morkevicius <gediminas.morkevicius@gmail.com> http://www.gediminasm.org
@@ -37,9 +39,11 @@ class ORM extends BaseAdapterORM implements SluggableAdapter
         $qb = $em->createQueryBuilder();
         $qb->select('rec.'.$config['slug'])
             ->from($config['useObjectClass'], 'rec')
-            ->where($qb->expr()->like(
-                'rec.'.$config['slug'],
-                ':slug')
+            ->where(
+                $qb->expr()->like(
+                    'rec.'.$config['slug'],
+                    ':slug'
+                )
             )
         ;
         $qb->setParameter('slug', $slug.'%');
@@ -103,9 +107,11 @@ class ORM extends BaseAdapterORM implements SluggableAdapter
                 $qb->expr()->literal($replacement),
                 $qb->expr()->substring('rec.'.$config['slug'], mb_strlen($target))
             ))
-            ->where($qb->expr()->like(
-                'rec.'.$config['slug'],
-                $qb->expr()->literal($target.'%'))
+            ->where(
+                $qb->expr()->like(
+                    'rec.'.$config['slug'],
+                    $qb->expr()->literal($target.'%')
+                )
             )
         ;
         // update in memory
