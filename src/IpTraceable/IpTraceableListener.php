@@ -1,22 +1,19 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of the Doctrine Behavioral Extensions package.
  * (c) Gediminas Morkevicius <gediminas.morkevicius@gmail.com> http://www.gediminasm.org
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+namespace Gedmo\Ip_Traceable;
 
-namespace Gedmo\IpTraceable;
-
-use Doctrine\Persistence\Mapping\ClassMetadata;
-use Gedmo\AbstractTrackingListener;
+use Doctrine\Persistence\Mapping\Class_Metadata;
+use Gedmo\Abstract_Tracking_Listener;
 use Gedmo\Exception\InvalidArgumentException;
-use Gedmo\IpTraceable\Mapping\Event\IpTraceableAdapter;
-use Gedmo\Tool\IpAddressProviderInterface;
-
+use Gedmo\Ip_Traceable\Mapping\Event\Ip_Traceable_Adapter;
+use Gedmo\Tool\Ip_Address_Provider_Interface;
 /**
  * The IpTraceable listener handles the update of
  * IPs on creation and update.
@@ -27,15 +24,13 @@ use Gedmo\Tool\IpAddressProviderInterface;
  *
  * @final since gedmo/doctrine-extensions 3.11
  */
-class IpTraceableListener extends AbstractTrackingListener
+class Ip_Traceable_Listener extends Abstract_Tracking_Listener
 {
-    protected ?IpAddressProviderInterface $ipAddressProvider = null;
-
+    protected ?Ip_Address_Provider_Interface $ip_address_provider = null;
     /**
      * @var string|null
      */
     protected $ip;
-
     /**
      * Get the IP address value to set on an IP address field
      *
@@ -45,23 +40,20 @@ class IpTraceableListener extends AbstractTrackingListener
      *
      * @return string|null
      */
-    public function getFieldValue($meta, $field, $eventAdapter)
+    public function get_field_value($meta, $field, $event_adapter)
     {
-        if ($this->ipAddressProvider instanceof IpAddressProviderInterface) {
-            return $this->ipAddressProvider->getAddress();
+        if ($this->ip_address_provider instanceof Ip_Address_Provider_Interface) {
+            return $this->ip_address_provider->get_address();
         }
-
         return $this->ip;
     }
-
     /**
      * Set an IP address provider for the IP address value.
      */
-    public function setIpAddressProvider(IpAddressProviderInterface $ipAddressProvider): void
+    public function set_ip_address_provider(Ip_Address_Provider_Interface $ip_address_provider): void
     {
-        $this->ipAddressProvider = $ipAddressProvider;
+        $this->ip_address_provider = $ip_address_provider;
     }
-
     /**
      * Set an IP address value to return.
      *
@@ -71,16 +63,14 @@ class IpTraceableListener extends AbstractTrackingListener
      *
      * @throws InvalidArgumentException
      */
-    public function setIpValue($ip = null): void
+    public function set_ip_value($ip = null): void
     {
         if (isset($ip) && false === filter_var($ip, FILTER_VALIDATE_IP)) {
-            throw new InvalidArgumentException("ip address is not valid $ip");
+            throw new InvalidArgumentException("ip address is not valid {$ip}");
         }
-
         $this->ip = $ip;
     }
-
-    protected function getNamespace(): string
+    protected function get_namespace(): string
     {
         return __NAMESPACE__;
     }

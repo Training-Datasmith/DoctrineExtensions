@@ -1,20 +1,17 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of the Doctrine Behavioral Extensions package.
  * (c) Gediminas Morkevicius <gediminas.morkevicius@gmail.com> http://www.gediminasm.org
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Gedmo\Uploadable\Mapping\Driver;
 
 use Gedmo\Mapping\Driver;
 use Gedmo\Mapping\Driver\File;
 use Gedmo\Uploadable\Mapping\Validator;
-
 /**
  * This is a yaml mapping driver for Uploadable
  * behavioral extension. Used for extraction of extended
@@ -36,17 +33,13 @@ class Yaml extends File implements Driver
      * @var string
      */
     protected $_extension = '.dcm.yml';
-
-    public function readExtendedMetadata($meta, array &$config)
+    public function read_extended_metadata($meta, array &$config)
     {
-        $mapping = $this->_getMapping($meta->getName());
-
+        $mapping = $this->_get_mapping($meta->get_name());
         if (isset($mapping['gedmo'])) {
-            $classMapping = $mapping['gedmo'];
-
-            if (isset($classMapping['uploadable'])) {
-                $uploadable = $classMapping['uploadable'];
-
+            $class_mapping = $mapping['gedmo'];
+            if (isset($class_mapping['uploadable'])) {
+                $uploadable = $class_mapping['uploadable'];
                 $config['uploadable'] = true;
                 $config['allowOverwrite'] = isset($uploadable['allowOverwrite']) && (bool) $uploadable['allowOverwrite'];
                 $config['appendNumber'] = isset($uploadable['appendNumber']) && (bool) $uploadable['appendNumber'];
@@ -58,12 +51,9 @@ class Yaml extends File implements Driver
                 $config['filePathField'] = false;
                 $config['fileSizeField'] = false;
                 $config['filenameGenerator'] = $uploadable['filenameGenerator'] ?? Validator::FILENAME_GENERATOR_NONE;
-                $config['maxSize'] = isset($uploadable['maxSize']) ?
-                    (float) $uploadable['maxSize'] :
-                    (float) 0;
+                $config['maxSize'] = isset($uploadable['maxSize']) ? (float) $uploadable['maxSize'] : (float) 0;
                 $config['allowedTypes'] = $uploadable['allowedTypes'] ?? '';
                 $config['disallowedTypes'] = $uploadable['disallowedTypes'] ?? '';
-
                 if (isset($mapping['fields'])) {
                     foreach ($mapping['fields'] as $field => $info) {
                         if (isset($info['gedmo']) && array_key_exists(0, $info['gedmo'])) {
@@ -79,15 +69,12 @@ class Yaml extends File implements Driver
                         }
                     }
                 }
-
-                $config = Validator::validateConfiguration($meta, $config);
+                $config = Validator::validate_configuration($meta, $config);
             }
         }
-
         return $config;
     }
-
-    protected function _loadMappingFile($file)
+    protected function _load_mapping_file($file)
     {
         return \Symfony\Component\Yaml\Yaml::parse(file_get_contents($file));
     }

@@ -1,19 +1,16 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of the Doctrine Behavioral Extensions package.
  * (c) Gediminas Morkevicius <gediminas.morkevicius@gmail.com> http://www.gediminasm.org
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Gedmo\Tree;
 
 use Gedmo\Exception\InvalidArgumentException;
-
-interface RepositoryUtilsInterface
+interface Repository_Utils_Interface
 {
     /**
      * Retrieves the nested array or decorated output.
@@ -36,8 +33,7 @@ interface RepositoryUtilsInterface
      *
      * @return array<int, array<string, mixed>>|string
      */
-    public function childrenHierarchy($node = null, $direct = false, array $options = [], $includeNode = false);
-
+    public function children_hierarchy($node = null, $direct = false, array $options = [], $include_node = false);
     /**
      * Retrieves the nested array or the decorated output.
      *
@@ -58,8 +54,7 @@ interface RepositoryUtilsInterface
      *
      * @return array<int, array<string, mixed>>|string
      */
-    public function buildTree(array $nodes, array $options = []);
-
+    public function build_tree(array $nodes, array $options = []);
     /**
      * Process a list of nodes and produce an array with the structure of the tree.
      *
@@ -67,8 +62,7 @@ interface RepositoryUtilsInterface
      *
      * @return array<int, array<string, mixed>>
      */
-    public function buildTreeArray(array $nodes);
-
+    public function build_tree_array(array $nodes);
     /**
      * Sets the current children index.
      *
@@ -76,12 +70,11 @@ interface RepositoryUtilsInterface
      *
      * @return void
      */
-    public function setChildrenIndex($childrenIndex);
-
+    public function set_children_index($children_index);
     /**
      * Gets the current children index.
      *
      * @return string
      */
-    public function getChildrenIndex();
+    public function get_children_index();
 }

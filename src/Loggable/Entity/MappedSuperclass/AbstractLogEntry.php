@@ -1,21 +1,18 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of the Doctrine Behavioral Extensions package.
  * (c) Gediminas Morkevicius <gediminas.morkevicius@gmail.com> http://www.gediminasm.org
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
-namespace Gedmo\Loggable\Entity\MappedSuperclass;
+namespace Gedmo\Loggable\Entity\Mapped_Superclass;
 
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Gedmo\Loggable\LogEntryInterface;
+use Gedmo\Loggable\Log_Entry_Interface;
 use Gedmo\Loggable\Loggable;
-
 /**
  * @phpstan-template T of Loggable|object
  *
@@ -23,8 +20,8 @@ use Gedmo\Loggable\Loggable;
  *
  * @ORM\MappedSuperclass
  */
-#[ORM\MappedSuperclass]
-abstract class AbstractLogEntry implements LogEntryInterface
+#[ORM\Mapped_Superclass]
+abstract class Abstract_Log_Entry implements Log_Entry_Interface
 {
     /**
      * @var int|null
@@ -35,9 +32,8 @@ abstract class AbstractLogEntry implements LogEntryInterface
      */
     #[ORM\Column(type: Types::INTEGER)]
     #[ORM\Id]
-    #[ORM\GeneratedValue]
+    #[ORM\Generated_Value]
     protected $id;
-
     /**
      * @var string|null
      *
@@ -47,23 +43,20 @@ abstract class AbstractLogEntry implements LogEntryInterface
      */
     #[ORM\Column(type: Types::STRING, length: 8)]
     protected $action;
-
     /**
      * @var \DateTime|null
      *
      * @ORM\Column(name="logged_at", type="datetime")
      */
     #[ORM\Column(name: 'logged_at', type: Types::DATETIME_MUTABLE)]
-    protected $loggedAt;
-
+    protected $logged_at;
     /**
      * @var string|null
      *
      * @ORM\Column(name="object_id", length=64, nullable=true)
      */
     #[ORM\Column(name: 'object_id', length: 64, nullable: true)]
-    protected $objectId;
-
+    protected $object_id;
     /**
      * @var string|null
      *
@@ -72,8 +65,7 @@ abstract class AbstractLogEntry implements LogEntryInterface
      * @ORM\Column(name="object_class", type="string", length=191)
      */
     #[ORM\Column(name: 'object_class', type: Types::STRING, length: 191)]
-    protected $objectClass;
-
+    protected $object_class;
     /**
      * @var int|null
      *
@@ -81,7 +73,6 @@ abstract class AbstractLogEntry implements LogEntryInterface
      */
     #[ORM\Column(type: Types::INTEGER)]
     protected $version;
-
     /**
      * @var array<string, mixed>|null
      *
@@ -91,7 +82,6 @@ abstract class AbstractLogEntry implements LogEntryInterface
      */
     #[ORM\Column(type: 'array', nullable: true)]
     protected $data;
-
     /**
      * @var string|null
      *
@@ -99,131 +89,116 @@ abstract class AbstractLogEntry implements LogEntryInterface
      */
     #[ORM\Column(length: 191, nullable: true)]
     protected $username;
-
     /**
      * Get id
      *
      * @return int|null
      */
-    public function getId()
+    public function get_id()
     {
         return $this->id;
     }
-
     /**
      * Get action
      */
-    public function getAction()
+    public function get_action()
     {
         return $this->action;
     }
-
     /**
      * Set action
      */
-    public function setAction($action): void
+    public function set_action($action): void
     {
         $this->action = $action;
     }
-
     /**
      * Get object class
      */
-    public function getObjectClass()
+    public function get_object_class()
     {
-        return $this->objectClass;
+        return $this->object_class;
     }
-
     /**
      * Set object class
      */
-    public function setObjectClass($objectClass): void
+    public function set_object_class($object_class): void
     {
-        $this->objectClass = $objectClass;
+        $this->object_class = $object_class;
     }
-
     /**
      * Get object id
      */
-    public function getObjectId()
+    public function get_object_id()
     {
-        return $this->objectId;
+        return $this->object_id;
     }
-
     /**
      * Set object id
      *
      * @param string $objectId
      */
-    public function setObjectId($objectId): void
+    public function set_object_id($object_id): void
     {
-        $this->objectId = $objectId;
+        $this->object_id = $object_id;
     }
-
     /**
      * Get username
      */
-    public function getUsername()
+    public function get_username()
     {
         return $this->username;
     }
-
     /**
      * Set username
      *
      * @param string $username
      */
-    public function setUsername($username): void
+    public function set_username($username): void
     {
         $this->username = $username;
     }
-
     /**
      * Get loggedAt
      */
-    public function getLoggedAt()
+    public function get_logged_at()
     {
-        return $this->loggedAt;
+        return $this->logged_at;
     }
-
     /**
      * Set loggedAt to "now"
      */
-    public function setLoggedAt(): void
+    public function set_logged_at(): void
     {
-        $this->loggedAt = new \DateTime();
+        $this->logged_at = new \DateTime();
     }
-
     /**
      * Get data
      */
-    public function getData()
+    public function get_data()
     {
         return $this->data;
     }
-
     /**
      * Set data
      */
-    public function setData($data): void
+    public function set_data($data): void
     {
         $this->data = $data;
     }
-
     /**
      * Set current version
      *
      * @param int $version
      */
-    public function setVersion($version): void
+    public function set_version($version): void
     {
         $this->version = $version;
     }
-
     /**
      * Get current version
      */
-    public function getVersion()
+    public function get_version()
     {
         return $this->version;
     }

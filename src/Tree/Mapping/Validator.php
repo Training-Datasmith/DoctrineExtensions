@@ -1,20 +1,17 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of the Doctrine Behavioral Extensions package.
  * (c) Gediminas Morkevicius <gediminas.morkevicius@gmail.com> http://www.gediminasm.org
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Gedmo\Tree\Mapping;
 
-use Doctrine\ORM\Mapping\FieldMapping;
-use Doctrine\Persistence\Mapping\ClassMetadata;
-use Gedmo\Exception\InvalidMappingException;
-
+use Doctrine\ORM\Mapping\Field_Mapping;
+use Doctrine\Persistence\Mapping\Class_Metadata;
+use Gedmo\Exception\Invalid_Mapping_Exception;
 /**
  * This is a validator for all mapping drivers for Tree
  * behavioral extension, containing methods to validate
@@ -33,140 +30,97 @@ class Validator
      *
      * @var string[]
      */
-    private const VALID_TYPES = [
-        'integer',
-        'smallint',
-        'bigint',
-        'int',
-    ];
-
+    private const VALID_TYPES = ['integer', 'smallint', 'bigint', 'int'];
     /**
      * List of types which are valid for the path (materialized path strategy)
      *
      * @var string[]
      */
-    private array $validPathTypes = [
-        'string',
-        'text',
-    ];
-
+    private array $valid_path_types = ['string', 'text'];
     /**
      * List of types which are valid for the path source (materialized path strategy)
      *
      * @var string[]
      */
-    private array $validPathSourceTypes = [
-        'id',
-        'integer',
-        'smallint',
-        'bigint',
-        'string',
-        'int',
-        'float',
-        'uuid',
-    ];
-
+    private array $valid_path_source_types = ['id', 'integer', 'smallint', 'bigint', 'string', 'int', 'float', 'uuid'];
     /**
      * List of types which are valid for the path hash (materialized path strategy)
      *
      * @var string[]
      */
-    private array $validPathHashTypes = [
-        'string',
-    ];
-
+    private array $valid_path_hash_types = ['string'];
     /**
      * List of types which are valid for the path source (materialized path strategy)
      *
      * @var string[]
      */
-    private array $validRootTypes = [
-        'integer',
-        'smallint',
-        'bigint',
-        'int',
-        'string',
-        'guid',
-    ];
-
+    private array $valid_root_types = ['integer', 'smallint', 'bigint', 'int', 'string', 'guid'];
     /**
      * Checks if $field type is valid
      *
      * @param ClassMetadata<object> $meta
      * @param string                $field
      */
-    public function isValidField($meta, $field): bool
+    public function is_valid_field($meta, $field): bool
     {
-        $mapping = $meta->getFieldMapping($field);
-
-        return $mapping && in_array($this->getMappingType($mapping), self::VALID_TYPES, true);
+        $mapping = $meta->get_field_mapping($field);
+        return $mapping && in_array($this->get_mapping_type($mapping), self::VALID_TYPES, true);
     }
-
     /**
      * Checks if $field type is valid for Path field
      *
      * @param ClassMetadata<object> $meta
      * @param string                $field
      */
-    public function isValidFieldForPath($meta, $field): bool
+    public function is_valid_field_for_path($meta, $field): bool
     {
-        $mapping = $meta->getFieldMapping($field);
-
-        return $mapping && in_array($this->getMappingType($mapping), $this->validPathTypes, true);
+        $mapping = $meta->get_field_mapping($field);
+        return $mapping && in_array($this->get_mapping_type($mapping), $this->valid_path_types, true);
     }
-
     /**
      * Checks if $field type is valid for PathSource field
      *
      * @param ClassMetadata<object> $meta
      * @param string                $field
      */
-    public function isValidFieldForPathSource($meta, $field): bool
+    public function is_valid_field_for_path_source($meta, $field): bool
     {
-        $mapping = $meta->getFieldMapping($field);
-
-        return $mapping && in_array($this->getMappingType($mapping), $this->validPathSourceTypes, true);
+        $mapping = $meta->get_field_mapping($field);
+        return $mapping && in_array($this->get_mapping_type($mapping), $this->valid_path_source_types, true);
     }
-
     /**
      * Checks if $field type is valid for PathHash field
      *
      * @param ClassMetadata<object> $meta
      * @param string                $field
      */
-    public function isValidFieldForPathHash($meta, $field): bool
+    public function is_valid_field_for_path_hash($meta, $field): bool
     {
-        $mapping = $meta->getFieldMapping($field);
-
-        return $mapping && in_array($this->getMappingType($mapping), $this->validPathHashTypes, true);
+        $mapping = $meta->get_field_mapping($field);
+        return $mapping && in_array($this->get_mapping_type($mapping), $this->valid_path_hash_types, true);
     }
-
     /**
      * Checks if $field type is valid for LockTime field
      *
      * @param ClassMetadata<object> $meta
      * @param string                $field
      */
-    public function isValidFieldForLockTime($meta, $field): bool
+    public function is_valid_field_for_lock_time($meta, $field): bool
     {
-        $mapping = $meta->getFieldMapping($field);
-
-        return $mapping && ('date' === $this->getMappingType($mapping) || 'datetime' === $this->getMappingType($mapping) || 'timestamp' === $this->getMappingType($mapping));
+        $mapping = $meta->get_field_mapping($field);
+        return $mapping && ('date' === $this->get_mapping_type($mapping) || 'datetime' === $this->get_mapping_type($mapping) || 'timestamp' === $this->get_mapping_type($mapping));
     }
-
     /**
      * Checks if $field type is valid for Root field
      *
      * @param ClassMetadata<object> $meta
      * @param string                $field
      */
-    public function isValidFieldForRoot($meta, $field): bool
+    public function is_valid_field_for_root($meta, $field): bool
     {
-        $mapping = $meta->getFieldMapping($field);
-
-        return $mapping && in_array($this->getMappingType($mapping), $this->validRootTypes, true);
+        $mapping = $meta->get_field_mapping($field);
+        return $mapping && in_array($this->get_mapping_type($mapping), $this->valid_root_types, true);
     }
-
     /**
      * Validates metadata for nested type tree
      *
@@ -175,23 +129,22 @@ class Validator
      *
      * @throws InvalidMappingException
      */
-    public function validateNestedTreeMetadata($meta, array $config): void
+    public function validate_nested_tree_metadata($meta, array $config): void
     {
-        $missingFields = [];
+        $missing_fields = [];
         if (!isset($config['parent'])) {
-            $missingFields[] = 'ancestor';
+            $missing_fields[] = 'ancestor';
         }
         if (!isset($config['left'])) {
-            $missingFields[] = 'left';
+            $missing_fields[] = 'left';
         }
         if (!isset($config['right'])) {
-            $missingFields[] = 'right';
+            $missing_fields[] = 'right';
         }
-        if ($missingFields) {
-            throw new InvalidMappingException('Missing properties: '.implode(', ', $missingFields)." in class - {$meta->getName()}");
+        if ($missing_fields) {
+            throw new Invalid_Mapping_Exception('Missing properties: ' . implode(', ', $missing_fields) . " in class - {$meta->get_name()}");
         }
     }
-
     /**
      * Validates metadata for closure type tree
      *
@@ -200,20 +153,19 @@ class Validator
      *
      * @throws InvalidMappingException
      */
-    public function validateClosureTreeMetadata($meta, array $config): void
+    public function validate_closure_tree_metadata($meta, array $config): void
     {
-        $missingFields = [];
+        $missing_fields = [];
         if (!isset($config['parent'])) {
-            $missingFields[] = 'ancestor';
+            $missing_fields[] = 'ancestor';
         }
         if (!isset($config['closure'])) {
-            $missingFields[] = 'closure class';
+            $missing_fields[] = 'closure class';
         }
-        if ($missingFields) {
-            throw new InvalidMappingException('Missing properties: '.implode(', ', $missingFields)." in class - {$meta->getName()}");
+        if ($missing_fields) {
+            throw new Invalid_Mapping_Exception('Missing properties: ' . implode(', ', $missing_fields) . " in class - {$meta->get_name()}");
         }
     }
-
     /**
      * Validates metadata for materialized path type tree
      *
@@ -222,32 +174,30 @@ class Validator
      *
      * @throws InvalidMappingException
      */
-    public function validateMaterializedPathTreeMetadata($meta, array $config): void
+    public function validate_materialized_path_tree_metadata($meta, array $config): void
     {
-        $missingFields = [];
+        $missing_fields = [];
         if (!isset($config['parent'])) {
-            $missingFields[] = 'ancestor';
+            $missing_fields[] = 'ancestor';
         }
         if (!isset($config['path'])) {
-            $missingFields[] = 'path';
+            $missing_fields[] = 'path';
         }
         if (!isset($config['path_source'])) {
-            $missingFields[] = 'path_source';
+            $missing_fields[] = 'path_source';
         }
-        if ($missingFields) {
-            throw new InvalidMappingException('Missing properties: '.implode(', ', $missingFields)." in class - {$meta->getName()}");
+        if ($missing_fields) {
+            throw new Invalid_Mapping_Exception('Missing properties: ' . implode(', ', $missing_fields) . " in class - {$meta->get_name()}");
         }
     }
-
     /**
      * @param FieldMapping|array<string, scalar> $mapping
      */
-    private function getMappingType(array $mapping): string
+    private function get_mapping_type(array $mapping): string
     {
-        if ($mapping instanceof FieldMapping) {
+        if ($mapping instanceof Field_Mapping) {
             return $mapping->type;
         }
-
         return $mapping['type'];
     }
 }

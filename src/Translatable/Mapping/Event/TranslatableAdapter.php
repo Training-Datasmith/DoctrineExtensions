@@ -1,27 +1,24 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of the Doctrine Behavioral Extensions package.
  * (c) Gediminas Morkevicius <gediminas.morkevicius@gmail.com> http://www.gediminasm.org
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Gedmo\Translatable\Mapping\Event;
 
-use Doctrine\Persistence\Mapping\ClassMetadata;
-use Doctrine\Persistence\ObjectManager;
-use Gedmo\Mapping\Event\AdapterInterface;
-use Gedmo\Tool\Wrapper\AbstractWrapper;
-
+use Doctrine\Persistence\Mapping\Class_Metadata;
+use Doctrine\Persistence\Object_Manager;
+use Gedmo\Mapping\Event\Adapter_Interface;
+use Gedmo\Tool\Wrapper\Abstract_Wrapper;
 /**
  * Doctrine event adapter for the Translatable extension.
  *
  * @author Gediminas Morkevicius <gediminas.morkevicius@gmail.com>
  */
-interface TranslatableAdapter extends AdapterInterface
+interface Translatable_Adapter extends Adapter_Interface
 {
     /**
      * Checks if the given translation class is a subclass of the personal translation class.
@@ -32,8 +29,7 @@ interface TranslatableAdapter extends AdapterInterface
      *
      * @return bool
      */
-    public function usesPersonalTranslation($translationClassName);
-
+    public function uses_personal_translation($translation_class_name);
     /**
      * Get the default translation class used to store translations.
      *
@@ -41,8 +37,7 @@ interface TranslatableAdapter extends AdapterInterface
      *
      * @phpstan-return class-string
      */
-    public function getDefaultTranslationClass();
-
+    public function get_default_translation_class();
     /**
      * Load the translations for a given object.
      *
@@ -56,8 +51,7 @@ interface TranslatableAdapter extends AdapterInterface
      *
      * @return array<int, array<string, mixed>>
      */
-    public function loadTranslations($object, $translationClass, $locale, $objectClass);
-
+    public function load_translations($object, $translation_class, $locale, $object_class);
     /**
      * Search for an existing translation record.
      *
@@ -72,8 +66,7 @@ interface TranslatableAdapter extends AdapterInterface
      *
      * @return mixed null if nothing is found, translation object otherwise
      */
-    public function findTranslation(AbstractWrapper $wrapped, $locale, $field, $translationClass, $objectClass);
-
+    public function find_translation(Abstract_Wrapper $wrapped, $locale, $field, $translation_class, $object_class);
     /**
      * Removes all associated translations for the given object.
      *
@@ -86,8 +79,7 @@ interface TranslatableAdapter extends AdapterInterface
      *
      * @return int
      */
-    public function removeAssociatedTranslations(AbstractWrapper $wrapped, $transClass, $objectClass);
-
+    public function remove_associated_translations(Abstract_Wrapper $wrapped, $trans_class, $object_class);
     /**
      * Inserts the translation record.
      *
@@ -95,8 +87,7 @@ interface TranslatableAdapter extends AdapterInterface
      *
      * @return void
      */
-    public function insertTranslationRecord($translation);
-
+    public function insert_translation_record($translation);
     /**
      * Get the transformed value for translation storage.
      *
@@ -106,8 +97,7 @@ interface TranslatableAdapter extends AdapterInterface
      *
      * @return mixed
      */
-    public function getTranslationValue($object, $field, $value = false);
-
+    public function get_translation_value($object, $field, $value = false);
     /**
      * Transform the value from the database for translation
      *
@@ -117,5 +107,5 @@ interface TranslatableAdapter extends AdapterInterface
      *
      * @return void
      */
-    public function setTranslationValue($object, $field, $value);
+    public function set_translation_value($object, $field, $value);
 }

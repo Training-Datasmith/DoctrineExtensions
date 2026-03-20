@@ -1,14 +1,12 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of the Doctrine Behavioral Extensions package.
  * (c) Gediminas Morkevicius <gediminas.morkevicius@gmail.com> http://www.gediminasm.org
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Gedmo\Translator;
 
 /**
@@ -16,7 +14,7 @@ namespace Gedmo\Translator;
  *
  * @author Konstantin Kudryashov <ever.zet@gmail.com>
  */
-interface TranslationInterface
+interface Translation_Interface
 {
     /**
      * Set the translatable item.
@@ -25,15 +23,13 @@ interface TranslationInterface
      *
      * @return void
      */
-    public function setTranslatable($translatable);
-
+    public function set_translatable($translatable);
     /**
      * Get the translatable item.
      *
      * @return object
      */
-    public function getTranslatable();
-
+    public function get_translatable();
     /**
      * Set the translation locale.
      *
@@ -41,15 +37,13 @@ interface TranslationInterface
      *
      * @return void
      */
-    public function setLocale($locale);
-
+    public function set_locale($locale);
     /**
      * Get the translation locale.
      *
      * @return string
      */
-    public function getLocale();
-
+    public function get_locale();
     /**
      * Set the translated property.
      *
@@ -57,15 +51,13 @@ interface TranslationInterface
      *
      * @return void
      */
-    public function setProperty($property);
-
+    public function set_property($property);
     /**
      * Get the translated property.
      *
      * @return string
      */
-    public function getProperty();
-
+    public function get_property();
     /**
      * Set the translation value.
      *
@@ -73,12 +65,11 @@ interface TranslationInterface
      *
      * @return static
      */
-    public function setValue($value);
-
+    public function set_value($value);
     /**
      * Get the translation value.
      *
      * @return string
      */
-    public function getValue();
+    public function get_value();
 }

@@ -1,18 +1,15 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of the Doctrine Behavioral Extensions package.
  * (c) Gediminas Morkevicius <gediminas.morkevicius@gmail.com> http://www.gediminasm.org
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Gedmo\References;
 
-use Doctrine\Common\Collections\AbstractLazyCollection;
-
+use Doctrine\Common\Collections\Abstract_Lazy_Collection;
 /**
  * Lazy collection for loading reference many associations.
  *
@@ -24,13 +21,12 @@ use Doctrine\Common\Collections\AbstractLazyCollection;
  *
  * @final since gedmo/doctrine-extensions 3.11
  */
-class LazyCollection extends AbstractLazyCollection
+class Lazy_Collection extends Abstract_Lazy_Collection
 {
     /**
      * @var callable
      */
     private $callback;
-
     /**
      * @param callable $callback
      */
@@ -38,8 +34,7 @@ class LazyCollection extends AbstractLazyCollection
     {
         $this->callback = $callback;
     }
-
-    protected function doInitialize(): void
+    protected function do_initialize(): void
     {
         $this->collection = call_user_func($this->callback);
     }

@@ -1,20 +1,17 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of the Doctrine Behavioral Extensions package.
  * (c) Gediminas Morkevicius <gediminas.morkevicius@gmail.com> http://www.gediminasm.org
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Gedmo\Timestampable\Mapping\Driver;
 
-use Gedmo\Exception\InvalidMappingException;
+use Gedmo\Exception\Invalid_Mapping_Exception;
 use Gedmo\Mapping\Annotation\Timestampable;
-use Gedmo\Mapping\Driver\AbstractAnnotationDriver;
-
+use Gedmo\Mapping\Driver\Abstract_Annotation_Driver;
 /**
  * Mapping driver for the timestampable extension which reads extended metadata from attributes on a timestampable class.
  *
@@ -25,85 +22,57 @@ use Gedmo\Mapping\Driver\AbstractAnnotationDriver;
  *
  * @internal
  */
-class Attribute extends AbstractAnnotationDriver
+class Attribute extends Abstract_Annotation_Driver
 {
     /**
      * Mapping object for the timestampable extension.
      */
     public const TIMESTAMPABLE = Timestampable::class;
-
     /**
      * List of types which are valid for timestamp
      *
      * @var string[]
      */
-    protected $validTypes = [
-        'date',
-        'date_immutable',
-        'time',
-        'time_immutable',
-        'datetime',
-        'datetime_immutable',
-        'datetimetz',
-        'datetimetz_immutable',
-        'timestamp',
-        'vardatetime',
-        'integer',
-    ];
-
-    public function readExtendedMetadata($meta, array &$config): array
+    protected $valid_types = ['date', 'date_immutable', 'time', 'time_immutable', 'datetime', 'datetime_immutable', 'datetimetz', 'datetimetz_immutable', 'timestamp', 'vardatetime', 'integer'];
+    public function read_extended_metadata($meta, array &$config): array
     {
-        $class = $this->getMetaReflectionClass($meta);
-
+        $class = $this->get_meta_reflection_class($meta);
         // property annotations
-        foreach ($class->getProperties() as $property) {
-            if ($meta->isMappedSuperclass && !$property->isPrivate()) {
+        foreach ($class->get_properties() as $property) {
+            if ($meta->is_mapped_superclass && !$property->is_private()) {
                 continue;
             }
-            if ($meta->isInheritedField($property->name)) {
+            if ($meta->is_inherited_field($property->name)) {
                 continue;
             }
-            if (isset($meta->associationMappings[$property->name]['inherited'])) {
+            if (isset($meta->association_mappings[$property->name]['inherited'])) {
                 continue;
             }
-            if ($timestampable = $this->reader->getPropertyAnnotation($property, self::TIMESTAMPABLE)) {
+            if ($timestampable = $this->reader->get_property_annotation($property, self::TIMESTAMPABLE)) {
                 \assert($timestampable instanceof Timestampable);
-
-                $field = $property->getName();
-
-                if (!$meta->hasField($field)) {
-                    throw new InvalidMappingException("Unable to find timestampable [{$field}] as mapped property in entity - {$meta->getName()}");
+                $field = $property->get_name();
+                if (!$meta->has_field($field)) {
+                    throw new Invalid_Mapping_Exception("Unable to find timestampable [{$field}] as mapped property in entity - {$meta->get_name()}");
                 }
-
-                if (!$this->isValidField($meta, $field)) {
-                    throw new InvalidMappingException("Field - [{$field}] type is not valid and must be 'date', 'datetime' or 'time' in class - {$meta->getName()}");
+                if (!$this->is_valid_field($meta, $field)) {
+                    throw new Invalid_Mapping_Exception("Field - [{$field}] type is not valid and must be 'date', 'datetime' or 'time' in class - {$meta->get_name()}");
                 }
-
                 if (!in_array($timestampable->on, ['update', 'create', 'change'], true)) {
-                    throw new InvalidMappingException("Field - [{$field}] trigger 'on' is not one of [update, create, change] in class - {$meta->getName()}");
+                    throw new Invalid_Mapping_Exception("Field - [{$field}] trigger 'on' is not one of [update, create, change] in class - {$meta->get_name()}");
                 }
-
                 if ('change' === $timestampable->on) {
                     if (!isset($timestampable->field)) {
-                        throw new InvalidMappingException("Missing parameters on property - {$field}, field must be set on [change] trigger in class - {$meta->getName()}");
+                        throw new Invalid_Mapping_Exception("Missing parameters on property - {$field}, field must be set on [change] trigger in class - {$meta->get_name()}");
                     }
-
                     if (is_array($timestampable->field) && isset($timestampable->value)) {
-                        throw new InvalidMappingException('Timestampable extension does not support multiple value changeset detection yet.');
+                        throw new Invalid_Mapping_Exception('Timestampable extension does not support multiple value changeset detection yet.');
                     }
-
-                    $field = [
-                        'field' => $field,
-                        'trackedField' => $timestampable->field,
-                        'value' => $timestampable->value,
-                    ];
+                    $field = ['field' => $field, 'trackedField' => $timestampable->field, 'value' => $timestampable->value];
                 }
-
                 // properties are unique and mapper checks that, no risk here
                 $config[$timestampable->on][] = $field;
             }
         }
-
         return $config;
     }
 }

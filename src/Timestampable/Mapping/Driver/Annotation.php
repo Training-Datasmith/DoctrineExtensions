@@ -1,18 +1,15 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of the Doctrine Behavioral Extensions package.
  * (c) Gediminas Morkevicius <gediminas.morkevicius@gmail.com> http://www.gediminasm.org
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Gedmo\Timestampable\Mapping\Driver;
 
-use Gedmo\Mapping\Driver\AnnotationDriverInterface;
-
+use Gedmo\Mapping\Driver\Annotation_Driver_Interface;
 /**
  * Mapping driver for the timestampable extension which reads extended metadata from annotations on a timestampable class.
  *
@@ -20,6 +17,6 @@ use Gedmo\Mapping\Driver\AnnotationDriverInterface;
  *
  * @internal
  */
-class Annotation extends Attribute implements AnnotationDriverInterface
+class Annotation extends Attribute implements Annotation_Driver_Interface
 {
 }

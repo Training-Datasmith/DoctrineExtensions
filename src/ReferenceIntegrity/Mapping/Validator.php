@@ -1,15 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of the Doctrine Behavioral Extensions package.
  * (c) Gediminas Morkevicius <gediminas.morkevicius@gmail.com> http://www.gediminasm.org
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
-namespace Gedmo\ReferenceIntegrity\Mapping;
+namespace Gedmo\Reference_Integrity\Mapping;
 
 /**
  * This class is used to validate mapping information
@@ -23,7 +21,6 @@ class Validator
     public const NULLIFY = 'nullify';
     public const PULL = 'pull';
     public const RESTRICT = 'restrict';
-
     /**
      * List of actions which are valid as integrity check
      *
@@ -31,12 +28,7 @@ class Validator
      *
      * @phpstan-var array<int, self::NULLIFY|self::PULL|self::RESTRICT>
      */
-    public const INTEGRITY_ACTIONS = [
-        self::NULLIFY,
-        self::PULL,
-        self::RESTRICT,
-    ];
-
+    public const INTEGRITY_ACTIONS = [self::NULLIFY, self::PULL, self::RESTRICT];
     /**
      * Returns a list of available integrity actions
      *
@@ -44,7 +36,7 @@ class Validator
      *
      * @phpstan-return array<int, self::NULLIFY|self::PULL|self::RESTRICT>
      */
-    public function getIntegrityActions(): array
+    public function get_integrity_actions(): array
     {
         return self::INTEGRITY_ACTIONS;
     }

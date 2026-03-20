@@ -1,24 +1,21 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of the Doctrine Behavioral Extensions package.
  * (c) Gediminas Morkevicius <gediminas.morkevicius@gmail.com> http://www.gediminasm.org
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Gedmo\Translatable\Mapping\Driver;
 
-use Doctrine\ORM\Mapping\EmbeddedClassMapping;
-use Gedmo\Exception\InvalidMappingException;
+use Doctrine\ORM\Mapping\Embedded_Class_Mapping;
+use Gedmo\Exception\Invalid_Mapping_Exception;
 use Gedmo\Mapping\Annotation\Language;
 use Gedmo\Mapping\Annotation\Locale;
 use Gedmo\Mapping\Annotation\Translatable;
-use Gedmo\Mapping\Annotation\TranslationEntity;
-use Gedmo\Mapping\Driver\AbstractAnnotationDriver;
-
+use Gedmo\Mapping\Annotation\Translation_Entity;
+use Gedmo\Mapping\Driver\Abstract_Annotation_Driver;
 /**
  * Mapping driver for the translatable extension which reads extended metadata from annotations on a translatable class.
  *
@@ -26,115 +23,92 @@ use Gedmo\Mapping\Driver\AbstractAnnotationDriver;
  *
  * @internal
  */
-class Attribute extends AbstractAnnotationDriver
+class Attribute extends Abstract_Annotation_Driver
 {
     /**
      * Mapping object to configure the translation model for a translatable class.
      */
-    public const ENTITY_CLASS = TranslationEntity::class;
-
+    public const ENTITY_CLASS = Translation_Entity::class;
     /**
      * Mapping object to identify a field as translatable in a translatable class.
      */
     public const TRANSLATABLE = Translatable::class;
-
     /**
      * Mapping object to identify the field which stores the locale or language for the translation.
      *
      * This object is an alias of {@see self::LANGUAGE}
      */
     public const LOCALE = Locale::class;
-
     /**
      * Mapping object to identify the field which stores the locale or language for the translation.
      *
      * This object is an alias of {@see self::LOCALE}
      */
     public const LANGUAGE = Language::class;
-
-    public function readExtendedMetadata($meta, array &$config): array
+    public function read_extended_metadata($meta, array &$config): array
     {
-        $class = $this->getMetaReflectionClass($meta);
-
+        $class = $this->get_meta_reflection_class($meta);
         // class annotations
-        if ($annot = $this->reader->getClassAnnotation($class, self::ENTITY_CLASS)) {
-            \assert($annot instanceof TranslationEntity);
-
-            if (!$cl = $this->getRelatedClassName($meta, $annot->class)) {
-                throw new InvalidMappingException("Translation class: {$annot->class} does not exist.");
+        if ($annot = $this->reader->get_class_annotation($class, self::ENTITY_CLASS)) {
+            \assert($annot instanceof Translation_Entity);
+            if (!$cl = $this->get_related_class_name($meta, $annot->class)) {
+                throw new Invalid_Mapping_Exception("Translation class: {$annot->class} does not exist.");
             }
-
             $config['translationClass'] = $cl;
         }
-
         // property annotations
-        foreach ($class->getProperties() as $property) {
-            if ($meta->isMappedSuperclass && !$property->isPrivate()) {
+        foreach ($class->get_properties() as $property) {
+            if ($meta->is_mapped_superclass && !$property->is_private()) {
                 continue;
             }
-            if ($meta->isInheritedField($property->name)) {
+            if ($meta->is_inherited_field($property->name)) {
                 continue;
             }
-            if (isset($meta->associationMappings[$property->name]['inherited'])) {
+            if (isset($meta->association_mappings[$property->name]['inherited'])) {
                 continue;
             }
             // translatable property
-            if ($translatable = $this->reader->getPropertyAnnotation($property, self::TRANSLATABLE)) {
+            if ($translatable = $this->reader->get_property_annotation($property, self::TRANSLATABLE)) {
                 \assert($translatable instanceof Translatable);
-
-                $field = $property->getName();
-
-                if (!$meta->hasField($field)) {
-                    throw new InvalidMappingException("Unable to find translatable [{$field}] as mapped property in entity - {$meta->getName()}");
+                $field = $property->get_name();
+                if (!$meta->has_field($field)) {
+                    throw new Invalid_Mapping_Exception("Unable to find translatable [{$field}] as mapped property in entity - {$meta->get_name()}");
                 }
-
                 // fields cannot be overrided and throws mapping exception
                 $config['fields'][] = $field;
-
                 if (isset($translatable->fallback)) {
                     $config['fallback'][$field] = $translatable->fallback;
                 }
             }
-
             // locale property
-            if ($this->reader->getPropertyAnnotation($property, self::LOCALE)) {
-                $field = $property->getName();
-
-                if ($meta->hasField($field)) {
-                    throw new InvalidMappingException("Locale field [{$field}] should not be mapped as column property in entity - {$meta->getName()}, since it makes no sense");
+            if ($this->reader->get_property_annotation($property, self::LOCALE)) {
+                $field = $property->get_name();
+                if ($meta->has_field($field)) {
+                    throw new Invalid_Mapping_Exception("Locale field [{$field}] should not be mapped as column property in entity - {$meta->get_name()}, since it makes no sense");
                 }
-
                 $config['locale'] = $field;
-            } elseif ($this->reader->getPropertyAnnotation($property, self::LANGUAGE)) {
-                $field = $property->getName();
-
-                if ($meta->hasField($field)) {
-                    throw new InvalidMappingException("Language field [{$field}] should not be mapped as column property in entity - {$meta->getName()}, since it makes no sense");
+            } elseif ($this->reader->get_property_annotation($property, self::LANGUAGE)) {
+                $field = $property->get_name();
+                if ($meta->has_field($field)) {
+                    throw new Invalid_Mapping_Exception("Language field [{$field}] should not be mapped as column property in entity - {$meta->get_name()}, since it makes no sense");
                 }
-
                 $config['locale'] = $field;
             }
         }
-
         // Embedded entity
-        if (property_exists($meta, 'embeddedClasses') && $meta->embeddedClasses) {
-            foreach ($meta->embeddedClasses as $propertyName => $embeddedClassInfo) {
-                if ($meta->isInheritedEmbeddedClass($propertyName)) {
+        if (property_exists($meta, 'embeddedClasses') && $meta->embedded_classes) {
+            foreach ($meta->embedded_classes as $property_name => $embedded_class_info) {
+                if ($meta->is_inherited_embedded_class($property_name)) {
                     continue;
                 }
-
                 /** Remove conditional when ORM 2.x is no longer supported. */
-                $className = ($embeddedClassInfo instanceof EmbeddedClassMapping) ? $embeddedClassInfo->class : $embeddedClassInfo['class'];
-                $embeddedClass = new \ReflectionClass($className);
-
-                foreach ($embeddedClass->getProperties() as $embeddedProperty) {
-                    if ($translatable = $this->reader->getPropertyAnnotation($embeddedProperty, self::TRANSLATABLE)) {
+                $class_name = $embedded_class_info instanceof Embedded_Class_Mapping ? $embedded_class_info->class : $embedded_class_info['class'];
+                $embedded_class = new \ReflectionClass($class_name);
+                foreach ($embedded_class->get_properties() as $embedded_property) {
+                    if ($translatable = $this->reader->get_property_annotation($embedded_property, self::TRANSLATABLE)) {
                         \assert($translatable instanceof Translatable);
-
-                        $field = $propertyName.'.'.$embeddedProperty->getName();
-
+                        $field = $property_name . '.' . $embedded_property->get_name();
                         $config['fields'][] = $field;
-
                         if (isset($translatable->fallback)) {
                             $config['fallback'][$field] = $translatable->fallback;
                         }
@@ -142,13 +116,11 @@ class Attribute extends AbstractAnnotationDriver
                 }
             }
         }
-
-        if (!$meta->isMappedSuperclass && $config) {
-            if (is_array($meta->getIdentifier()) && count($meta->getIdentifier()) > 1) {
-                throw new InvalidMappingException("Translatable does not support composite identifiers in class - {$meta->getName()}");
+        if (!$meta->is_mapped_superclass && $config) {
+            if (is_array($meta->get_identifier()) && count($meta->get_identifier()) > 1) {
+                throw new Invalid_Mapping_Exception("Translatable does not support composite identifiers in class - {$meta->get_name()}");
             }
         }
-
         return $config;
     }
 }

@@ -1,20 +1,17 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of the Doctrine Behavioral Extensions package.
  * (c) Gediminas Morkevicius <gediminas.morkevicius@gmail.com> http://www.gediminasm.org
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+namespace Gedmo\Ip_Traceable\Traits;
 
-namespace Gedmo\IpTraceable\Traits;
-
-use Doctrine\ODM\MongoDB\Mapping\Annotations as ODM;
-use Doctrine\ODM\MongoDB\Types\Type;
+use Doctrine\ODM\Mongo_Db\Mapping\Annotations as ODM;
+use Doctrine\ODM\Mongo_Db\Types\Type;
 use Gedmo\Mapping\Annotation as Gedmo;
-
 /**
  * Trait for IP traceable objects.
  *
@@ -22,7 +19,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  *
  * @author Pierre-Charles Bertineau <pc.bertineau@alterphp.com>
  */
-trait IpTraceableDocument
+trait Ip_Traceable_Document
 {
     /**
      * @var string
@@ -32,9 +29,8 @@ trait IpTraceableDocument
      * @ODM\Field(type="string")
      */
     #[ODM\Field(type: Type::STRING)]
-    #[Gedmo\IpTraceable(on: 'create')]
-    protected $createdFromIp;
-
+    #[Gedmo\Ip_Traceable(on: 'create')]
+    protected $created_from_ip;
     /**
      * @var string
      *
@@ -43,9 +39,8 @@ trait IpTraceableDocument
      * @ODM\Field(type="string")
      */
     #[ODM\Field(type: Type::STRING)]
-    #[Gedmo\IpTraceable(on: 'update')]
-    protected $updatedFromIp;
-
+    #[Gedmo\Ip_Traceable(on: 'update')]
+    protected $updated_from_ip;
     /**
      * Sets createdFromIp.
      *
@@ -53,23 +48,20 @@ trait IpTraceableDocument
      *
      * @return $this
      */
-    public function setCreatedFromIp($createdFromIp)
+    public function set_created_from_ip($created_from_ip)
     {
-        $this->createdFromIp = $createdFromIp;
-
+        $this->created_from_ip = $created_from_ip;
         return $this;
     }
-
     /**
      * Returns createdFromIp.
      *
      * @return string
      */
-    public function getCreatedFromIp()
+    public function get_created_from_ip()
     {
-        return $this->createdFromIp;
+        return $this->created_from_ip;
     }
-
     /**
      * Sets updatedFromIp.
      *
@@ -77,20 +69,18 @@ trait IpTraceableDocument
      *
      * @return $this
      */
-    public function setUpdatedFromIp($updatedFromIp)
+    public function set_updated_from_ip($updated_from_ip)
     {
-        $this->updatedFromIp = $updatedFromIp;
-
+        $this->updated_from_ip = $updated_from_ip;
         return $this;
     }
-
     /**
      * Returns updatedFromIp.
      *
      * @return string
      */
-    public function getUpdatedFromIp()
+    public function get_updated_from_ip()
     {
-        return $this->updatedFromIp;
+        return $this->updated_from_ip;
     }
 }

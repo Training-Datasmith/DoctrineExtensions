@@ -1,21 +1,18 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of the Doctrine Behavioral Extensions package.
  * (c) Gediminas Morkevicius <gediminas.morkevicius@gmail.com> http://www.gediminasm.org
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Gedmo\Loggable\Mapping\Driver;
 
-use Doctrine\ODM\MongoDB\Mapping\ClassMetadata;
-use Gedmo\Exception\InvalidMappingException;
+use Doctrine\ODM\Mongo_Db\Mapping\Class_Metadata;
+use Gedmo\Exception\Invalid_Mapping_Exception;
 use Gedmo\Mapping\Driver;
 use Gedmo\Mapping\Driver\File;
-
 /**
  * This is a yaml mapping driver for Loggable
  * behavioral extension. Used for extraction of extended
@@ -37,136 +34,124 @@ class Yaml extends File
      * @var string
      */
     protected $_extension = '.dcm.yml';
-
-    public function readExtendedMetadata($meta, array &$config)
+    public function read_extended_metadata($meta, array &$config)
     {
-        $mapping = $this->_getMapping($meta->getName());
-
+        $mapping = $this->_get_mapping($meta->get_name());
         if (isset($mapping['gedmo'])) {
-            $classMapping = $mapping['gedmo'];
-            if (isset($classMapping['loggable'])) {
+            $class_mapping = $mapping['gedmo'];
+            if (isset($class_mapping['loggable'])) {
                 $config['loggable'] = true;
-                if (isset($classMapping['loggable']['logEntryClass'])) {
-                    if (!$cl = $this->getRelatedClassName($meta, $classMapping['loggable']['logEntryClass'])) {
-                        throw new InvalidMappingException("LogEntry class: {$classMapping['loggable']['logEntryClass']} does not exist.");
+                if (isset($class_mapping['loggable']['logEntryClass'])) {
+                    if (!$cl = $this->get_related_class_name($meta, $class_mapping['loggable']['logEntryClass'])) {
+                        throw new Invalid_Mapping_Exception("LogEntry class: {$class_mapping['loggable']['logEntryClass']} does not exist.");
                     }
                     $config['logEntryClass'] = $cl;
                 }
             }
         }
-
         if (isset($mapping['fields'])) {
-            foreach ($mapping['fields'] as $field => $fieldMapping) {
-                if (!isset($fieldMapping['gedmo'])) {
+            foreach ($mapping['fields'] as $field => $field_mapping) {
+                if (!isset($field_mapping['gedmo'])) {
                     continue;
                 }
-                if (!in_array('versioned', $fieldMapping['gedmo'], true)) {
+                if (!in_array('versioned', $field_mapping['gedmo'], true)) {
                     continue;
                 }
-                if ($meta->isCollectionValuedAssociation($field)) {
-                    throw new InvalidMappingException("Cannot apply versioning to field [{$field}] as it is collection in object - {$meta->getName()}");
+                if ($meta->is_collection_valued_association($field)) {
+                    throw new Invalid_Mapping_Exception("Cannot apply versioning to field [{$field}] as it is collection in object - {$meta->get_name()}");
                 }
                 // fields cannot be overrided and throws mapping exception
                 $config['versioned'][] = $field;
             }
         }
-
         if (isset($mapping['attributeOverride'])) {
-            foreach ($mapping['attributeOverride'] as $field => $fieldMapping) {
-                if (!isset($fieldMapping['gedmo'])) {
+            foreach ($mapping['attributeOverride'] as $field => $field_mapping) {
+                if (!isset($field_mapping['gedmo'])) {
                     continue;
                 }
-                if (!in_array('versioned', $fieldMapping['gedmo'], true)) {
+                if (!in_array('versioned', $field_mapping['gedmo'], true)) {
                     continue;
                 }
-                if ($meta->isCollectionValuedAssociation($field)) {
-                    throw new InvalidMappingException("Cannot apply versioning to field [{$field}] as it is collection in object - {$meta->getName()}");
+                if ($meta->is_collection_valued_association($field)) {
+                    throw new Invalid_Mapping_Exception("Cannot apply versioning to field [{$field}] as it is collection in object - {$meta->get_name()}");
                 }
                 // fields cannot be overrided and throws mapping exception
                 $config['versioned'][] = $field;
             }
         }
-
         if (isset($mapping['manyToOne'])) {
-            foreach ($mapping['manyToOne'] as $field => $fieldMapping) {
-                if (!isset($fieldMapping['gedmo'])) {
+            foreach ($mapping['manyToOne'] as $field => $field_mapping) {
+                if (!isset($field_mapping['gedmo'])) {
                     continue;
                 }
-                if (!in_array('versioned', $fieldMapping['gedmo'], true)) {
+                if (!in_array('versioned', $field_mapping['gedmo'], true)) {
                     continue;
                 }
-                if ($meta->isCollectionValuedAssociation($field)) {
-                    throw new InvalidMappingException("Cannot apply versioning to field [{$field}] as it is collection in object - {$meta->getName()}");
+                if ($meta->is_collection_valued_association($field)) {
+                    throw new Invalid_Mapping_Exception("Cannot apply versioning to field [{$field}] as it is collection in object - {$meta->get_name()}");
                 }
                 // fields cannot be overrided and throws mapping exception
                 $config['versioned'][] = $field;
             }
         }
-
         if (isset($mapping['oneToOne'])) {
-            foreach ($mapping['oneToOne'] as $field => $fieldMapping) {
-                if (!isset($fieldMapping['gedmo'])) {
+            foreach ($mapping['oneToOne'] as $field => $field_mapping) {
+                if (!isset($field_mapping['gedmo'])) {
                     continue;
                 }
-                if (!in_array('versioned', $fieldMapping['gedmo'], true)) {
+                if (!in_array('versioned', $field_mapping['gedmo'], true)) {
                     continue;
                 }
-                if ($meta->isCollectionValuedAssociation($field)) {
-                    throw new InvalidMappingException("Cannot apply versioning to field [{$field}] as it is collection in object - {$meta->getName()}");
+                if ($meta->is_collection_valued_association($field)) {
+                    throw new Invalid_Mapping_Exception("Cannot apply versioning to field [{$field}] as it is collection in object - {$meta->get_name()}");
                 }
                 // fields cannot be overrided and throws mapping exception
                 $config['versioned'][] = $field;
             }
         }
-
         if (isset($mapping['embedded'])) {
-            foreach ($mapping['embedded'] as $field => $fieldMapping) {
-                if (!isset($fieldMapping['gedmo'])) {
+            foreach ($mapping['embedded'] as $field => $field_mapping) {
+                if (!isset($field_mapping['gedmo'])) {
                     continue;
                 }
-                if (!in_array('versioned', $fieldMapping['gedmo'], true)) {
+                if (!in_array('versioned', $field_mapping['gedmo'], true)) {
                     continue;
                 }
-                if ($meta->isCollectionValuedAssociation($field)) {
-                    throw new InvalidMappingException("Cannot apply versioning to field [{$field}] as it is collection in object - {$meta->getName()}");
+                if ($meta->is_collection_valued_association($field)) {
+                    throw new Invalid_Mapping_Exception("Cannot apply versioning to field [{$field}] as it is collection in object - {$meta->get_name()}");
                 }
                 // fields cannot be overrided and throws mapping exception
-                $mapping = $this->_getMapping($fieldMapping['class']);
-                $config = $this->inspectEmbeddedForVersioned($field, $mapping, $config);
+                $mapping = $this->_get_mapping($field_mapping['class']);
+                $config = $this->inspect_embedded_for_versioned($field, $mapping, $config);
             }
         }
-
-        if (!$meta->isMappedSuperclass && $config) {
-            if ($meta instanceof ClassMetadata && count($meta->getIdentifier()) > 1) {
-                throw new InvalidMappingException("Loggable does not support composite identifiers in class - {$meta->getName()}");
+        if (!$meta->is_mapped_superclass && $config) {
+            if ($meta instanceof Class_Metadata && count($meta->get_identifier()) > 1) {
+                throw new Invalid_Mapping_Exception("Loggable does not support composite identifiers in class - {$meta->get_name()}");
             }
             if (isset($config['versioned']) && !isset($config['loggable'])) {
-                throw new InvalidMappingException("Class must be annotated with Loggable annotation in order to track versioned fields in class - {$meta->getName()}");
+                throw new Invalid_Mapping_Exception("Class must be annotated with Loggable annotation in order to track versioned fields in class - {$meta->get_name()}");
             }
         }
-
         return $config;
     }
-
-    protected function _loadMappingFile($file)
+    protected function _load_mapping_file($file)
     {
         return \Symfony\Component\Yaml\Yaml::parse(file_get_contents($file));
     }
-
     /**
      * @param array<string, array<string, array<string, mixed>>> $mapping
      * @param array<string, mixed>                               $config
      *
      * @return array<string, mixed>
      */
-    private function inspectEmbeddedForVersioned(string $field, array $mapping, array $config): array
+    private function inspect_embedded_for_versioned(string $field, array $mapping, array $config): array
     {
         if (isset($mapping['fields'])) {
-            foreach ($mapping['fields'] as $property => $fieldMapping) {
-                $config['versioned'][] = $field.'.'.$property;
+            foreach ($mapping['fields'] as $property => $field_mapping) {
+                $config['versioned'][] = $field . '.' . $property;
             }
         }
-
         return $config;
     }
 }

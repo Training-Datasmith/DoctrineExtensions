@@ -1,15 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of the Doctrine Behavioral Extensions package.
  * (c) Gediminas Morkevicius <gediminas.morkevicius@gmail.com> http://www.gediminasm.org
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
-namespace Gedmo\Uploadable\FilenameGenerator;
+namespace Gedmo\Uploadable\Filename_Generator;
 
 /**
  * FilenameGeneratorInterface
@@ -17,7 +15,7 @@ namespace Gedmo\Uploadable\FilenameGenerator;
  * @author Gustavo Falco <comfortablynumb84@gmail.com>
  * @author Gediminas Morkevicius <gediminas.morkevicius@gmail.com>
  */
-interface FilenameGeneratorInterface
+interface Filename_Generator_Interface
 {
     /**
      * Generates a new filename

@@ -1,21 +1,18 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of the Doctrine Behavioral Extensions package.
  * (c) Gediminas Morkevicius <gediminas.morkevicius@gmail.com> http://www.gediminasm.org
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+namespace Gedmo\Reference_Integrity\Mapping\Driver;
 
-namespace Gedmo\ReferenceIntegrity\Mapping\Driver;
-
-use Gedmo\Exception\InvalidMappingException;
+use Gedmo\Exception\Invalid_Mapping_Exception;
 use Gedmo\Mapping\Driver;
 use Gedmo\Mapping\Driver\File;
-use Gedmo\ReferenceIntegrity\Mapping\Validator;
-
+use Gedmo\Reference_Integrity\Mapping\Validator;
 /**
  * This is a yaml mapping driver for ReferenceIntegrity
  * extension. Used for extraction of extended
@@ -36,37 +33,29 @@ class Yaml extends File implements Driver
      * @var string
      */
     protected $_extension = '.dcm.yml';
-
-    public function readExtendedMetadata($meta, array &$config): array
+    public function read_extended_metadata($meta, array &$config): array
     {
-        $mapping = $this->_getMapping($meta->getName());
+        $mapping = $this->_get_mapping($meta->get_name());
         $validator = new Validator();
-
         if (isset($mapping['fields'])) {
-            foreach ($mapping['fields'] as $property => $fieldMapping) {
-                if (isset($fieldMapping['gedmo']['referenceIntegrity'])) {
-                    if (!$meta->hasField($property)) {
-                        throw new InvalidMappingException(sprintf('Unable to find reference integrity [%s] as mapped property in entity - %s', $property, $meta->getName()));
+            foreach ($mapping['fields'] as $property => $field_mapping) {
+                if (isset($field_mapping['gedmo']['referenceIntegrity'])) {
+                    if (!$meta->has_field($property)) {
+                        throw new Invalid_Mapping_Exception(sprintf('Unable to find reference integrity [%s] as mapped property in entity - %s', $property, $meta->get_name()));
                     }
-
                     if (empty($mapping['fields'][$property]['mappedBy'])) {
-                        throw new InvalidMappingException(sprintf("'mappedBy' should be set on '%s' in '%s'", $property, $meta->getName()));
+                        throw new Invalid_Mapping_Exception(sprintf("'mappedBy' should be set on '%s' in '%s'", $property, $meta->get_name()));
                     }
-
-                    if (!in_array($fieldMapping['gedmo']['referenceIntegrity'], $validator->getIntegrityActions(), true)) {
-                        throw new InvalidMappingException(sprintf('Field - [%s] does not have a valid integrity option, [%s] in class - %s', $property, implode(', ', $validator->getIntegrityActions()), $meta->getName()));
+                    if (!in_array($field_mapping['gedmo']['referenceIntegrity'], $validator->get_integrity_actions(), true)) {
+                        throw new Invalid_Mapping_Exception(sprintf('Field - [%s] does not have a valid integrity option, [%s] in class - %s', $property, implode(', ', $validator->get_integrity_actions()), $meta->get_name()));
                     }
-
-                    $config['referenceIntegrity'][$property][$mapping['fields'][$property]['mappedBy']] =
-                        $fieldMapping['gedmo']['referenceIntegrity'];
+                    $config['referenceIntegrity'][$property][$mapping['fields'][$property]['mappedBy']] = $field_mapping['gedmo']['referenceIntegrity'];
                 }
             }
         }
-
         return $config;
     }
-
-    protected function _loadMappingFile($file)
+    protected function _load_mapping_file($file)
     {
         return \Symfony\Component\Yaml\Yaml::parse(file_get_contents($file));
     }

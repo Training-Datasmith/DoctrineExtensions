@@ -1,21 +1,18 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of the Doctrine Behavioral Extensions package.
  * (c) Gediminas Morkevicius <gediminas.morkevicius@gmail.com> http://www.gediminasm.org
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Gedmo\Sluggable\Handler;
 
-use Doctrine\Persistence\Mapping\ClassMetadata;
-use Gedmo\Exception\InvalidMappingException;
-use Gedmo\Sluggable\Mapping\Event\SluggableAdapter;
-use Gedmo\Sluggable\SluggableListener;
-
+use Doctrine\Persistence\Mapping\Class_Metadata;
+use Gedmo\Exception\Invalid_Mapping_Exception;
+use Gedmo\Sluggable\Mapping\Event\Sluggable_Adapter;
+use Gedmo\Sluggable\Sluggable_Listener;
 /**
  * Interface defining a handler for the sluggable behavior.
  * Usage is intended only for internal access of the
@@ -25,13 +22,12 @@ use Gedmo\Sluggable\SluggableListener;
  *
  * @phpstan-import-type SlugConfiguration from SluggableListener
  */
-interface SlugHandlerInterface
+interface Slug_Handler_Interface
 {
     /**
      * Create a new handler instance
      */
-    public function __construct(SluggableListener $sluggable);
-
+    public function __construct(Sluggable_Listener $sluggable);
     /**
      * Hook on slug handlers before the decision is made whether
      * the slug needs to be recalculated.
@@ -45,8 +41,7 @@ interface SlugHandlerInterface
      *
      * @return void
      */
-    public function onChangeDecision(SluggableAdapter $ea, array &$config, $object, &$slug, &$needToChangeSlug);
-
+    public function on_change_decision(Sluggable_Adapter $ea, array &$config, $object, &$slug, &$need_to_change_slug);
     /**
      * Hook on slug handlers called after the slug is built.
      *
@@ -58,8 +53,7 @@ interface SlugHandlerInterface
      *
      * @return void
      */
-    public function postSlugBuild(SluggableAdapter $ea, array &$config, $object, &$slug);
-
+    public function post_slug_build(Sluggable_Adapter $ea, array &$config, $object, &$slug);
     /**
      * Hook for slug handlers called after the slug is completed.
      *
@@ -71,13 +65,11 @@ interface SlugHandlerInterface
      *
      * @return void
      */
-    public function onSlugCompletion(SluggableAdapter $ea, array &$config, $object, &$slug);
-
+    public function on_slug_completion(Sluggable_Adapter $ea, array &$config, $object, &$slug);
     /**
      * @return bool Whether this handler has already urlized the slug
      */
-    public function handlesUrlization();
-
+    public function handles_urlization();
     /**
      * Validates the options for the handler.
      *
@@ -88,5 +80,5 @@ interface SlugHandlerInterface
      *
      * @return void
      */
-    public static function validate(array $options, ClassMetadata $meta);
+    public static function validate(array $options, Class_Metadata $meta);
 }

@@ -1,19 +1,16 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of the Doctrine Behavioral Extensions package.
  * (c) Gediminas Morkevicius <gediminas.morkevicius@gmail.com> http://www.gediminasm.org
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+namespace Gedmo\Uploadable\Mime_Type;
 
-namespace Gedmo\Uploadable\MimeType;
-
-use Gedmo\Exception\UploadableFileNotReadableException;
-use Gedmo\Exception\UploadableInvalidFileException;
-
+use Gedmo\Exception\Uploadable_File_Not_Readable_Exception;
+use Gedmo\Exception\Uploadable_Invalid_File_Exception;
 /**
  * Mime type guesser
  *
@@ -22,26 +19,22 @@ use Gedmo\Exception\UploadableInvalidFileException;
  *
  * @final since gedmo/doctrine-extensions 3.11
  */
-class MimeTypeGuesser implements MimeTypeGuesserInterface
+class Mime_Type_Guesser implements Mime_Type_Guesser_Interface
 {
-    public function guess($filePath)
+    public function guess($file_path)
     {
-        if (!is_file($filePath)) {
-            throw new UploadableInvalidFileException(sprintf('File "%s" does not exist.', $filePath));
+        if (!is_file($file_path)) {
+            throw new Uploadable_Invalid_File_Exception(sprintf('File "%s" does not exist.', $file_path));
         }
-
-        if (!is_readable($filePath)) {
-            throw new UploadableFileNotReadableException(sprintf('File "%s" is not readable.', $filePath));
+        if (!is_readable($file_path)) {
+            throw new Uploadable_File_Not_Readable_Exception(sprintf('File "%s" is not readable.', $file_path));
         }
-
         if (function_exists('finfo_open')) {
             if (!$finfo = new \finfo(FILEINFO_MIME_TYPE)) {
                 return null;
             }
-
-            return $finfo->file($filePath);
+            return $finfo->file($file_path);
         }
-
         return null;
     }
 }

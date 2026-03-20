@@ -1,48 +1,45 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of the Doctrine Behavioral Extensions package.
  * (c) Gediminas Morkevicius <gediminas.morkevicius@gmail.com> http://www.gediminasm.org
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Gedmo\Uploadable;
 
-use Doctrine\Common\EventArgs;
-use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\Persistence\Event\LoadClassMetadataEventArgs;
-use Doctrine\Persistence\Event\ManagerEventArgs;
-use Doctrine\Persistence\Mapping\ClassMetadata;
-use Doctrine\Persistence\NotifyPropertyChanged;
-use Doctrine\Persistence\ObjectManager;
+use Doctrine\Common\Event_Args;
+use Doctrine\ORM\Entity_Manager_Interface;
+use Doctrine\Persistence\Event\Load_Class_Metadata_Event_Args;
+use Doctrine\Persistence\Event\Manager_Event_Args;
+use Doctrine\Persistence\Mapping\Class_Metadata;
+use Doctrine\Persistence\Notify_Property_Changed;
+use Doctrine\Persistence\Object_Manager;
 use Gedmo\Exception\InvalidArgumentException;
-use Gedmo\Exception\UploadableCantWriteException;
-use Gedmo\Exception\UploadableCouldntGuessMimeTypeException;
-use Gedmo\Exception\UploadableExtensionException;
-use Gedmo\Exception\UploadableFileAlreadyExistsException;
-use Gedmo\Exception\UploadableFormSizeException;
-use Gedmo\Exception\UploadableIniSizeException;
-use Gedmo\Exception\UploadableInvalidMimeTypeException;
-use Gedmo\Exception\UploadableMaxSizeException;
-use Gedmo\Exception\UploadableNoFileException;
-use Gedmo\Exception\UploadableNoPathDefinedException;
-use Gedmo\Exception\UploadableNoTmpDirException;
-use Gedmo\Exception\UploadablePartialException;
-use Gedmo\Exception\UploadableUploadException;
-use Gedmo\Mapping\Event\AdapterInterface;
-use Gedmo\Mapping\MappedEventSubscriber;
-use Gedmo\Uploadable\Event\UploadablePostFileProcessEventArgs;
-use Gedmo\Uploadable\Event\UploadablePreFileProcessEventArgs;
-use Gedmo\Uploadable\FileInfo\FileInfoArray;
-use Gedmo\Uploadable\FileInfo\FileInfoInterface;
-use Gedmo\Uploadable\FilenameGenerator\FilenameGeneratorInterface;
+use Gedmo\Exception\Uploadable_Cant_Write_Exception;
+use Gedmo\Exception\Uploadable_Couldnt_Guess_Mime_Type_Exception;
+use Gedmo\Exception\Uploadable_Extension_Exception;
+use Gedmo\Exception\Uploadable_File_Already_Exists_Exception;
+use Gedmo\Exception\Uploadable_Form_Size_Exception;
+use Gedmo\Exception\Uploadable_Ini_Size_Exception;
+use Gedmo\Exception\Uploadable_Invalid_Mime_Type_Exception;
+use Gedmo\Exception\Uploadable_Max_Size_Exception;
+use Gedmo\Exception\Uploadable_No_File_Exception;
+use Gedmo\Exception\Uploadable_No_Path_Defined_Exception;
+use Gedmo\Exception\Uploadable_No_Tmp_Dir_Exception;
+use Gedmo\Exception\Uploadable_Partial_Exception;
+use Gedmo\Exception\Uploadable_Upload_Exception;
+use Gedmo\Mapping\Event\Adapter_Interface;
+use Gedmo\Mapping\Mapped_Event_Subscriber;
+use Gedmo\Uploadable\Event\Uploadable_Post_File_Process_Event_Args;
+use Gedmo\Uploadable\Event\Uploadable_Pre_File_Process_Event_Args;
+use Gedmo\Uploadable\File_Info\File_Info_Array;
+use Gedmo\Uploadable\File_Info\File_Info_Interface;
+use Gedmo\Uploadable\Filename_Generator\Filename_Generator_Interface;
 use Gedmo\Uploadable\Mapping\Validator;
-use Gedmo\Uploadable\MimeType\MimeTypeGuesser;
-use Gedmo\Uploadable\MimeType\MimeTypeGuesserInterface;
-
+use Gedmo\Uploadable\Mime_Type\Mime_Type_Guesser;
+use Gedmo\Uploadable\Mime_Type\Mime_Type_Guesser_Interface;
 /**
  * Uploadable listener
  *
@@ -68,37 +65,32 @@ use Gedmo\Uploadable\MimeType\MimeTypeGuesserInterface;
  *
  * @phpstan-extends MappedEventSubscriber<UploadableConfiguration, AdapterInterface>
  */
-class UploadableListener extends MappedEventSubscriber
+class Uploadable_Listener extends Mapped_Event_Subscriber
 {
     public const ACTION_INSERT = 'INSERT';
     public const ACTION_UPDATE = 'UPDATE';
-
     /**
      * Default path to move files in
      *
      * @var string
      */
-    private $defaultPath;
-
+    private $default_path;
     /**
      * Mime type guesser
      */
-    private MimeTypeGuesserInterface $mimeTypeGuesser;
-
+    private Mime_Type_Guesser_Interface $mime_type_guesser;
     /**
      * Default FileInfoInterface class
      *
      * @var class-string<FileInfoInterface>
      */
-    private string $defaultFileInfoClass = FileInfoArray::class;
-
+    private string $default_file_info_class = File_Info_Array::class;
     /**
      * Array of files to remove on postFlush
      *
      * @var array<int, string>
      */
-    private array $pendingFileRemovals = [];
-
+    private array $pending_file_removals = [];
     /**
      * Array of FileInfoInterface objects. The index is the hash of the entity owner
      * of the FileInfoInterface object.
@@ -107,28 +99,19 @@ class UploadableListener extends MappedEventSubscriber
      *
      * @phpstan-var array<int, array{entity: object, fileInfo: FileInfoInterface}>
      */
-    private array $fileInfoObjects = [];
-
-    public function __construct(?MimeTypeGuesserInterface $mimeTypeGuesser = null)
+    private array $file_info_objects = [];
+    public function __construct(?Mime_Type_Guesser_Interface $mime_type_guesser = null)
     {
         parent::__construct();
-
-        $this->mimeTypeGuesser = $mimeTypeGuesser ?? new MimeTypeGuesser();
+        $this->mime_type_guesser = $mime_type_guesser ?? new Mime_Type_Guesser();
     }
-
     /**
      * @return string[]
      */
-    public function getSubscribedEvents(): array
+    public function get_subscribed_events(): array
     {
-        return [
-            'loadClassMetadata',
-            'preFlush',
-            'onFlush',
-            'postFlush',
-        ];
+        return ['loadClassMetadata', 'preFlush', 'onFlush', 'postFlush'];
     }
-
     /**
      * This event is needed in special cases where the entity needs to be updated, but it only has the
      * file field modified. Since we can't mark an entity as "dirty" in the "addEntityFileInfo" method,
@@ -139,39 +122,35 @@ class UploadableListener extends MappedEventSubscriber
      *
      * @phpstan-param ManagerEventArgs<ObjectManager> $args
      */
-    public function preFlush(EventArgs $args): void
+    public function pre_flush(Event_Args $args): void
     {
-        if ([] === $this->fileInfoObjects) {
+        if ([] === $this->file_info_objects) {
             // Nothing to do
             return;
         }
-
-        $ea = $this->getEventAdapter($args);
-        $om = $ea->getObjectManager();
-        $uow = $om->getUnitOfWork();
-
-        foreach ($this->fileInfoObjects as $info) {
+        $ea = $this->get_event_adapter($args);
+        $om = $ea->get_object_manager();
+        $uow = $om->get_unit_of_work();
+        foreach ($this->file_info_objects as $info) {
             $entity = $info['entity'];
-            $meta = $om->getClassMetadata(get_class($entity));
-            $config = $this->getConfiguration($om, $meta->getName());
-
+            $meta = $om->get_class_metadata(get_class($entity));
+            $config = $this->get_configuration($om, $meta->get_name());
             // If the entity is in the identity map, it means it will be updated. We need to force the
             // "dirty check" here by "modifying" the path. We are actually setting the same value, but
             // this will mark the entity as dirty, and the "onFlush" event will be fired, even if there's
             // no other change in the entity's fields apart from the file itself.
-            if ($uow->isInIdentityMap($entity)) {
+            if ($uow->is_in_identity_map($entity)) {
                 if ($config['filePathField']) {
-                    $path = $this->getFilePathFieldValue($meta, $config, $entity);
-                    $uow->propertyChanged($entity, $config['filePathField'], $path, $path);
+                    $path = $this->get_file_path_field_value($meta, $config, $entity);
+                    $uow->property_changed($entity, $config['filePathField'], $path, $path);
                 } else {
-                    $fileName = $this->getFileNameFieldValue($meta, $config, $entity);
-                    $uow->propertyChanged($entity, $config['fileNameField'], $fileName, $fileName);
+                    $file_name = $this->get_file_name_field_value($meta, $config, $entity);
+                    $uow->property_changed($entity, $config['fileNameField'], $file_name, $file_name);
                 }
-                $uow->scheduleForUpdate($entity);
+                $uow->schedule_for_update($entity);
             }
         }
     }
-
     /**
      * Handle file-uploading depending on the action
      * being done with objects
@@ -180,54 +159,44 @@ class UploadableListener extends MappedEventSubscriber
      *
      * @phpstan-param ManagerEventArgs<ObjectManager> $args
      */
-    public function onFlush(EventArgs $args): void
+    public function on_flush(Event_Args $args): void
     {
-        $ea = $this->getEventAdapter($args);
-        $om = $ea->getObjectManager();
-        $uow = $om->getUnitOfWork();
-
+        $ea = $this->get_event_adapter($args);
+        $om = $ea->get_object_manager();
+        $uow = $om->get_unit_of_work();
         // Do we need to upload files?
-        foreach ($this->fileInfoObjects as $info) {
+        foreach ($this->file_info_objects as $info) {
             $entity = $info['entity'];
-            $scheduledForInsert = $uow->isScheduledForInsert($entity);
-            $scheduledForUpdate = $uow->isScheduledForUpdate($entity);
-            $action = ($scheduledForInsert || $scheduledForUpdate) ?
-                ($scheduledForInsert ? self::ACTION_INSERT : self::ACTION_UPDATE) :
-                false;
-
+            $scheduled_for_insert = $uow->is_scheduled_for_insert($entity);
+            $scheduled_for_update = $uow->is_scheduled_for_update($entity);
+            $action = $scheduled_for_insert || $scheduled_for_update ? $scheduled_for_insert ? self::ACTION_INSERT : self::ACTION_UPDATE : false;
             if ($action) {
-                $this->processFile($ea, $entity, $action);
+                $this->process_file($ea, $entity, $action);
             }
         }
-
         // Do we need to remove any files?
-        foreach ($ea->getScheduledObjectDeletions($uow) as $object) {
-            $meta = $om->getClassMetadata(get_class($object));
-
-            if ($config = $this->getConfiguration($om, $meta->getName())) {
+        foreach ($ea->get_scheduled_object_deletions($uow) as $object) {
+            $meta = $om->get_class_metadata(get_class($object));
+            if ($config = $this->get_configuration($om, $meta->get_name())) {
                 if (isset($config['uploadable']) && $config['uploadable']) {
-                    $this->addFileRemoval($meta, $config, $object);
+                    $this->add_file_removal($meta, $config, $object);
                 }
             }
         }
     }
-
     /**
      * Handle removal of files
      */
-    public function postFlush(EventArgs $args): void
+    public function post_flush(Event_Args $args): void
     {
-        if ([] !== $this->pendingFileRemovals) {
-            foreach ($this->pendingFileRemovals as $file) {
-                $this->removeFile($file);
+        if ([] !== $this->pending_file_removals) {
+            foreach ($this->pending_file_removals as $file) {
+                $this->remove_file($file);
             }
-
-            $this->pendingFileRemovals = [];
+            $this->pending_file_removals = [];
         }
-
-        $this->fileInfoObjects = [];
+        $this->file_info_objects = [];
     }
-
     /**
      * If it's a Uploadable object, verify if the file was uploaded.
      * If that's the case, process it.
@@ -240,143 +209,95 @@ class UploadableListener extends MappedEventSubscriber
      * @throws UploadableMaxSizeException
      * @throws UploadableInvalidMimeTypeException
      */
-    public function processFile(AdapterInterface $ea, $object, $action): void
+    public function process_file(Adapter_Interface $ea, $object, $action): void
     {
         $oid = spl_object_id($object);
-        $om = $ea->getObjectManager();
-        \assert($om instanceof EntityManagerInterface);
-        $uow = $om->getUnitOfWork();
-        $meta = $om->getClassMetadata(get_class($object));
-        $config = $this->getConfiguration($om, $meta->getName());
-
+        $om = $ea->get_object_manager();
+        \assert($om instanceof Entity_Manager_Interface);
+        $uow = $om->get_unit_of_work();
+        $meta = $om->get_class_metadata(get_class($object));
+        $config = $this->get_configuration($om, $meta->get_name());
         if (!$config || !isset($config['uploadable']) || !$config['uploadable']) {
             // Nothing to do
             return;
         }
-
-        $refl = $meta->getReflectionClass();
-        $fileInfo = $this->fileInfoObjects[$oid]['fileInfo'];
-        $evm = $om->getEventManager();
-
-        if ($evm->hasListeners(Events::uploadablePreFileProcess)) {
-            $evm->dispatchEvent(Events::uploadablePreFileProcess, new UploadablePreFileProcessEventArgs(
-                $this,
-                $om,
-                $config,
-                $fileInfo,
-                $object,
-                $action
-            ));
+        $refl = $meta->get_reflection_class();
+        $file_info = $this->file_info_objects[$oid]['fileInfo'];
+        $evm = $om->get_event_manager();
+        if ($evm->has_listeners(Events::uploadablePreFileProcess)) {
+            $evm->dispatch_event(Events::uploadablePreFileProcess, new Uploadable_Pre_File_Process_Event_Args($this, $om, $config, $file_info, $object, $action));
         }
-
         // Validations
-        if ($config['maxSize'] > 0 && $fileInfo->getSize() > $config['maxSize']) {
+        if ($config['maxSize'] > 0 && $file_info->get_size() > $config['maxSize']) {
             $msg = 'File "%s" exceeds the maximum allowed size of %d bytes. File size: %d bytes';
-
-            throw new UploadableMaxSizeException(sprintf($msg, $fileInfo->getName(), $config['maxSize'], $fileInfo->getSize()));
+            throw new Uploadable_Max_Size_Exception(sprintf($msg, $file_info->get_name(), $config['maxSize'], $file_info->get_size()));
         }
-
-        $mime = $this->mimeTypeGuesser->guess($fileInfo->getTmpName());
-
+        $mime = $this->mime_type_guesser->guess($file_info->get_tmp_name());
         if (null === $mime) {
-            throw new UploadableCouldntGuessMimeTypeException(sprintf('Couldn\'t guess mime type for file "%s".', $fileInfo->getName()));
+            throw new Uploadable_Couldnt_Guess_Mime_Type_Exception(sprintf('Couldn\'t guess mime type for file "%s".', $file_info->get_name()));
         }
-
         if ($config['allowedTypes'] || $config['disallowedTypes']) {
             $ok = $config['allowedTypes'] ? false : true;
             $mimes = $config['allowedTypes'] ?: $config['disallowedTypes'];
-
             foreach ($mimes as $m) {
                 if ($mime === $m) {
                     $ok = $config['allowedTypes'] ? true : false;
-
                     break;
                 }
             }
-
             if (!$ok) {
-                throw new UploadableInvalidMimeTypeException(sprintf('Invalid mime type "%s" for file "%s".', $mime, $fileInfo->getName()));
+                throw new Uploadable_Invalid_Mime_Type_Exception(sprintf('Invalid mime type "%s" for file "%s".', $mime, $file_info->get_name()));
             }
         }
-
-        $path = $this->getPath($meta, $config, $object);
-
+        $path = $this->get_path($meta, $config, $object);
         if (self::ACTION_UPDATE === $action) {
             // First we add the original file to the pendingFileRemovals array
-            $this->addFileRemoval($meta, $config, $object);
+            $this->add_file_removal($meta, $config, $object);
         }
-
         // We generate the filename based on configuration
-        $generatorNamespace = 'Gedmo\Uploadable\FilenameGenerator';
-
+        $generator_namespace = 'Gedmo\Uploadable\FilenameGenerator';
         switch ($config['filenameGenerator']) {
             case Validator::FILENAME_GENERATOR_ALPHANUMERIC:
-                $generatorClass = $generatorNamespace.'\FilenameGeneratorAlphanumeric';
-
+                $generator_class = $generator_namespace . '\FilenameGeneratorAlphanumeric';
                 break;
             case Validator::FILENAME_GENERATOR_SHA1:
-                $generatorClass = $generatorNamespace.'\FilenameGeneratorSha1';
-
+                $generator_class = $generator_namespace . '\FilenameGeneratorSha1';
                 break;
             case Validator::FILENAME_GENERATOR_NONE:
-                $generatorClass = false;
-
+                $generator_class = false;
                 break;
             default:
-                $generatorClass = $config['filenameGenerator'];
+                $generator_class = $config['filenameGenerator'];
         }
-
-        $info = $this->moveFile($fileInfo, $path, $generatorClass, $config['allowOverwrite'], $config['appendNumber'], $object);
-
+        $info = $this->move_file($file_info, $path, $generator_class, $config['allowOverwrite'], $config['appendNumber'], $object);
         // We override the mime type with the guessed one
         $info['fileMimeType'] = $mime;
-
         if ('' !== $config['callback']) {
-            $callbackMethod = $refl->getMethod($config['callback']);
-
+            $callback_method = $refl->get_method($config['callback']);
             if (PHP_VERSION_ID < 80100) {
-                $callbackMethod->setAccessible(true);
+                $callback_method->set_accessible(true);
             }
-
-            $callbackMethod->invokeArgs($object, [$info]);
+            $callback_method->invoke_args($object, [$info]);
         }
-
         if ($config['filePathField']) {
-            $this->updateField($object, $uow, $ea, $meta, $config['filePathField'], $info['filePath']);
+            $this->update_field($object, $uow, $ea, $meta, $config['filePathField'], $info['filePath']);
         }
-
         if ($config['fileNameField']) {
-            $this->updateField($object, $uow, $ea, $meta, $config['fileNameField'], $info['fileName']);
+            $this->update_field($object, $uow, $ea, $meta, $config['fileNameField'], $info['fileName']);
         }
-
         if ($config['fileMimeTypeField']) {
-            $this->updateField($object, $uow, $ea, $meta, $config['fileMimeTypeField'], $info['fileMimeType']);
+            $this->update_field($object, $uow, $ea, $meta, $config['fileMimeTypeField'], $info['fileMimeType']);
         }
-
         if ($config['fileSizeField']) {
-            $value = $om->getConnection()->convertToPHPValue(
-                $info['fileSize'],
-                $meta->getTypeOfField($config['fileSizeField'])
-            );
-            $this->updateField($object, $uow, $ea, $meta, $config['fileSizeField'], $value);
+            $value = $om->get_connection()->convert_to_php_value($info['fileSize'], $meta->get_type_of_field($config['fileSizeField']));
+            $this->update_field($object, $uow, $ea, $meta, $config['fileSizeField'], $value);
         }
-
-        $ea->recomputeSingleObjectChangeSet($uow, $meta, $object);
-
-        if ($evm->hasListeners(Events::uploadablePostFileProcess)) {
-            $evm->dispatchEvent(Events::uploadablePostFileProcess, new UploadablePostFileProcessEventArgs(
-                $this,
-                $om,
-                $config,
-                $fileInfo,
-                $object,
-                $action
-            ));
+        $ea->recompute_single_object_change_set($uow, $meta, $object);
+        if ($evm->has_listeners(Events::uploadablePostFileProcess)) {
+            $evm->dispatch_event(Events::uploadablePostFileProcess, new Uploadable_Post_File_Process_Event_Args($this, $om, $config, $file_info, $object, $action));
         }
-
-        unset($this->fileInfoObjects[$oid]);
+        unset($this->file_info_objects[$oid]);
     }
-
     /**
      * Simple wrapper for the function "unlink" to ease testing
      *
@@ -384,15 +305,13 @@ class UploadableListener extends MappedEventSubscriber
      *
      * @return bool
      */
-    public function removeFile($filePath)
+    public function remove_file($file_path)
     {
-        if (is_file($filePath)) {
-            return @unlink($filePath);
+        if (is_file($file_path)) {
+            return @unlink($file_path);
         }
-
         return false;
     }
-
     /**
      * Moves the file to the specified path
      *
@@ -414,82 +333,52 @@ class UploadableListener extends MappedEventSubscriber
      * @throws UploadableCantWriteException
      * @return array<string, int|string|null>
      */
-    public function moveFile(FileInfoInterface $fileInfo, string $path, $filenameGeneratorClass = false, $overwrite = false, $appendNumber = false, $object = null): array
+    public function move_file(File_Info_Interface $file_info, string $path, $filename_generator_class = false, $overwrite = false, $append_number = false, $object = null): array
     {
-        if ($fileInfo->getError() > 0) {
-            switch ($fileInfo->getError()) {
+        if ($file_info->get_error() > 0) {
+            switch ($file_info->get_error()) {
                 case 1:
                     $msg = 'Size of uploaded file "%s" exceeds limit imposed by directive "upload_max_filesize" in php.ini';
-
-                    throw new UploadableIniSizeException(sprintf($msg, $fileInfo->getName()));
+                    throw new Uploadable_Ini_Size_Exception(sprintf($msg, $file_info->get_name()));
                 case 2:
                     $msg = 'Size of uploaded file "%s" exceeds limit imposed by option MAX_FILE_SIZE in your form.';
-
-                    throw new UploadableFormSizeException(sprintf($msg, $fileInfo->getName()));
+                    throw new Uploadable_Form_Size_Exception(sprintf($msg, $file_info->get_name()));
                 case 3:
                     $msg = 'File "%s" was partially uploaded.';
-
-                    throw new UploadablePartialException(sprintf($msg, $fileInfo->getName()));
+                    throw new Uploadable_Partial_Exception(sprintf($msg, $file_info->get_name()));
                 case 4:
                     $msg = 'No file was uploaded!';
-
-                    throw new UploadableNoFileException($msg);
+                    throw new Uploadable_No_File_Exception($msg);
                 case 6:
                     $msg = 'Upload failed. Temp dir is missing.';
-
-                    throw new UploadableNoTmpDirException($msg);
+                    throw new Uploadable_No_Tmp_Dir_Exception($msg);
                 case 7:
                     $msg = 'File "%s" couldn\'t be uploaded because directory is not writable.';
-
-                    throw new UploadableCantWriteException(sprintf($msg, $fileInfo->getName()));
+                    throw new Uploadable_Cant_Write_Exception(sprintf($msg, $file_info->get_name()));
                 case 8:
                     $msg = 'A PHP Extension stopped the uploaded for some reason.';
-
-                    throw new UploadableExtensionException($msg);
+                    throw new Uploadable_Extension_Exception($msg);
                 default:
-                    throw new UploadableUploadException(sprintf('There was an unknown problem while uploading file "%s"', $fileInfo->getName()));
+                    throw new Uploadable_Upload_Exception(sprintf('There was an unknown problem while uploading file "%s"', $file_info->get_name()));
             }
         }
-
-        $info = [
-            'fileName' => '',
-            'fileExtension' => '',
-            'fileWithoutExt' => '',
-            'origFileName' => '',
-            'filePath' => '',
-            'fileMimeType' => $fileInfo->getType(),
-            'fileSize' => $fileInfo->getSize(),
-        ];
-
-        $info['fileName'] = basename($fileInfo->getName());
-        $info['filePath'] = $path.'/'.$info['fileName'];
-
-        $hasExtension = strrpos($info['fileName'], '.');
-
-        if ($hasExtension) {
+        $info = ['fileName' => '', 'fileExtension' => '', 'fileWithoutExt' => '', 'origFileName' => '', 'filePath' => '', 'fileMimeType' => $file_info->get_type(), 'fileSize' => $file_info->get_size()];
+        $info['fileName'] = basename($file_info->get_name());
+        $info['filePath'] = $path . '/' . $info['fileName'];
+        $has_extension = strrpos($info['fileName'], '.');
+        if ($has_extension) {
             $info['fileExtension'] = substr($info['filePath'], strrpos($info['filePath'], '.'));
             $info['fileWithoutExt'] = substr($info['filePath'], 0, strrpos($info['filePath'], '.'));
         } else {
             $info['fileWithoutExt'] = $info['filePath'];
         }
-
         // Save the original filename for later use
         $info['origFileName'] = $info['fileName'];
-
         // Now we generate the filename using the configured class
-        if (false !== $filenameGeneratorClass) {
-            $filename = $filenameGeneratorClass::generate(
-                str_replace($path.'/', '', $info['fileWithoutExt']),
-                $info['fileExtension'],
-                $object
-            );
-            $info['filePath'] = str_replace(
-                '/'.$info['fileName'],
-                '/'.$filename,
-                $info['filePath']
-            );
+        if (false !== $filename_generator_class) {
+            $filename = $filename_generator_class::generate(str_replace($path . '/', '', $info['fileWithoutExt']), $info['fileExtension'], $object);
+            $info['filePath'] = str_replace('/' . $info['fileName'], '/' . $filename, $info['filePath']);
             $info['fileName'] = $filename;
-
             if ($pos = strrpos($info['filePath'], '.')) {
                 // ignores positions like "./file" at 0 see #915
                 $info['fileWithoutExt'] = substr($info['filePath'], 0, $pos);
@@ -497,30 +386,25 @@ class UploadableListener extends MappedEventSubscriber
                 $info['fileWithoutExt'] = $info['filePath'];
             }
         }
-
         if (is_file($info['filePath'])) {
             if ($overwrite) {
-                $this->cancelFileRemoval($info['filePath']);
-                $this->removeFile($info['filePath']);
-            } elseif ($appendNumber) {
+                $this->cancel_file_removal($info['filePath']);
+                $this->remove_file($info['filePath']);
+            } elseif ($append_number) {
                 $counter = 1;
-                $info['filePath'] = $info['fileWithoutExt'].'-'.$counter.$info['fileExtension'];
-
+                $info['filePath'] = $info['fileWithoutExt'] . '-' . $counter . $info['fileExtension'];
                 do {
-                    $info['filePath'] = $info['fileWithoutExt'].'-'.(++$counter).$info['fileExtension'];
+                    $info['filePath'] = $info['fileWithoutExt'] . '-' . ++$counter . $info['fileExtension'];
                 } while (is_file($info['filePath']));
             } else {
-                throw new UploadableFileAlreadyExistsException(sprintf('File "%s" already exists!', $info['filePath']));
+                throw new Uploadable_File_Already_Exists_Exception(sprintf('File "%s" already exists!', $info['filePath']));
             }
         }
-
-        if (!$this->doMoveFile($fileInfo->getTmpName(), $info['filePath'], $fileInfo->isUploadedFile())) {
-            throw new UploadableUploadException(sprintf('File "%s" was not uploaded, or there was a problem moving it to the location "%s".', $fileInfo->getName(), $path));
+        if (!$this->do_move_file($file_info->get_tmp_name(), $info['filePath'], $file_info->is_uploaded_file())) {
+            throw new Uploadable_Upload_Exception(sprintf('File "%s" was not uploaded, or there was a problem moving it to the location "%s".', $file_info->get_name(), $path));
         }
-
         return $info;
     }
-
     /**
      * Simple wrapper method used to move the file. If it's an uploaded file
      * it will use the "move_uploaded_file method. If it's not, it will
@@ -530,11 +414,10 @@ class UploadableListener extends MappedEventSubscriber
      * @param string $dest           Destination file
      * @param bool   $isUploadedFile Whether this is an uploaded file?
      */
-    public function doMoveFile($source, $dest, $isUploadedFile = true): bool
+    public function do_move_file($source, $dest, $is_uploaded_file = true): bool
     {
-        return $isUploadedFile ? @move_uploaded_file($source, $dest) : @copy($source, $dest);
+        return $is_uploaded_file ? @move_uploaded_file($source, $dest) : @copy($source, $dest);
     }
-
     /**
      * Maps additional metadata
      *
@@ -542,57 +425,49 @@ class UploadableListener extends MappedEventSubscriber
      *
      * @phpstan-param LoadClassMetadataEventArgs<ClassMetadata<object>, ObjectManager> $eventArgs
      */
-    public function loadClassMetadata(EventArgs $eventArgs): void
+    public function load_class_metadata(Event_Args $event_args): void
     {
-        $this->loadMetadataForObjectClass($eventArgs->getObjectManager(), $eventArgs->getClassMetadata());
+        $this->load_metadata_for_object_class($event_args->get_object_manager(), $event_args->get_class_metadata());
     }
-
     /**
      * Sets the default path
      *
      * @param string $path
      */
-    public function setDefaultPath($path): void
+    public function set_default_path($path): void
     {
-        $this->defaultPath = $path;
+        $this->default_path = $path;
     }
-
     /**
      * Returns default path
      *
      * @return string|null
      */
-    public function getDefaultPath()
+    public function get_default_path()
     {
-        return $this->defaultPath;
+        return $this->default_path;
     }
-
     /**
      * Sets file info default class
      *
      * @param string $defaultFileInfoClass
      */
-    public function setDefaultFileInfoClass($defaultFileInfoClass): void
+    public function set_default_file_info_class($default_file_info_class): void
     {
-        if (!is_string($defaultFileInfoClass) || !class_exists($defaultFileInfoClass)
-            || !is_subclass_of($defaultFileInfoClass, FileInfoInterface::class)
-        ) {
-            throw new InvalidArgumentException(sprintf('Default FileInfo class must be a valid class, and it must implement "%s".', FileInfoInterface::class));
+        if (!is_string($default_file_info_class) || !class_exists($default_file_info_class) || !is_subclass_of($default_file_info_class, File_Info_Interface::class)) {
+            throw new InvalidArgumentException(sprintf('Default FileInfo class must be a valid class, and it must implement "%s".', File_Info_Interface::class));
         }
-
-        $this->defaultFileInfoClass = $defaultFileInfoClass;
+        $this->default_file_info_class = $default_file_info_class;
     }
-
     /**
      * Returns file info default class
      *
      * @return class-string<FileInfoInterface>
      */
-    public function getDefaultFileInfoClass(): string
+    public function get_default_file_info_class(): string
     {
-        return $this->defaultFileInfoClass;
+        return $this->default_file_info_class;
     }
-
     /**
      * Adds a FileInfoInterface object for the given entity
      *
@@ -601,49 +476,37 @@ class UploadableListener extends MappedEventSubscriber
      *
      * @throws \RuntimeException
      */
-    public function addEntityFileInfo($entity, $fileInfo): void
+    public function add_entity_file_info($entity, $file_info): void
     {
-        $fileInfoClass = $this->getDefaultFileInfoClass();
-        $fileInfo = is_array($fileInfo) ? new $fileInfoClass($fileInfo) : $fileInfo;
-
-        if (!$fileInfo instanceof FileInfoInterface) {
+        $file_info_class = $this->get_default_file_info_class();
+        $file_info = is_array($file_info) ? new $file_info_class($file_info) : $file_info;
+        if (!$file_info instanceof File_Info_Interface) {
             $msg = 'You must pass an instance of FileInfoInterface or a valid array for entity of class "%s".';
-
             throw new \RuntimeException(sprintf($msg, get_class($entity)));
         }
-
-        $this->fileInfoObjects[spl_object_id($entity)] = [
-            'entity' => $entity,
-            'fileInfo' => $fileInfo,
-        ];
+        $this->file_info_objects[spl_object_id($entity)] = ['entity' => $entity, 'fileInfo' => $file_info];
     }
-
     /**
      * @param object $entity
      *
      * @return FileInfoInterface
      */
-    public function getEntityFileInfo($entity)
+    public function get_entity_file_info($entity)
     {
         $oid = spl_object_id($entity);
-
-        if (!isset($this->fileInfoObjects[$oid])) {
+        if (!isset($this->file_info_objects[$oid])) {
             throw new \RuntimeException(sprintf('There\'s no FileInfoInterface object for entity of class "%s".', get_class($entity)));
         }
-
-        return $this->fileInfoObjects[$oid]['fileInfo'];
+        return $this->file_info_objects[$oid]['fileInfo'];
     }
-
-    public function setMimeTypeGuesser(MimeTypeGuesserInterface $mimeTypeGuesser): void
+    public function set_mime_type_guesser(Mime_Type_Guesser_Interface $mime_type_guesser): void
     {
-        $this->mimeTypeGuesser = $mimeTypeGuesser;
+        $this->mime_type_guesser = $mime_type_guesser;
     }
-
-    public function getMimeTypeGuesser(): \Gedmo\Uploadable\MimeType\MimeTypeGuesserInterface
+    public function get_mime_type_guesser(): \Gedmo\Uploadable\Mime_Type\Mime_Type_Guesser_Interface
     {
-        return $this->mimeTypeGuesser;
+        return $this->mime_type_guesser;
     }
-
     /**
      * @param ClassMetadata<object> $meta
      * @param array<string, mixed>  $config
@@ -651,30 +514,24 @@ class UploadableListener extends MappedEventSubscriber
      *
      * @throws UploadableNoPathDefinedException
      */
-    protected function getPath(ClassMetadata $meta, array $config, ?object $object): string
+    protected function get_path(Class_Metadata $meta, array $config, ?object $object): string
     {
         $path = $config['path'];
-
         if ('' === $path) {
-            $defaultPath = $this->getDefaultPath();
+            $default_path = $this->get_default_path();
             if ('' !== $config['pathMethod']) {
-                $getPathMethod = \Closure::bind(fn (string $pathMethod, ?string $defaultPath): string => $this->{$pathMethod}($defaultPath), $object, $meta->getReflectionClass()->getName());
-
-                $path = $getPathMethod($config['pathMethod'], $defaultPath);
-            } elseif (null !== $defaultPath) {
-                $path = $defaultPath;
+                $get_path_method = \Closure::bind(fn(string $path_method, ?string $default_path): string => $this->{$path_method}($default_path), $object, $meta->get_reflection_class()->get_name());
+                $path = $get_path_method($config['pathMethod'], $default_path);
+            } elseif (null !== $default_path) {
+                $path = $default_path;
             } else {
                 $msg = 'You have to define the path to save files either in the listener, or in the class "%s"';
-
-                throw new UploadableNoPathDefinedException(sprintf($msg, $meta->getName()));
+                throw new Uploadable_No_Path_Defined_Exception(sprintf($msg, $meta->get_name()));
             }
         }
-
-        Validator::validatePath($path);
-
+        Validator::validate_path($path);
         return rtrim($path, '\/');
     }
-
     /**
      * @param ClassMetadata<object> $meta
      * @param array<string, mixed>  $config
@@ -682,31 +539,28 @@ class UploadableListener extends MappedEventSubscriber
      *
      * @return void
      */
-    protected function addFileRemoval(\Doctrine\Persistence\Mapping\ClassMetadata $meta, array $config, $object)
+    protected function add_file_removal(\Doctrine\Persistence\Mapping\Class_Metadata $meta, array $config, $object)
     {
         if ($config['filePathField']) {
-            $this->pendingFileRemovals[] = $this->getFilePathFieldValue($meta, $config, $object);
+            $this->pending_file_removals[] = $this->get_file_path_field_value($meta, $config, $object);
         } else {
-            $path = $this->getPath($meta, $config, $object);
-            $fileName = $this->getFileNameFieldValue($meta, $config, $object);
-            $this->pendingFileRemovals[] = $path.DIRECTORY_SEPARATOR.$fileName;
+            $path = $this->get_path($meta, $config, $object);
+            $file_name = $this->get_file_name_field_value($meta, $config, $object);
+            $this->pending_file_removals[] = $path . DIRECTORY_SEPARATOR . $file_name;
         }
     }
-
     /**
      * @param string $filePath
      *
      * @return void
      */
-    protected function cancelFileRemoval($filePath)
+    protected function cancel_file_removal($file_path)
     {
-        $k = array_search($filePath, $this->pendingFileRemovals, true);
-
+        $k = array_search($file_path, $this->pending_file_removals, true);
         if (false !== $k) {
-            unset($this->pendingFileRemovals[$k]);
+            unset($this->pending_file_removals[$k]);
         }
     }
-
     /**
      * Returns value of the entity's property
      *
@@ -716,13 +570,11 @@ class UploadableListener extends MappedEventSubscriber
      *
      * @return mixed
      */
-    protected function getPropertyValueFromObject(ClassMetadata $meta, $propertyName, ?object $object)
+    protected function get_property_value_from_object(Class_Metadata $meta, $property_name, ?object $object)
     {
-        $getFilePath = \Closure::bind(fn (string $propertyName) => $this->{$propertyName}, $object, $meta->getReflectionClass()->getName());
-
-        return $getFilePath($propertyName);
+        $get_file_path = \Closure::bind(fn(string $property_name) => $this->{$property_name}, $object, $meta->get_reflection_class()->get_name());
+        return $get_file_path($property_name);
     }
-
     /**
      * Returns the path of the entity's file
      *
@@ -732,11 +584,10 @@ class UploadableListener extends MappedEventSubscriber
      *
      * @return string
      */
-    protected function getFilePathFieldValue(ClassMetadata $meta, array $config, $object)
+    protected function get_file_path_field_value(Class_Metadata $meta, array $config, $object)
     {
-        return $this->getPropertyValueFromObject($meta, $config['filePathField'], $object);
+        return $this->get_property_value_from_object($meta, $config['filePathField'], $object);
     }
-
     /**
      * Returns the name of the entity's file
      *
@@ -746,16 +597,14 @@ class UploadableListener extends MappedEventSubscriber
      *
      * @return string
      */
-    protected function getFileNameFieldValue(ClassMetadata $meta, array $config, $object)
+    protected function get_file_name_field_value(Class_Metadata $meta, array $config, $object)
     {
-        return $this->getPropertyValueFromObject($meta, $config['fileNameField'], $object);
+        return $this->get_property_value_from_object($meta, $config['fileNameField'], $object);
     }
-
-    protected function getNamespace(): string
+    protected function get_namespace(): string
     {
         return __NAMESPACE__;
     }
-
     /**
      * @param object                $object
      * @param object                $uow
@@ -766,14 +615,13 @@ class UploadableListener extends MappedEventSubscriber
      *
      * @return void
      */
-    protected function updateField($object, $uow, AdapterInterface $ea, ClassMetadata $meta, $field, $value, $notifyPropertyChanged = true)
+    protected function update_field($object, $uow, Adapter_Interface $ea, Class_Metadata $meta, $field, $value, $notify_property_changed = true)
     {
-        $oldValue = $meta->getFieldValue($object, $field);
-        $meta->setFieldValue($object, $field, $value);
-
-        if ($notifyPropertyChanged && $object instanceof NotifyPropertyChanged) {
-            $uow = $ea->getObjectManager()->getUnitOfWork();
-            $uow->propertyChanged($object, $field, $oldValue, $value);
+        $old_value = $meta->get_field_value($object, $field);
+        $meta->set_field_value($object, $field, $value);
+        if ($notify_property_changed && $object instanceof Notify_Property_Changed) {
+            $uow = $ea->get_object_manager()->get_unit_of_work();
+            $uow->property_changed($object, $field, $old_value, $value);
         }
     }
 }

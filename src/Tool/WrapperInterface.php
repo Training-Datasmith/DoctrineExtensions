@@ -1,19 +1,16 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of the Doctrine Behavioral Extensions package.
  * (c) Gediminas Morkevicius <gediminas.morkevicius@gmail.com> http://www.gediminasm.org
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Gedmo\Tool;
 
-use Doctrine\Persistence\Mapping\ClassMetadata;
-use Doctrine\Persistence\ObjectManager;
-
+use Doctrine\Persistence\Mapping\Class_Metadata;
+use Doctrine\Persistence\Object_Manager;
 /**
  * Interface for a wrapper of a managed object.
  *
@@ -23,15 +20,14 @@ use Doctrine\Persistence\ObjectManager;
  *
  * @author Gediminas Morkevicius <gediminas.morkevicius@gmail.com>
  */
-interface WrapperInterface
+interface Wrapper_Interface
 {
     /**
      * Get the currently wrapped object.
      *
      * @return TObject
      */
-    public function getObject();
-
+    public function get_object();
     /**
      * Retrieves a property's value from the wrapped object.
      *
@@ -39,8 +35,7 @@ interface WrapperInterface
      *
      * @return mixed
      */
-    public function getPropertyValue($property);
-
+    public function get_property_value($property);
     /**
      * Sets a property's value on the wrapped object.
      *
@@ -49,8 +44,7 @@ interface WrapperInterface
      *
      * @return $this
      */
-    public function setPropertyValue($property, $value);
-
+    public function set_property_value($property, $value);
     /**
      * @deprecated since gedmo/doctrine-extensions 3.5 and to be removed in version 4.0.
      *
@@ -61,21 +55,18 @@ interface WrapperInterface
      * @return $this
      */
     public function populate(array $data);
-
     /**
      * Checks if the identifier is valid.
      *
      * @return bool
      */
-    public function hasValidIdentifier();
-
+    public function has_valid_identifier();
     /**
      * Get the object metadata.
      *
      * @return TClassMetadata
      */
-    public function getMetadata();
-
+    public function get_metadata();
     /**
      * Get the object identifier, single or composite.
      *
@@ -85,8 +76,7 @@ interface WrapperInterface
      *
      * @todo Uncomment the second parameter for 4.0
      */
-    public function getIdentifier($single = true/* , bool $flatten = false */);
-
+    public function get_identifier($single = true);
     /**
      * Get the root object class name.
      *
@@ -94,8 +84,7 @@ interface WrapperInterface
      *
      * @phpstan-return class-string
      */
-    public function getRootObjectName();
-
+    public function get_root_object_name();
     /**
      * Checks if an association is embedded.
      *
@@ -103,5 +92,5 @@ interface WrapperInterface
      *
      * @return bool
      */
-    public function isEmbeddedAssociation($field);
+    public function is_embedded_association($field);
 }

@@ -1,14 +1,12 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of the Doctrine Behavioral Extensions package.
  * (c) Gediminas Morkevicius <gediminas.morkevicius@gmail.com> http://www.gediminasm.org
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Gedmo\Exception;
 
 /**
@@ -18,6 +16,6 @@ namespace Gedmo\Exception;
  *
  * @final since gedmo/doctrine-extensions 3.11
  */
-class ReferenceIntegrityStrictException extends RuntimeException
+class Reference_Integrity_Strict_Exception extends RuntimeException
 {
 }

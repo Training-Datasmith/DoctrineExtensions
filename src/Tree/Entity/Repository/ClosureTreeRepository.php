@@ -1,23 +1,20 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of the Doctrine Behavioral Extensions package.
  * (c) Gediminas Morkevicius <gediminas.morkevicius@gmail.com> http://www.gediminasm.org
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Gedmo\Tree\Entity\Repository;
 
 use Doctrine\ORM\Query;
-use Doctrine\ORM\QueryBuilder;
+use Doctrine\ORM\Query_Builder;
 use Gedmo\Exception\InvalidArgumentException;
-use Gedmo\Tool\Wrapper\EntityWrapper;
-use Gedmo\Tree\Entity\MappedSuperclass\AbstractClosure;
+use Gedmo\Tool\Wrapper\Entity_Wrapper;
+use Gedmo\Tree\Entity\Mapped_Superclass\Abstract_Closure;
 use Gedmo\Tree\Strategy;
-
 /**
  * The ClosureTreeRepository has some useful functions
  * to interact with Closure tree. Repository uses
@@ -30,44 +27,36 @@ use Gedmo\Tree\Strategy;
  *
  * @template-extends AbstractTreeRepository<T>
  */
-class ClosureTreeRepository extends AbstractTreeRepository
+class Closure_Tree_Repository extends Abstract_Tree_Repository
 {
     /** Alias for the level value used in the subquery of the getNodesHierarchy method */
     public const SUBQUERY_LEVEL = 'level';
-
-    public function getRootNodesQueryBuilder($sortByField = null, $direction = 'asc')
+    public function get_root_nodes_query_builder($sort_by_field = null, $direction = 'asc')
     {
-        $meta = $this->getClassMetadata();
-        $config = $this->listener->getConfiguration($this->getEntityManager(), $meta->getName());
-        $qb = $this->getQueryBuilder();
-        $qb->select('node')
-            ->from($config['useObjectClass'], 'node')
-            ->where('node.'.$config['parent'].' IS NULL');
-
-        if (null !== $sortByField) {
-            $sortByField = (array) $sortByField;
+        $meta = $this->get_class_metadata();
+        $config = $this->listener->get_configuration($this->get_entity_manager(), $meta->get_name());
+        $qb = $this->get_query_builder();
+        $qb->select('node')->from($config['useObjectClass'], 'node')->where('node.' . $config['parent'] . ' IS NULL');
+        if (null !== $sort_by_field) {
+            $sort_by_field = (array) $sort_by_field;
             $direction = (array) $direction;
-            foreach ($sortByField as $key => $field) {
-                $fieldDirection = $direction[$key] ?? 'asc';
-                if ($meta->hasField($field) || $meta->isSingleValuedAssociation($field)) {
-                    $qb->addOrderBy('node.'.$field, 'asc' === strtolower($fieldDirection) ? 'asc' : 'desc');
+            foreach ($sort_by_field as $key => $field) {
+                $field_direction = $direction[$key] ?? 'asc';
+                if ($meta->has_field($field) || $meta->is_single_valued_association($field)) {
+                    $qb->add_order_by('node.' . $field, 'asc' === strtolower($field_direction) ? 'asc' : 'desc');
                 }
             }
         }
-
         return $qb;
     }
-
-    public function getRootNodesQuery($sortByField = null, $direction = 'asc')
+    public function get_root_nodes_query($sort_by_field = null, $direction = 'asc')
     {
-        return $this->getRootNodesQueryBuilder($sortByField, $direction)->getQuery();
+        return $this->get_root_nodes_query_builder($sort_by_field, $direction)->get_query();
     }
-
-    public function getRootNodes($sortByField = null, $direction = 'asc')
+    public function get_root_nodes($sort_by_field = null, $direction = 'asc')
     {
-        return $this->getRootNodesQuery($sortByField, $direction)->getResult();
+        return $this->get_root_nodes_query($sort_by_field, $direction)->get_result();
     }
-
     /**
      * Get the Tree path query by given $node
      *
@@ -77,28 +66,25 @@ class ClosureTreeRepository extends AbstractTreeRepository
      *
      * @return Query
      */
-    public function getPathQuery($node)
+    public function get_path_query($node)
     {
-        $meta = $this->getClassMetadata();
-        if (!is_a($node, $meta->getName())) {
+        $meta = $this->get_class_metadata();
+        if (!is_a($node, $meta->get_name())) {
             throw new InvalidArgumentException('Node is not related to this repository');
         }
-        if (!$this->getEntityManager()->getUnitOfWork()->isInIdentityMap($node)) {
+        if (!$this->get_entity_manager()->get_unit_of_work()->is_in_identity_map($node)) {
             throw new InvalidArgumentException('Node is not managed by UnitOfWork');
         }
-        $config = $this->listener->getConfiguration($this->getEntityManager(), $meta->getName());
-        $closureMeta = $this->getEntityManager()->getClassMetadata($config['closure']);
-
-        $dql = "SELECT c, node FROM {$closureMeta->getName()} c";
+        $config = $this->listener->get_configuration($this->get_entity_manager(), $meta->get_name());
+        $closure_meta = $this->get_entity_manager()->get_class_metadata($config['closure']);
+        $dql = "SELECT c, node FROM {$closure_meta->get_name()} c";
         $dql .= ' INNER JOIN c.ancestor node';
         $dql .= ' WHERE c.descendant = :node';
         $dql .= ' ORDER BY c.depth DESC';
-        $q = $this->getEntityManager()->createQuery($dql);
-        $q->setParameter('node', $node);
-
+        $q = $this->get_entity_manager()->create_query($dql);
+        $q->set_parameter('node', $node);
         return $q;
     }
-
     /**
      * Get the Tree path of Nodes by given $node
      *
@@ -106,11 +92,10 @@ class ClosureTreeRepository extends AbstractTreeRepository
      *
      * @return array<int, object|null> list of Nodes in path
      */
-    public function getPath($node)
+    public function get_path($node)
     {
-        return array_map(static fn (AbstractClosure $closure) => $closure->getAncestor(), $this->getPathQuery($node)->getResult());
+        return array_map(static fn(Abstract_Closure $closure) => $closure->get_ancestor(), $this->get_path_query($node)->get_result());
     }
-
     /**
      * @param object|null          $node        If null, all tree nodes will be taken
      * @param bool                 $direct      True to take only direct children
@@ -122,72 +107,57 @@ class ClosureTreeRepository extends AbstractTreeRepository
      *
      * @return QueryBuilder QueryBuilder object
      */
-    public function childrenQueryBuilder($node = null, $direct = false, $sortByField = null, $direction = 'ASC', $includeNode = false)
+    public function children_query_builder($node = null, $direct = false, $sort_by_field = null, $direction = 'ASC', $include_node = false)
     {
-        $meta = $this->getClassMetadata();
-        $config = $this->listener->getConfiguration($this->getEntityManager(), $meta->getName());
-
-        $qb = $this->getQueryBuilder();
+        $meta = $this->get_class_metadata();
+        $config = $this->listener->get_configuration($this->get_entity_manager(), $meta->get_name());
+        $qb = $this->get_query_builder();
         if (null !== $node) {
-            if (is_a($node, $meta->getName())) {
-                if (!$this->getEntityManager()->getUnitOfWork()->isInIdentityMap($node)) {
+            if (is_a($node, $meta->get_name())) {
+                if (!$this->get_entity_manager()->get_unit_of_work()->is_in_identity_map($node)) {
                     throw new InvalidArgumentException('Node is not managed by UnitOfWork');
                 }
-
                 $where = 'c.ancestor = :node AND ';
-
-                $qb->select('c, node')
-                    ->from($config['closure'], 'c')
-                    ->innerJoin('c.descendant', 'node');
-
+                $qb->select('c, node')->from($config['closure'], 'c')->inner_join('c.descendant', 'node');
                 if ($direct) {
                     $where .= 'c.depth = 1';
                 } else {
                     $where .= 'c.descendant <> :node';
                 }
-
                 $qb->where($where);
-
-                if ($includeNode) {
-                    $qb->orWhere('c.ancestor = :node AND c.descendant = :node');
+                if ($include_node) {
+                    $qb->or_where('c.ancestor = :node AND c.descendant = :node');
                 }
             } else {
                 throw new \InvalidArgumentException('Node is not related to this repository');
             }
         } else {
-            $qb->select('node')
-                ->from($config['useObjectClass'], 'node');
+            $qb->select('node')->from($config['useObjectClass'], 'node');
             if ($direct) {
-                $qb->where('node.'.$config['parent'].' IS NULL');
+                $qb->where('node.' . $config['parent'] . ' IS NULL');
             }
         }
-
-        if ($sortByField) {
-            if (is_array($sortByField)) {
-                foreach ($sortByField as $key => $field) {
-                    $fieldDirection = is_array($direction) ? ($direction[$key] ?? 'asc') : $direction;
-                    if (($meta->hasField($field) || $meta->isSingleValuedAssociation($field)) && in_array(strtolower($fieldDirection), ['asc', 'desc'], true)) {
-                        $qb->addOrderBy('node.'.$field, $fieldDirection);
+        if ($sort_by_field) {
+            if (is_array($sort_by_field)) {
+                foreach ($sort_by_field as $key => $field) {
+                    $field_direction = is_array($direction) ? $direction[$key] ?? 'asc' : $direction;
+                    if (($meta->has_field($field) || $meta->is_single_valued_association($field)) && in_array(strtolower($field_direction), ['asc', 'desc'], true)) {
+                        $qb->add_order_by('node.' . $field, $field_direction);
                     } else {
-                        throw new InvalidArgumentException(sprintf('Invalid sort options specified: field - %s, direction - %s', $field, $fieldDirection));
+                        throw new InvalidArgumentException(sprintf('Invalid sort options specified: field - %s, direction - %s', $field, $field_direction));
                     }
                 }
+            } else if (($meta->has_field($sort_by_field) || $meta->is_single_valued_association($sort_by_field)) && in_array(strtolower($direction), ['asc', 'desc'], true)) {
+                $qb->order_by('node.' . $sort_by_field, $direction);
             } else {
-                if (($meta->hasField($sortByField) || $meta->isSingleValuedAssociation($sortByField)) && in_array(strtolower($direction), ['asc', 'desc'], true)) {
-                    $qb->orderBy('node.'.$sortByField, $direction);
-                } else {
-                    throw new InvalidArgumentException(sprintf('Invalid sort options specified: field - %s, direction - %s', $sortByField, $direction));
-                }
+                throw new InvalidArgumentException(sprintf('Invalid sort options specified: field - %s, direction - %s', $sort_by_field, $direction));
             }
         }
-
         if ($node) {
-            $qb->setParameter('node', $node);
+            $qb->set_parameter('node', $node);
         }
-
         return $qb;
     }
-
     /**
      * @param object|null          $node        If null, all tree nodes will be taken
      * @param bool                 $direct      True to take only direct children
@@ -199,11 +169,10 @@ class ClosureTreeRepository extends AbstractTreeRepository
      *
      * @return Query Query object
      */
-    public function childrenQuery($node = null, $direct = false, $sortByField = null, $direction = 'ASC', $includeNode = false)
+    public function children_query($node = null, $direct = false, $sort_by_field = null, $direction = 'ASC', $include_node = false)
     {
-        return $this->childrenQueryBuilder($node, $direct, $sortByField, $direction, $includeNode)->getQuery();
+        return $this->children_query_builder($node, $direct, $sort_by_field, $direction, $include_node)->get_query();
     }
-
     /**
      * @param object|null          $node        If null, all tree nodes will be taken
      * @param bool                 $direct      True to take only direct children
@@ -215,34 +184,29 @@ class ClosureTreeRepository extends AbstractTreeRepository
      *
      * @return array<int, object|null> List of children or null on failure
      */
-    public function children($node = null, $direct = false, $sortByField = null, $direction = 'ASC', $includeNode = false)
+    public function children($node = null, $direct = false, $sort_by_field = null, $direction = 'ASC', $include_node = false)
     {
-        $result = $this->childrenQuery($node, $direct, $sortByField, $direction, $includeNode)->getResult();
+        $result = $this->children_query($node, $direct, $sort_by_field, $direction, $include_node)->get_result();
         if ($node) {
-            return array_map(static fn (AbstractClosure $closure) => $closure->getDescendant(), $result);
+            return array_map(static fn(Abstract_Closure $closure) => $closure->get_descendant(), $result);
         }
-
         return $result;
     }
-
-    public function getChildrenQueryBuilder($node = null, $direct = false, $sortByField = null, $direction = 'ASC', $includeNode = false)
+    public function get_children_query_builder($node = null, $direct = false, $sort_by_field = null, $direction = 'ASC', $include_node = false)
     {
-        return $this->childrenQueryBuilder($node, $direct, $sortByField, $direction, $includeNode);
+        return $this->children_query_builder($node, $direct, $sort_by_field, $direction, $include_node);
     }
-
-    public function getChildrenQuery($node = null, $direct = false, $sortByField = null, $direction = 'ASC', $includeNode = false)
+    public function get_children_query($node = null, $direct = false, $sort_by_field = null, $direction = 'ASC', $include_node = false)
     {
-        return $this->childrenQuery($node, $direct, $sortByField, $direction, $includeNode);
+        return $this->children_query($node, $direct, $sort_by_field, $direction, $include_node);
     }
-
     /**
      * @return array<int, object|null>
      */
-    public function getChildren($node = null, $direct = false, $sortByField = null, $direction = 'ASC', $includeNode = false)
+    public function get_children($node = null, $direct = false, $sort_by_field = null, $direction = 'ASC', $include_node = false)
     {
-        return $this->children($node, $direct, $sortByField, $direction, $includeNode);
+        return $this->children($node, $direct, $sort_by_field, $direction, $include_node);
     }
-
     /**
      * Removes given $node from the tree and reparents its descendants
      *
@@ -253,388 +217,266 @@ class ClosureTreeRepository extends AbstractTreeRepository
      * @throws InvalidArgumentException
      * @throws \Gedmo\Exception\RuntimeException if something fails in transaction
      */
-    public function removeFromTree($node): void
+    public function remove_from_tree($node): void
     {
-        $meta = $this->getClassMetadata();
-        if (!is_a($node, $meta->getName())) {
+        $meta = $this->get_class_metadata();
+        if (!is_a($node, $meta->get_name())) {
             throw new InvalidArgumentException('Node is not related to this repository');
         }
-        $wrapped = new EntityWrapper($node, $this->getEntityManager());
-        if (!$wrapped->hasValidIdentifier()) {
+        $wrapped = new Entity_Wrapper($node, $this->get_entity_manager());
+        if (!$wrapped->has_valid_identifier()) {
             throw new InvalidArgumentException('Node is not managed by UnitOfWork');
         }
-        $config = $this->listener->getConfiguration($this->getEntityManager(), $meta->getName());
-        $pk = $meta->getSingleIdentifierFieldName();
-        $nodeId = $wrapped->getIdentifier();
-        $parent = $wrapped->getPropertyValue($config['parent']);
-
+        $config = $this->listener->get_configuration($this->get_entity_manager(), $meta->get_name());
+        $pk = $meta->get_single_identifier_field_name();
+        $node_id = $wrapped->get_identifier();
+        $parent = $wrapped->get_property_value($config['parent']);
         $dql = "SELECT node FROM {$config['useObjectClass']} node";
         $dql .= " WHERE node.{$config['parent']} = :node";
-        $q = $this->getEntityManager()->createQuery($dql);
-        $q->setParameter('node', $node);
-        $nodesToReparent = $q->toIterable();
+        $q = $this->get_entity_manager()->create_query($dql);
+        $q->set_parameter('node', $node);
+        $nodes_to_reparent = $q->to_iterable();
         // process updates in transaction
-        $this->getEntityManager()->getConnection()->beginTransaction();
-
+        $this->get_entity_manager()->get_connection()->begin_transaction();
         try {
-            foreach ($nodesToReparent as $nodeToReparent) {
-                $id = $meta->getFieldValue($nodeToReparent, $pk);
-                $meta->setFieldValue($nodeToReparent, $config['parent'], $parent);
-
+            foreach ($nodes_to_reparent as $node_to_reparent) {
+                $id = $meta->get_field_value($node_to_reparent, $pk);
+                $meta->set_field_value($node_to_reparent, $config['parent'], $parent);
                 $dql = "UPDATE {$config['useObjectClass']} node";
                 $dql .= " SET node.{$config['parent']} = :parent";
                 $dql .= " WHERE node.{$pk} = :id";
-
-                $q = $this->getEntityManager()->createQuery($dql);
-                $q->setParameters([
-                    'parent' => $parent,
-                    'id' => $id,
-                ]);
-                $q->getSingleScalarResult();
-
-                $this->listener
-                    ->getStrategy($this->getEntityManager(), $meta->getName())
-                    ->updateNode($this->getEntityManager(), $nodeToReparent, $node);
-
-                $oid = spl_object_id($nodeToReparent);
-                $this->getEntityManager()->getUnitOfWork()->setOriginalEntityProperty($oid, $config['parent'], $parent);
+                $q = $this->get_entity_manager()->create_query($dql);
+                $q->set_parameters(['parent' => $parent, 'id' => $id]);
+                $q->get_single_scalar_result();
+                $this->listener->get_strategy($this->get_entity_manager(), $meta->get_name())->update_node($this->get_entity_manager(), $node_to_reparent, $node);
+                $oid = spl_object_id($node_to_reparent);
+                $this->get_entity_manager()->get_unit_of_work()->set_original_entity_property($oid, $config['parent'], $parent);
             }
-
             $dql = "DELETE {$config['useObjectClass']} node";
             $dql .= " WHERE node.{$pk} = :nodeId";
-
-            $q = $this->getEntityManager()->createQuery($dql);
-            $q->setParameter('nodeId', $nodeId);
-            $q->getSingleScalarResult();
-            $this->getEntityManager()->getConnection()->commit();
+            $q = $this->get_entity_manager()->create_query($dql);
+            $q->set_parameter('nodeId', $node_id);
+            $q->get_single_scalar_result();
+            $this->get_entity_manager()->get_connection()->commit();
         } catch (\Exception $e) {
-            $this->getEntityManager()->close();
-            $this->getEntityManager()->getConnection()->rollback();
-
-            throw new \Gedmo\Exception\RuntimeException('Transaction failed: '.$e->getMessage(), $e->getCode(), $e);
+            $this->get_entity_manager()->close();
+            $this->get_entity_manager()->get_connection()->rollback();
+            throw new \Gedmo\Exception\RuntimeException('Transaction failed: ' . $e->get_message(), $e->get_code(), $e);
         }
         // remove from identity map
-        $this->getEntityManager()->getUnitOfWork()->removeFromIdentityMap($node);
+        $this->get_entity_manager()->get_unit_of_work()->remove_from_identity_map($node);
     }
-
-    public function buildTreeArray(array $nodes): array
+    public function build_tree_array(array $nodes): array
     {
-        $meta = $this->getClassMetadata();
-        $config = $this->listener->getConfiguration($this->getEntityManager(), $meta->getName());
-        $nestedTree = [];
-        $idField = $meta->getSingleIdentifierFieldName();
-        $hasLevelProp = !empty($config['level']);
-        $levelProp = $hasLevelProp ? $config['level'] : self::SUBQUERY_LEVEL;
-        $childrenIndex = $this->repoUtils->getChildrenIndex();
-
+        $meta = $this->get_class_metadata();
+        $config = $this->listener->get_configuration($this->get_entity_manager(), $meta->get_name());
+        $nested_tree = [];
+        $id_field = $meta->get_single_identifier_field_name();
+        $has_level_prop = !empty($config['level']);
+        $level_prop = $has_level_prop ? $config['level'] : self::SUBQUERY_LEVEL;
+        $children_index = $this->repo_utils->get_children_index();
         if ([] !== $nodes) {
-            $firstLevel = $hasLevelProp ? $nodes[0][0]['descendant'][$levelProp] : $nodes[0][$levelProp];
-            $l = 1;     // 1 is only an initial value. We could have a tree which has a root node with any level (subtrees)
+            $first_level = $has_level_prop ? $nodes[0][0]['descendant'][$level_prop] : $nodes[0][$level_prop];
+            $l = 1;
+            // 1 is only an initial value. We could have a tree which has a root node with any level (subtrees)
             $refs = [];
-
             foreach ($nodes as $n) {
                 $node = $n[0]['descendant'];
-                $node[$childrenIndex] = [];
-                $level = $hasLevelProp ? $node[$levelProp] : $n[$levelProp];
-
+                $node[$children_index] = [];
+                $level = $has_level_prop ? $node[$level_prop] : $n[$level_prop];
                 if ($l < $level) {
                     $l = $level;
                 }
-
-                if ($l == $firstLevel) {
-                    $tmp = &$nestedTree;
+                if ($l == $first_level) {
+                    $tmp =& $nested_tree;
                 } else {
-                    $tmp = &$refs[$n['parent_id']][$childrenIndex];
+                    $tmp =& $refs[$n['parent_id']][$children_index];
                 }
-
                 $key = count($tmp);
                 $tmp[$key] = $node;
-                $refs[$node[$idField]] = &$tmp[$key];
+                $refs[$node[$id_field]] =& $tmp[$key];
             }
-
             unset($refs);
         }
-
-        return $nestedTree;
+        return $nested_tree;
     }
-
-    public function getNodesHierarchy($node = null, $direct = false, array $options = [], $includeNode = false)
+    public function get_nodes_hierarchy($node = null, $direct = false, array $options = [], $include_node = false)
     {
-        return $this->getNodesHierarchyQuery($node, $direct, $options, $includeNode)->getArrayResult();
+        return $this->get_nodes_hierarchy_query($node, $direct, $options, $include_node)->get_array_result();
     }
-
-    public function getNodesHierarchyQuery($node = null, $direct = false, array $options = [], $includeNode = false)
+    public function get_nodes_hierarchy_query($node = null, $direct = false, array $options = [], $include_node = false)
     {
-        return $this->getNodesHierarchyQueryBuilder($node, $direct, $options, $includeNode)->getQuery();
+        return $this->get_nodes_hierarchy_query_builder($node, $direct, $options, $include_node)->get_query();
     }
-
-    public function getNodesHierarchyQueryBuilder($node = null, $direct = false, array $options = [], $includeNode = false)
+    public function get_nodes_hierarchy_query_builder($node = null, $direct = false, array $options = [], $include_node = false)
     {
-        $meta = $this->getClassMetadata();
-        $config = $this->listener->getConfiguration($this->getEntityManager(), $meta->getName());
-        $idField = $meta->getSingleIdentifierFieldName();
-        $subQuery = '';
-        $hasLevelProp = isset($config['level']) && $config['level'];
-
-        if (!$hasLevelProp) {
-            $subQuery = ', (SELECT MAX(c2.depth) + 1 FROM '.$config['closure'];
-            $subQuery .= ' c2 WHERE c2.descendant = c.descendant GROUP BY c2.descendant) AS '.self::SUBQUERY_LEVEL;
+        $meta = $this->get_class_metadata();
+        $config = $this->listener->get_configuration($this->get_entity_manager(), $meta->get_name());
+        $id_field = $meta->get_single_identifier_field_name();
+        $sub_query = '';
+        $has_level_prop = isset($config['level']) && $config['level'];
+        if (!$has_level_prop) {
+            $sub_query = ', (SELECT MAX(c2.depth) + 1 FROM ' . $config['closure'];
+            $sub_query .= ' c2 WHERE c2.descendant = c.descendant GROUP BY c2.descendant) AS ' . self::SUBQUERY_LEVEL;
         }
-
-        $q = $this->getEntityManager()->createQueryBuilder()
-            ->select('c, node, p.'.$idField.' AS parent_id'.$subQuery)
-            ->from($config['closure'], 'c')
-            ->innerJoin('c.descendant', 'node')
-            ->leftJoin('node.parent', 'p')
-            ->addOrderBy($hasLevelProp ? 'node.'.$config['level'] : self::SUBQUERY_LEVEL, 'asc');
-
+        $q = $this->get_entity_manager()->create_query_builder()->select('c, node, p.' . $id_field . ' AS parent_id' . $sub_query)->from($config['closure'], 'c')->inner_join('c.descendant', 'node')->left_join('node.parent', 'p')->add_order_by($has_level_prop ? 'node.' . $config['level'] : self::SUBQUERY_LEVEL, 'asc');
         if (null !== $node) {
             $q->where('c.ancestor = :node');
-            $q->setParameter('node', $node);
+            $q->set_parameter('node', $node);
         } else {
-            $q->groupBy('c.descendant');
+            $q->group_by('c.descendant');
         }
-
-        if (!$includeNode) {
-            $q->andWhere('c.ancestor != c.descendant');
+        if (!$include_node) {
+            $q->and_where('c.ancestor != c.descendant');
         }
-
-        $defaultOptions = [];
-        $options = array_merge($defaultOptions, $options);
-
-        if (isset($options['childSort']) && is_array($options['childSort'])
-            && isset($options['childSort']['field'], $options['childSort']['dir'])) {
-            $q->addOrderBy(
-                'node.'.$options['childSort']['field'],
-                'asc' === strtolower($options['childSort']['dir']) ? 'asc' : 'desc'
-            );
+        $default_options = [];
+        $options = array_merge($default_options, $options);
+        if (isset($options['childSort']) && is_array($options['childSort']) && isset($options['childSort']['field'], $options['childSort']['dir'])) {
+            $q->add_order_by('node.' . $options['childSort']['field'], 'asc' === strtolower($options['childSort']['dir']) ? 'asc' : 'desc');
         }
-
         return $q;
     }
-
     /**
      * @return array<int, string>|bool
      */
     public function verify()
     {
-        $nodeMeta = $this->getClassMetadata();
-        $nodeIdField = $nodeMeta->getSingleIdentifierFieldName();
-        $config = $this->listener->getConfiguration($this->getEntityManager(), $nodeMeta->getName());
-        $closureMeta = $this->getEntityManager()->getClassMetadata($config['closure']);
+        $node_meta = $this->get_class_metadata();
+        $node_id_field = $node_meta->get_single_identifier_field_name();
+        $config = $this->listener->get_configuration($this->get_entity_manager(), $node_meta->get_name());
+        $closure_meta = $this->get_entity_manager()->get_class_metadata($config['closure']);
         $errors = [];
-
-        $q = $this->getEntityManager()->createQuery("
-          SELECT COUNT(node)
-          FROM {$nodeMeta->getName()} AS node
-          LEFT JOIN {$closureMeta->getName()} AS c WITH c.ancestor = node AND c.depth = 0
-          WHERE c.id IS NULL
-        ");
-
-        if ($missingSelfRefsCount = (int) $q->getSingleScalarResult()) {
-            $errors[] = "Missing $missingSelfRefsCount self referencing closures";
+        $q = $this->get_entity_manager()->create_query("\n          SELECT COUNT(node)\n          FROM {$node_meta->get_name()} AS node\n          LEFT JOIN {$closure_meta->get_name()} AS c WITH c.ancestor = node AND c.depth = 0\n          WHERE c.id IS NULL\n        ");
+        if ($missing_self_refs_count = (int) $q->get_single_scalar_result()) {
+            $errors[] = "Missing {$missing_self_refs_count} self referencing closures";
         }
-
-        $q = $this->getEntityManager()->createQuery("
-          SELECT COUNT(node)
-          FROM {$nodeMeta->getName()} AS node
-          INNER JOIN {$closureMeta->getName()} AS c1 WITH c1.descendant = node.{$config['parent']}
-          LEFT  JOIN {$closureMeta->getName()} AS c2 WITH c2.descendant = node.$nodeIdField AND c2.ancestor = c1.ancestor
-          WHERE c2.id IS NULL AND node.$nodeIdField <> c1.ancestor
-        ");
-
-        if ($missingClosuresCount = (int) $q->getSingleScalarResult()) {
-            $errors[] = "Missing $missingClosuresCount closures";
+        $q = $this->get_entity_manager()->create_query("\n          SELECT COUNT(node)\n          FROM {$node_meta->get_name()} AS node\n          INNER JOIN {$closure_meta->get_name()} AS c1 WITH c1.descendant = node.{$config['parent']}\n          LEFT  JOIN {$closure_meta->get_name()} AS c2 WITH c2.descendant = node.{$node_id_field} AND c2.ancestor = c1.ancestor\n          WHERE c2.id IS NULL AND node.{$node_id_field} <> c1.ancestor\n        ");
+        if ($missing_closures_count = (int) $q->get_single_scalar_result()) {
+            $errors[] = "Missing {$missing_closures_count} closures";
         }
-
-        $q = $this->getEntityManager()->createQuery("
-            SELECT COUNT(c1.id)
-            FROM {$closureMeta->getName()} AS c1
-            LEFT JOIN {$nodeMeta->getName()} AS node WITH c1.descendant = node.$nodeIdField
-            LEFT JOIN {$closureMeta->getName()} AS c2 WITH c2.descendant = node.{$config['parent']} AND c2.ancestor = c1.ancestor
-            WHERE c2.id IS NULL AND c1.descendant <> c1.ancestor
-        ");
-
-        if ($invalidClosuresCount = (int) $q->getSingleScalarResult()) {
-            $errors[] = "Found $invalidClosuresCount invalid closures";
+        $q = $this->get_entity_manager()->create_query("\n            SELECT COUNT(c1.id)\n            FROM {$closure_meta->get_name()} AS c1\n            LEFT JOIN {$node_meta->get_name()} AS node WITH c1.descendant = node.{$node_id_field}\n            LEFT JOIN {$closure_meta->get_name()} AS c2 WITH c2.descendant = node.{$config['parent']} AND c2.ancestor = c1.ancestor\n            WHERE c2.id IS NULL AND c1.descendant <> c1.ancestor\n        ");
+        if ($invalid_closures_count = (int) $q->get_single_scalar_result()) {
+            $errors[] = "Found {$invalid_closures_count} invalid closures";
         }
-
         if (!empty($config['level'])) {
-            $levelField = $config['level'];
-            $maxResults = 1000;
-            $q = $this->getEntityManager()->createQuery("
-                SELECT node.$nodeIdField AS id, node.$levelField AS node_level, MAX(c.depth) AS closure_level
-                FROM {$nodeMeta->getName()} AS node
-                INNER JOIN {$closureMeta->getName()} AS c WITH c.descendant = node.$nodeIdField
-                GROUP BY node.$nodeIdField, node.$levelField
-                HAVING node.$levelField IS NULL OR node.$levelField <> MAX(c.depth) + 1
-            ")->setMaxResults($maxResults);
-
-            if ($invalidLevelsCount = count($q->getScalarResult())) {
-                $errors[] = "Found $invalidLevelsCount invalid level values";
+            $level_field = $config['level'];
+            $max_results = 1000;
+            $q = $this->get_entity_manager()->create_query("\n                SELECT node.{$node_id_field} AS id, node.{$level_field} AS node_level, MAX(c.depth) AS closure_level\n                FROM {$node_meta->get_name()} AS node\n                INNER JOIN {$closure_meta->get_name()} AS c WITH c.descendant = node.{$node_id_field}\n                GROUP BY node.{$node_id_field}, node.{$level_field}\n                HAVING node.{$level_field} IS NULL OR node.{$level_field} <> MAX(c.depth) + 1\n            ")->set_max_results($max_results);
+            if ($invalid_levels_count = count($q->get_scalar_result())) {
+                $errors[] = "Found {$invalid_levels_count} invalid level values";
             }
         }
-
         return [] !== $errors ? $errors : true;
     }
-
     public function recover(): void
     {
         if (true === $this->verify()) {
             return;
         }
-
-        $this->cleanUpClosure();
-        $this->rebuildClosure();
+        $this->clean_up_closure();
+        $this->rebuild_closure();
     }
-
     /**
      * @return int
      */
-    public function rebuildClosure()
+    public function rebuild_closure()
     {
-        $nodeMeta = $this->getClassMetadata();
-        $config = $this->listener->getConfiguration($this->getEntityManager(), $nodeMeta->getName());
-        $closureMeta = $this->getEntityManager()->getClassMetadata($config['closure']);
-
-        $insertClosures = function ($entries) use ($closureMeta): void {
-            $closureTable = $closureMeta->getTableName();
-            $ancestorColumnName = $this->getJoinColumnFieldName($closureMeta->getAssociationMapping('ancestor'));
-            $descendantColumnName = $this->getJoinColumnFieldName($closureMeta->getAssociationMapping('descendant'));
-            $depthColumnName = $closureMeta->getColumnName('depth');
-
-            $conn = $this->getEntityManager()->getConnection();
-            $conn->beginTransaction();
+        $node_meta = $this->get_class_metadata();
+        $config = $this->listener->get_configuration($this->get_entity_manager(), $node_meta->get_name());
+        $closure_meta = $this->get_entity_manager()->get_class_metadata($config['closure']);
+        $insert_closures = function ($entries) use ($closure_meta): void {
+            $closure_table = $closure_meta->get_table_name();
+            $ancestor_column_name = $this->get_join_column_field_name($closure_meta->get_association_mapping('ancestor'));
+            $descendant_column_name = $this->get_join_column_field_name($closure_meta->get_association_mapping('descendant'));
+            $depth_column_name = $closure_meta->get_column_name('depth');
+            $conn = $this->get_entity_manager()->get_connection();
+            $conn->begin_transaction();
             foreach ($entries as $entry) {
-                $conn->insert($closureTable, array_combine(
-                    [$ancestorColumnName, $descendantColumnName, $depthColumnName],
-                    $entry
-                ));
+                $conn->insert($closure_table, array_combine([$ancestor_column_name, $descendant_column_name, $depth_column_name], $entry));
             }
             $conn->commit();
         };
-
-        $buildClosures = function ($dql) use ($insertClosures): int {
-            $newClosuresCount = 0;
-            $batchSize = 1000;
-            $q = $this->getEntityManager()->createQuery($dql)->setMaxResults($batchSize)->setCacheable(false);
+        $build_closures = function ($dql) use ($insert_closures): int {
+            $new_closures_count = 0;
+            $batch_size = 1000;
+            $q = $this->get_entity_manager()->create_query($dql)->set_max_results($batch_size)->set_cacheable(false);
             do {
-                $entries = $q->getScalarResult();
-                $insertClosures($entries);
-                $newClosuresCount += count($entries);
+                $entries = $q->get_scalar_result();
+                $insert_closures($entries);
+                $new_closures_count += count($entries);
             } while ([] !== $entries);
-
-            return $newClosuresCount;
+            return $new_closures_count;
         };
-
-        $nodeIdField = $nodeMeta->getSingleIdentifierFieldName();
-        $newClosuresCount = $buildClosures("
-          SELECT node.$nodeIdField AS ancestor, node.$nodeIdField AS descendant, 0 AS depth
-          FROM {$nodeMeta->getName()} AS node
-          LEFT JOIN {$closureMeta->getName()} AS c WITH c.ancestor = node AND c.depth = 0
-          WHERE c.id IS NULL
-        ");
-
-        return $newClosuresCount + $buildClosures("
-          SELECT IDENTITY(c1.ancestor) AS ancestor, node.$nodeIdField AS descendant, c1.depth + 1 AS depth
-          FROM {$nodeMeta->getName()} AS node
-          INNER JOIN {$closureMeta->getName()} AS c1 WITH c1.descendant = node.{$config['parent']}
-          LEFT  JOIN {$closureMeta->getName()} AS c2 WITH c2.descendant = node.$nodeIdField AND c2.ancestor = c1.ancestor
-          WHERE c2.id IS NULL AND node.$nodeIdField <> c1.ancestor
-        ");
+        $node_id_field = $node_meta->get_single_identifier_field_name();
+        $new_closures_count = $build_closures("\n          SELECT node.{$node_id_field} AS ancestor, node.{$node_id_field} AS descendant, 0 AS depth\n          FROM {$node_meta->get_name()} AS node\n          LEFT JOIN {$closure_meta->get_name()} AS c WITH c.ancestor = node AND c.depth = 0\n          WHERE c.id IS NULL\n        ");
+        return $new_closures_count + $build_closures("\n          SELECT IDENTITY(c1.ancestor) AS ancestor, node.{$node_id_field} AS descendant, c1.depth + 1 AS depth\n          FROM {$node_meta->get_name()} AS node\n          INNER JOIN {$closure_meta->get_name()} AS c1 WITH c1.descendant = node.{$config['parent']}\n          LEFT  JOIN {$closure_meta->get_name()} AS c2 WITH c2.descendant = node.{$node_id_field} AND c2.ancestor = c1.ancestor\n          WHERE c2.id IS NULL AND node.{$node_id_field} <> c1.ancestor\n        ");
     }
-
     /**
      * @return int
      */
-    public function cleanUpClosure()
+    public function clean_up_closure()
     {
-        $conn = $this->getEntityManager()->getConnection();
-        $nodeMeta = $this->getClassMetadata();
-        $nodeIdField = $nodeMeta->getSingleIdentifierFieldName();
-        $config = $this->listener->getConfiguration($this->getEntityManager(), $nodeMeta->getName());
-        $closureMeta = $this->getEntityManager()->getClassMetadata($config['closure']);
-        $closureTableName = $closureMeta->getTableName();
-
-        $dql = "
-            SELECT c1.id AS id
-            FROM {$closureMeta->getName()} AS c1
-            LEFT JOIN {$nodeMeta->getName()} AS node WITH c1.descendant = node.$nodeIdField
-            LEFT JOIN {$closureMeta->getName()} AS c2 WITH c2.descendant = node.{$config['parent']} AND c2.ancestor = c1.ancestor
-            WHERE c2.id IS NULL AND c1.descendant <> c1.ancestor
-        ";
-
-        $deletedClosuresCount = 0;
-        $batchSize = 1000;
-        $q = $this->getEntityManager()->createQuery($dql)->setMaxResults($batchSize)->setCacheable(false);
-
-        while (($ids = $q->getScalarResult()) && [] !== $ids) {
-            $ids = array_map(static fn (array $el) => $el['id'], $ids);
-            $query = "DELETE FROM {$closureTableName} WHERE id IN (".implode(', ', $ids).')';
-            if (0 === $conn->executeStatement($query)) {
+        $conn = $this->get_entity_manager()->get_connection();
+        $node_meta = $this->get_class_metadata();
+        $node_id_field = $node_meta->get_single_identifier_field_name();
+        $config = $this->listener->get_configuration($this->get_entity_manager(), $node_meta->get_name());
+        $closure_meta = $this->get_entity_manager()->get_class_metadata($config['closure']);
+        $closure_table_name = $closure_meta->get_table_name();
+        $dql = "\n            SELECT c1.id AS id\n            FROM {$closure_meta->get_name()} AS c1\n            LEFT JOIN {$node_meta->get_name()} AS node WITH c1.descendant = node.{$node_id_field}\n            LEFT JOIN {$closure_meta->get_name()} AS c2 WITH c2.descendant = node.{$config['parent']} AND c2.ancestor = c1.ancestor\n            WHERE c2.id IS NULL AND c1.descendant <> c1.ancestor\n        ";
+        $deleted_closures_count = 0;
+        $batch_size = 1000;
+        $q = $this->get_entity_manager()->create_query($dql)->set_max_results($batch_size)->set_cacheable(false);
+        while (($ids = $q->get_scalar_result()) && [] !== $ids) {
+            $ids = array_map(static fn(array $el) => $el['id'], $ids);
+            $query = "DELETE FROM {$closure_table_name} WHERE id IN (" . implode(', ', $ids) . ')';
+            if (0 === $conn->execute_statement($query)) {
                 throw new \RuntimeException('Failed to remove incorrect closures');
             }
-            $deletedClosuresCount += count($ids);
+            $deleted_closures_count += count($ids);
         }
-
-        return $deletedClosuresCount;
+        return $deleted_closures_count;
     }
-
     /**
      * @return int
      */
-    public function updateLevelValues()
+    public function update_level_values()
     {
-        $nodeMeta = $this->getClassMetadata();
-        $config = $this->listener->getConfiguration($this->getEntityManager(), $nodeMeta->getName());
-        $levelUpdatesCount = 0;
-
+        $node_meta = $this->get_class_metadata();
+        $config = $this->listener->get_configuration($this->get_entity_manager(), $node_meta->get_name());
+        $level_updates_count = 0;
         if (!empty($config['level'])) {
-            $levelField = $config['level'];
-            $nodeIdField = $nodeMeta->getSingleIdentifierFieldName();
-            $closureMeta = $this->getEntityManager()->getClassMetadata($config['closure']);
-
-            $batchSize = 1000;
-            $q = $this->getEntityManager()->createQuery("
-                SELECT node.$nodeIdField AS id, node.$levelField AS node_level, MAX(c.depth) AS closure_level
-                FROM {$nodeMeta->getName()} AS node
-                INNER JOIN {$closureMeta->getName()} AS c WITH c.descendant = node.$nodeIdField
-                GROUP BY node.$nodeIdField, node.$levelField
-                HAVING node.$levelField IS NULL OR node.$levelField <> MAX(c.depth) + 1
-            ")->setMaxResults($batchSize)->setCacheable(false);
+            $level_field = $config['level'];
+            $node_id_field = $node_meta->get_single_identifier_field_name();
+            $closure_meta = $this->get_entity_manager()->get_class_metadata($config['closure']);
+            $batch_size = 1000;
+            $q = $this->get_entity_manager()->create_query("\n                SELECT node.{$node_id_field} AS id, node.{$level_field} AS node_level, MAX(c.depth) AS closure_level\n                FROM {$node_meta->get_name()} AS node\n                INNER JOIN {$closure_meta->get_name()} AS c WITH c.descendant = node.{$node_id_field}\n                GROUP BY node.{$node_id_field}, node.{$level_field}\n                HAVING node.{$level_field} IS NULL OR node.{$level_field} <> MAX(c.depth) + 1\n            ")->set_max_results($batch_size)->set_cacheable(false);
             do {
-                $entries = $q->getScalarResult();
-                $this->getEntityManager()->getConnection()->beginTransaction();
+                $entries = $q->get_scalar_result();
+                $this->get_entity_manager()->get_connection()->begin_transaction();
                 foreach ($entries as $entry) {
                     unset($entry['node_level']);
-                    $this->getEntityManager()->createQuery("
-                      UPDATE {$nodeMeta->getName()} AS node SET node.$levelField = (:closure_level + 1) WHERE node.$nodeIdField = :id
-                    ")->execute($entry);
+                    $this->get_entity_manager()->create_query("\n                      UPDATE {$node_meta->get_name()} AS node SET node.{$level_field} = (:closure_level + 1) WHERE node.{$node_id_field} = :id\n                    ")->execute($entry);
                 }
-                $this->getEntityManager()->getConnection()->commit();
-                $levelUpdatesCount += count($entries);
+                $this->get_entity_manager()->get_connection()->commit();
+                $level_updates_count += count($entries);
             } while ([] !== $entries);
         }
-
-        return $levelUpdatesCount;
+        return $level_updates_count;
     }
-
     protected function validate(): bool
     {
-        return Strategy::CLOSURE === $this->listener->getStrategy($this->getEntityManager(), $this->getClassMetadata()->name)->getName();
+        return Strategy::CLOSURE === $this->listener->get_strategy($this->get_entity_manager(), $this->get_class_metadata()->name)->get_name();
     }
-
     /**
      * @param array<string, mixed> $association
      *
      * @return string|null
      */
-    protected function getJoinColumnFieldName($association)
+    protected function get_join_column_field_name($association)
     {
         if (count($association['joinColumnFieldNames']) > 1) {
-            throw new \RuntimeException('More association on field '.$association['fieldName']);
+            throw new \RuntimeException('More association on field ' . $association['fieldName']);
         }
-
         return array_shift($association['joinColumnFieldNames']);
     }
 }

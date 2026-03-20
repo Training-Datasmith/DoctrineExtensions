@@ -1,20 +1,17 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of the Doctrine Behavioral Extensions package.
  * (c) Gediminas Morkevicius <gediminas.morkevicius@gmail.com> http://www.gediminasm.org
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Gedmo\Mapping\Annotation;
 
 use Doctrine\Common\Annotations\Annotation;
 use Doctrine\Deprecations\Deprecation;
 use Gedmo\Mapping\Annotation\Annotation as GedmoAnnotation;
-
 /**
  * TreePath annotation for Tree behavioral extension
  *
@@ -29,50 +26,31 @@ use Gedmo\Mapping\Annotation\Annotation as GedmoAnnotation;
  * @author <rocco@roccosportal.com>
  */
 #[\Attribute(\Attribute::TARGET_PROPERTY)]
-final class TreePath implements GedmoAnnotation
+final class Tree_Path implements Gedmo_Annotation
 {
-    use ForwardCompatibilityTrait;
-
+    use Forward_Compatibility_Trait;
     public string $separator = ',';
-
     /** @var bool|null */
-    public $appendId;
-
-    public bool $startsWithSeparator = false;
-
-    public bool $endsWithSeparator = true;
-
+    public $append_id;
+    public bool $starts_with_separator = false;
+    public bool $ends_with_separator = true;
     /**
      * @param array<string, mixed> $data
      */
-    public function __construct(
-        array $data = [],
-        string $separator = ',',
-        ?bool $appendId = null,
-        bool $startsWithSeparator = false,
-        bool $endsWithSeparator = true
-    ) {
+    public function __construct(array $data = [], string $separator = ',', ?bool $append_id = null, bool $starts_with_separator = false, bool $ends_with_separator = true)
+    {
         if ([] !== $data) {
-            Deprecation::trigger(
-                'gedmo/doctrine-extensions',
-                'https://github.com/doctrine-extensions/DoctrineExtensions/pull/2388',
-                'Passing an array as first argument to "%s()" is deprecated. Use named arguments instead.',
-                __METHOD__
-            );
-
+            Deprecation::trigger('gedmo/doctrine-extensions', 'https://github.com/doctrine-extensions/DoctrineExtensions/pull/2388', 'Passing an array as first argument to "%s()" is deprecated. Use named arguments instead.', __METHOD__);
             $args = func_get_args();
-
-            $this->separator = $this->getAttributeValue($data, 'separator', $args, 1, $separator);
-            $this->appendId = $this->getAttributeValue($data, 'appendId', $args, 2, $appendId);
-            $this->startsWithSeparator = $this->getAttributeValue($data, 'startsWithSeparator', $args, 3, $startsWithSeparator);
-            $this->endsWithSeparator = $this->getAttributeValue($data, 'endsWithSeparator', $args, 4, $endsWithSeparator);
-
+            $this->separator = $this->get_attribute_value($data, 'separator', $args, 1, $separator);
+            $this->append_id = $this->get_attribute_value($data, 'appendId', $args, 2, $append_id);
+            $this->starts_with_separator = $this->get_attribute_value($data, 'startsWithSeparator', $args, 3, $starts_with_separator);
+            $this->ends_with_separator = $this->get_attribute_value($data, 'endsWithSeparator', $args, 4, $ends_with_separator);
             return;
         }
-
         $this->separator = $separator;
-        $this->appendId = $appendId;
-        $this->startsWithSeparator = $startsWithSeparator;
-        $this->endsWithSeparator = $endsWithSeparator;
+        $this->append_id = $append_id;
+        $this->starts_with_separator = $starts_with_separator;
+        $this->ends_with_separator = $ends_with_separator;
     }
 }

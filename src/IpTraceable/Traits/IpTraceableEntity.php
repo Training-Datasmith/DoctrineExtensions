@@ -1,19 +1,16 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of the Doctrine Behavioral Extensions package.
  * (c) Gediminas Morkevicius <gediminas.morkevicius@gmail.com> http://www.gediminasm.org
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
-namespace Gedmo\IpTraceable\Traits;
+namespace Gedmo\Ip_Traceable\Traits;
 
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
-
 /**
  * Trait for IP traceable objects.
  *
@@ -21,7 +18,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  *
  * @author Pierre-Charles Bertineau <pc.bertineau@alterphp.com>
  */
-trait IpTraceableEntity
+trait Ip_Traceable_Entity
 {
     /**
      * @var string
@@ -31,9 +28,8 @@ trait IpTraceableEntity
      * @ORM\Column(length=45, nullable=true)
      */
     #[ORM\Column(length: 45, nullable: true)]
-    #[Gedmo\IpTraceable(on: 'create')]
-    protected $createdFromIp;
-
+    #[Gedmo\Ip_Traceable(on: 'create')]
+    protected $created_from_ip;
     /**
      * @var string
      *
@@ -42,9 +38,8 @@ trait IpTraceableEntity
      * @ORM\Column(length=45, nullable=true)
      */
     #[ORM\Column(length: 45, nullable: true)]
-    #[Gedmo\IpTraceable(on: 'update')]
-    protected $updatedFromIp;
-
+    #[Gedmo\Ip_Traceable(on: 'update')]
+    protected $updated_from_ip;
     /**
      * Sets createdFromIp.
      *
@@ -52,23 +47,20 @@ trait IpTraceableEntity
      *
      * @return $this
      */
-    public function setCreatedFromIp($createdFromIp)
+    public function set_created_from_ip($created_from_ip)
     {
-        $this->createdFromIp = $createdFromIp;
-
+        $this->created_from_ip = $created_from_ip;
         return $this;
     }
-
     /**
      * Returns createdFromIp.
      *
      * @return string
      */
-    public function getCreatedFromIp()
+    public function get_created_from_ip()
     {
-        return $this->createdFromIp;
+        return $this->created_from_ip;
     }
-
     /**
      * Sets updatedFromIp.
      *
@@ -76,20 +68,18 @@ trait IpTraceableEntity
      *
      * @return $this
      */
-    public function setUpdatedFromIp($updatedFromIp)
+    public function set_updated_from_ip($updated_from_ip)
     {
-        $this->updatedFromIp = $updatedFromIp;
-
+        $this->updated_from_ip = $updated_from_ip;
         return $this;
     }
-
     /**
      * Returns updatedFromIp.
      *
      * @return string
      */
-    public function getUpdatedFromIp()
+    public function get_updated_from_ip()
     {
-        return $this->updatedFromIp;
+        return $this->updated_from_ip;
     }
 }

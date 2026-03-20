@@ -1,24 +1,21 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of the Doctrine Behavioral Extensions package.
  * (c) Gediminas Morkevicius <gediminas.morkevicius@gmail.com> http://www.gediminasm.org
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+namespace Gedmo\Tree\Document\Mongo_Db\Repository;
 
-namespace Gedmo\Tree\Document\MongoDB\Repository;
-
-use Doctrine\ODM\MongoDB\Iterator\Iterator;
-use Doctrine\ODM\MongoDB\Query\Builder;
-use Doctrine\ODM\MongoDB\Query\Query;
+use Doctrine\ODM\Mongo_Db\Iterator\Iterator;
+use Doctrine\ODM\Mongo_Db\Query\Builder;
+use Doctrine\ODM\Mongo_Db\Query\Query;
 use Gedmo\Exception\InvalidArgumentException;
-use Gedmo\Tool\Wrapper\MongoDocumentWrapper;
+use Gedmo\Tool\Wrapper\Mongo_Document_Wrapper;
 use Gedmo\Tree\Strategy;
-use MongoDB\BSON\Regex;
-
+use Mongo_Db\BSON\Regex;
 /**
  * The MaterializedPathRepository has some useful functions
  * to interact with MaterializedPath tree. Repository uses
@@ -31,7 +28,7 @@ use MongoDB\BSON\Regex;
  *
  * @template-extends AbstractTreeRepository<T>
  */
-class MaterializedPathRepository extends AbstractTreeRepository
+class Materialized_Path_Repository extends Abstract_Tree_Repository
 {
     /**
      * Get tree query builder
@@ -40,11 +37,10 @@ class MaterializedPathRepository extends AbstractTreeRepository
      *
      * @return Builder
      */
-    public function getTreeQueryBuilder($rootNode = null)
+    public function get_tree_query_builder($root_node = null)
     {
-        return $this->getChildrenQueryBuilder($rootNode, false, null, 'asc', true);
+        return $this->get_children_query_builder($root_node, false, null, 'asc', true);
     }
-
     /**
      * Get tree query
      *
@@ -52,11 +48,10 @@ class MaterializedPathRepository extends AbstractTreeRepository
      *
      * @return Query
      */
-    public function getTreeQuery($rootNode = null)
+    public function get_tree_query($root_node = null)
     {
-        return $this->getTreeQueryBuilder($rootNode)->getQuery();
+        return $this->get_tree_query_builder($root_node)->get_query();
     }
-
     /**
      * Get tree
      *
@@ -64,134 +59,93 @@ class MaterializedPathRepository extends AbstractTreeRepository
      *
      * @phpstan-return Iterator<object>
      */
-    public function getTree($rootNode = null): Iterator
+    public function get_tree($root_node = null): Iterator
     {
-        return $this->getTreeQuery($rootNode)->getIterator();
+        return $this->get_tree_query($root_node)->getIterator();
     }
-
-    public function getRootNodesQueryBuilder($sortByField = null, $direction = 'asc')
+    public function get_root_nodes_query_builder($sort_by_field = null, $direction = 'asc')
     {
-        return $this->getChildrenQueryBuilder(null, true, $sortByField, $direction);
+        return $this->get_children_query_builder(null, true, $sort_by_field, $direction);
     }
-
-    public function getRootNodesQuery($sortByField = null, $direction = 'asc')
+    public function get_root_nodes_query($sort_by_field = null, $direction = 'asc')
     {
-        return $this->getRootNodesQueryBuilder($sortByField, $direction)->getQuery();
+        return $this->get_root_nodes_query_builder($sort_by_field, $direction)->get_query();
     }
-
-    public function getRootNodes($sortByField = null, $direction = 'asc')
+    public function get_root_nodes($sort_by_field = null, $direction = 'asc')
     {
-        return $this->getRootNodesQuery($sortByField, $direction)->getIterator();
+        return $this->get_root_nodes_query($sort_by_field, $direction)->getIterator();
     }
-
-    public function childCount($node = null, $direct = false): int
+    public function child_count($node = null, $direct = false): int
     {
-        $meta = $this->getClassMetadata();
-
+        $meta = $this->get_class_metadata();
         if (is_object($node)) {
-            if (!is_a($node, $meta->getName())) {
+            if (!is_a($node, $meta->get_name())) {
                 throw new InvalidArgumentException('Node is not related to this repository');
             }
-
-            $wrapped = new MongoDocumentWrapper($node, $this->dm);
-
-            if (!$wrapped->hasValidIdentifier()) {
+            $wrapped = new Mongo_Document_Wrapper($node, $this->dm);
+            if (!$wrapped->has_valid_identifier()) {
                 throw new InvalidArgumentException('Node is not managed by UnitOfWork');
             }
         }
-
-        $qb = $this->getChildrenQueryBuilder($node, $direct);
-
+        $qb = $this->get_children_query_builder($node, $direct);
         $qb->count();
-
-        return (int) $qb->getQuery()->execute();
+        return (int) $qb->get_query()->execute();
     }
-
-    public function getChildrenQueryBuilder($node = null, $direct = false, $sortByField = null, $direction = 'asc', $includeNode = false)
+    public function get_children_query_builder($node = null, $direct = false, $sort_by_field = null, $direction = 'asc', $include_node = false)
     {
-        $meta = $this->getClassMetadata();
-        $config = $this->listener->getConfiguration($this->dm, $meta->getName());
+        $meta = $this->get_class_metadata();
+        $config = $this->listener->get_configuration($this->dm, $meta->get_name());
         $separator = preg_quote($config['path_separator']);
-        $qb = $this->dm->createQueryBuilder()
-            ->find($meta->getName());
+        $qb = $this->dm->create_query_builder()->find($meta->get_name());
         $regex = false;
-
-        if (is_a($node, $meta->getName())) {
-            $node = new MongoDocumentWrapper($node, $this->dm);
-            $nodePath = preg_quote($node->getPropertyValue($config['path']));
-
+        if (is_a($node, $meta->get_name())) {
+            $node = new Mongo_Document_Wrapper($node, $this->dm);
+            $node_path = preg_quote($node->get_property_value($config['path']));
             if ($direct) {
-                $regex = sprintf(
-                    '^%s([^%s]+%s)'.($includeNode ? '?' : '').'$',
-                    $nodePath,
-                    $separator,
-                    $separator
-                );
+                $regex = sprintf('^%s([^%s]+%s)' . ($include_node ? '?' : '') . '$', $node_path, $separator, $separator);
             } else {
-                $regex = sprintf(
-                    '^%s(.+)'.($includeNode ? '?' : ''),
-                    $nodePath
-                );
+                $regex = sprintf('^%s(.+)' . ($include_node ? '?' : ''), $node_path);
             }
         } elseif ($direct) {
-            $regex = sprintf(
-                '^([^%s]+)'.($includeNode ? '?' : '').'%s$',
-                $separator,
-                $separator
-            );
+            $regex = sprintf('^([^%s]+)' . ($include_node ? '?' : '') . '%s$', $separator, $separator);
         }
-
         if ($regex) {
             $qb->field($config['path'])->equals(new Regex($regex));
         }
-
-        $qb->sort($sortByField ?? $config['path'], 'asc' === strtolower($direction) ? 'asc' : 'desc');
-
+        $qb->sort($sort_by_field ?? $config['path'], 'asc' === strtolower($direction) ? 'asc' : 'desc');
         return $qb;
     }
-
     /**
      * G{@inheritdoc}
      */
-    public function getChildrenQuery($node = null, $direct = false, $sortByField = null, $direction = 'asc', $includeNode = false)
+    public function get_children_query($node = null, $direct = false, $sort_by_field = null, $direction = 'asc', $include_node = false)
     {
-        return $this->getChildrenQueryBuilder($node, $direct, $sortByField, $direction, $includeNode)->getQuery();
+        return $this->get_children_query_builder($node, $direct, $sort_by_field, $direction, $include_node)->get_query();
     }
-
-    public function getChildren($node = null, $direct = false, $sortByField = null, $direction = 'asc', $includeNode = false)
+    public function get_children($node = null, $direct = false, $sort_by_field = null, $direction = 'asc', $include_node = false)
     {
-        return $this->getChildrenQuery($node, $direct, $sortByField, $direction, $includeNode)->getIterator();
+        return $this->get_children_query($node, $direct, $sort_by_field, $direction, $include_node)->getIterator();
     }
-
-    public function getNodesHierarchyQueryBuilder($node = null, $direct = false, array $options = [], $includeNode = false)
+    public function get_nodes_hierarchy_query_builder($node = null, $direct = false, array $options = [], $include_node = false)
     {
-        $sortBy = [
-            'field' => null,
-            'dir' => 'asc',
-        ];
-
+        $sort_by = ['field' => null, 'dir' => 'asc'];
         if (isset($options['childSort'])) {
-            $sortBy = array_merge($sortBy, $options['childSort']);
+            $sort_by = array_merge($sort_by, $options['childSort']);
         }
-
-        return $this->getChildrenQueryBuilder($node, $direct, $sortBy['field'], $sortBy['dir'], $includeNode);
+        return $this->get_children_query_builder($node, $direct, $sort_by['field'], $sort_by['dir'], $include_node);
     }
-
-    public function getNodesHierarchyQuery($node = null, $direct = false, array $options = [], $includeNode = false)
+    public function get_nodes_hierarchy_query($node = null, $direct = false, array $options = [], $include_node = false)
     {
-        return $this->getNodesHierarchyQueryBuilder($node, $direct, $options, $includeNode)->getQuery();
+        return $this->get_nodes_hierarchy_query_builder($node, $direct, $options, $include_node)->get_query();
     }
-
-    public function getNodesHierarchy($node = null, $direct = false, array $options = [], $includeNode = false)
+    public function get_nodes_hierarchy($node = null, $direct = false, array $options = [], $include_node = false)
     {
-        $query = $this->getNodesHierarchyQuery($node, $direct, $options, $includeNode);
-        $query->setHydrate(false);
-
-        return $query->toArray();
+        $query = $this->get_nodes_hierarchy_query($node, $direct, $options, $include_node);
+        $query->set_hydrate(false);
+        return $query->to_array();
     }
-
     protected function validate(): bool
     {
-        return Strategy::MATERIALIZED_PATH === $this->listener->getStrategy($this->dm, $this->getClassMetadata()->name)->getName();
+        return Strategy::MATERIALIZED_PATH === $this->listener->get_strategy($this->dm, $this->get_class_metadata()->name)->get_name();
     }
 }

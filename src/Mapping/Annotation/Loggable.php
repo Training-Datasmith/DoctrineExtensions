@@ -1,21 +1,18 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of the Doctrine Behavioral Extensions package.
  * (c) Gediminas Morkevicius <gediminas.morkevicius@gmail.com> http://www.gediminasm.org
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Gedmo\Mapping\Annotation;
 
 use Doctrine\Common\Annotations\Annotation;
 use Doctrine\Deprecations\Deprecation;
-use Gedmo\Loggable\LogEntryInterface;
+use Gedmo\Loggable\Log_Entry_Interface;
 use Gedmo\Mapping\Annotation\Annotation as GedmoAnnotation;
-
 /**
  * Loggable annotation for Loggable behavioral extension
  *
@@ -30,39 +27,28 @@ use Gedmo\Mapping\Annotation\Annotation as GedmoAnnotation;
  * @author Gediminas Morkevicius <gediminas.morkevicius@gmail.com>
  */
 #[\Attribute(\Attribute::TARGET_CLASS)]
-final class Loggable implements GedmoAnnotation
+final class Loggable implements Gedmo_Annotation
 {
-    use ForwardCompatibilityTrait;
-
+    use Forward_Compatibility_Trait;
     /**
      * @var string|null
      *
      * @phpstan-var class-string<T>|null
      */
-    public $logEntryClass;
-
+    public $log_entry_class;
     /**
      * @param array<string, mixed> $data
      *
      * @phpstan-param class-string<T>|null $logEntryClass
      */
-    public function __construct(array $data = [], ?string $logEntryClass = null)
+    public function __construct(array $data = [], ?string $log_entry_class = null)
     {
         if ([] !== $data) {
-            Deprecation::trigger(
-                'gedmo/doctrine-extensions',
-                'https://github.com/doctrine-extensions/DoctrineExtensions/pull/2357',
-                'Passing an array as first argument to "%s()" is deprecated. Use named arguments instead.',
-                __METHOD__
-            );
-
+            Deprecation::trigger('gedmo/doctrine-extensions', 'https://github.com/doctrine-extensions/DoctrineExtensions/pull/2357', 'Passing an array as first argument to "%s()" is deprecated. Use named arguments instead.', __METHOD__);
             $args = func_get_args();
-
-            $this->logEntryClass = $this->getAttributeValue($data, 'logEntryClass', $args, 1, $logEntryClass);
-
+            $this->log_entry_class = $this->get_attribute_value($data, 'logEntryClass', $args, 1, $log_entry_class);
             return;
         }
-
-        $this->logEntryClass = $logEntryClass;
+        $this->log_entry_class = $log_entry_class;
     }
 }

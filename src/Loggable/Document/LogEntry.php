@@ -1,21 +1,18 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of the Doctrine Behavioral Extensions package.
  * (c) Gediminas Morkevicius <gediminas.morkevicius@gmail.com> http://www.gediminasm.org
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Gedmo\Loggable\Document;
 
-use Doctrine\ODM\MongoDB\Mapping\Annotations as MongoODM;
-use Gedmo\Loggable\Document\MappedSuperclass\AbstractLogEntry;
-use Gedmo\Loggable\Document\Repository\LogEntryRepository;
+use Doctrine\ODM\Mongo_Db\Mapping\Annotations as MongoODM;
+use Gedmo\Loggable\Document\Mapped_Superclass\Abstract_Log_Entry;
+use Gedmo\Loggable\Document\Repository\Log_Entry_Repository;
 use Gedmo\Loggable\Loggable;
-
 /**
  * Gedmo\Loggable\Document\LogEntry
  *
@@ -30,12 +27,12 @@ use Gedmo\Loggable\Loggable;
  *
  * @phpstan-extends AbstractLogEntry<T>
  */
-#[MongoODM\Document(repositoryClass: LogEntryRepository::class)]
-#[MongoODM\Index(keys: ['objectId' => 'asc', 'objectClass' => 'asc', 'version' => 'asc'])]
-#[MongoODM\Index(keys: ['loggedAt' => 'asc'])]
-#[MongoODM\Index(keys: ['objectClass' => 'asc'])]
-#[MongoODM\Index(keys: ['username' => 'asc'])]
-class LogEntry extends AbstractLogEntry
+#[Mongo_Odm\Document(repositoryClass: Log_Entry_Repository::class)]
+#[Mongo_Odm\Index(keys: ['objectId' => 'asc', 'objectClass' => 'asc', 'version' => 'asc'])]
+#[Mongo_Odm\Index(keys: ['loggedAt' => 'asc'])]
+#[Mongo_Odm\Index(keys: ['objectClass' => 'asc'])]
+#[Mongo_Odm\Index(keys: ['username' => 'asc'])]
+class Log_Entry extends Abstract_Log_Entry
 {
     /*
      * All required columns are mapped through inherited superclass

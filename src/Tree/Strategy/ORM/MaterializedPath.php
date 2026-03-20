@@ -1,21 +1,18 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of the Doctrine Behavioral Extensions package.
  * (c) Gediminas Morkevicius <gediminas.morkevicius@gmail.com> http://www.gediminasm.org
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Gedmo\Tree\Strategy\ORM;
 
-use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\Mapping\ClassMetadata;
-use Gedmo\Tool\Wrapper\AbstractWrapper;
-use Gedmo\Tree\Strategy\AbstractMaterializedPath;
-
+use Doctrine\ORM\Entity_Manager_Interface;
+use Doctrine\ORM\Mapping\Class_Metadata;
+use Gedmo\Tool\Wrapper\Abstract_Wrapper;
+use Gedmo\Tree\Strategy\Abstract_Materialized_Path;
 /**
  * This strategy makes tree using materialized path strategy
  *
@@ -24,57 +21,43 @@ use Gedmo\Tree\Strategy\AbstractMaterializedPath;
  *
  * @final since gedmo/doctrine-extensions 3.11
  */
-class MaterializedPath extends AbstractMaterializedPath
+class Materialized_Path extends Abstract_Materialized_Path
 {
     /**
      * @param EntityManagerInterface $om
      * @param ClassMetadata<object>  $meta
      */
-    public function removeNode($om, $meta, $config, $node): void
+    public function remove_node($om, $meta, $config, $node): void
     {
-        $wrapped = AbstractWrapper::wrap($node, $om);
-
-        $path = addcslashes($wrapped->getPropertyValue($config['path']), '%');
-
+        $wrapped = Abstract_Wrapper::wrap($node, $om);
+        $path = addcslashes($wrapped->get_property_value($config['path']), '%');
         $separator = $config['path_ends_with_separator'] ? null : $config['path_separator'];
-
         // Remove node's children
-        $qb = $om->createQueryBuilder();
-        $qb->select('e')
-            ->from($config['useObjectClass'], 'e')
-            ->where($qb->expr()->like('e.'.$config['path'], $qb->expr()->literal($path.$separator.'%')));
-
+        $qb = $om->create_query_builder();
+        $qb->select('e')->from($config['useObjectClass'], 'e')->where($qb->expr()->like('e.' . $config['path'], $qb->expr()->literal($path . $separator . '%')));
         if (isset($config['level'])) {
-            $lvlField = $config['level'];
-            $lvl = $wrapped->getPropertyValue($lvlField);
+            $lvl_field = $config['level'];
+            $lvl = $wrapped->get_property_value($lvl_field);
             if (!empty($lvl)) {
-                $qb->andWhere($qb->expr()->gt('e.'.$lvlField, $qb->expr()->literal($lvl)));
+                $qb->and_where($qb->expr()->gt('e.' . $lvl_field, $qb->expr()->literal($lvl)));
             }
         }
-
-        $results = $qb->getQuery()
-            ->toIterable();
-
+        $results = $qb->get_query()->to_iterable();
         foreach ($results as $node) {
             $om->remove($node);
         }
     }
-
     /**
      * @param EntityManagerInterface $om
      * @param ClassMetadata<object>  $meta
      */
-    public function getChildren($om, $meta, $config, $path)
+    public function get_children($om, $meta, $config, $path)
     {
         $path = addcslashes($path, '%');
-        $qb = $om->createQueryBuilder();
-        $qb->select('e')
-            ->from($config['useObjectClass'], 'e')
-            ->where($qb->expr()->like('e.'.$config['path'], $qb->expr()->literal($path.'%')))
-            ->andWhere('e.'.$config['path'].' != :path')
-            ->orderBy('e.'.$config['path'], 'asc');      // This may save some calls to updateNode
-        $qb->setParameter('path', $path);
-
-        return $qb->getQuery()->getResult();
+        $qb = $om->create_query_builder();
+        $qb->select('e')->from($config['useObjectClass'], 'e')->where($qb->expr()->like('e.' . $config['path'], $qb->expr()->literal($path . '%')))->and_where('e.' . $config['path'] . ' != :path')->order_by('e.' . $config['path'], 'asc');
+        // This may save some calls to updateNode
+        $qb->set_parameter('path', $path);
+        return $qb->get_query()->get_result();
     }
 }

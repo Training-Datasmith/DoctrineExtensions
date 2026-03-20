@@ -1,19 +1,16 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of the Doctrine Behavioral Extensions package.
  * (c) Gediminas Morkevicius <gediminas.morkevicius@gmail.com> http://www.gediminasm.org
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Gedmo\Mapping\Driver;
 
 use Doctrine\Common\Annotations\Reader;
 use Gedmo\Mapping\Annotation\Annotation;
-
 /**
  * @author Gediminas Morkevicius <gediminas.morkevicius@gmail.com>
  *
@@ -23,34 +20,28 @@ use Gedmo\Mapping\Annotation\Annotation;
  *
  * @internal
  */
-final class AttributeAnnotationReader implements Reader
+final class Attribute_Annotation_Reader implements Reader
 {
-    private Reader $annotationReader;
-
-    private AttributeReader $attributeReader;
-
-    public function __construct(AttributeReader $attributeReader, Reader $annotationReader)
+    private Reader $annotation_reader;
+    private Attribute_Reader $attribute_reader;
+    public function __construct(Attribute_Reader $attribute_reader, Reader $annotation_reader)
     {
-        $this->attributeReader = $attributeReader;
-        $this->annotationReader = $annotationReader;
+        $this->attribute_reader = $attribute_reader;
+        $this->annotation_reader = $annotation_reader;
     }
-
     /**
      * @phpstan-param \ReflectionClass<object> $class
      *
      * @return Annotation[]
      */
-    public function getClassAnnotations(\ReflectionClass $class): array
+    public function get_class_annotations(\ReflectionClass $class): array
     {
-        $annotations = $this->attributeReader->getClassAnnotations($class);
-
+        $annotations = $this->attribute_reader->get_class_annotations($class);
         if ([] !== $annotations) {
             return $annotations;
         }
-
-        return $this->annotationReader->getClassAnnotations($class);
+        return $this->annotation_reader->get_class_annotations($class);
     }
-
     /**
      *
      * @phpstan-param \ReflectionClass<object> $class
@@ -59,27 +50,22 @@ final class AttributeAnnotationReader implements Reader
      * @return T|null the Annotation or NULL, if the requested annotation does not exist
      * @template T
      */
-    public function getClassAnnotation(\ReflectionClass $class, string $annotationName)
+    public function get_class_annotation(\ReflectionClass $class, string $annotation_name)
     {
-        $annotation = $this->attributeReader->getClassAnnotation($class, $annotationName);
-
-        return $annotation ?? $this->annotationReader->getClassAnnotation($class, $annotationName);
+        $annotation = $this->attribute_reader->get_class_annotation($class, $annotation_name);
+        return $annotation ?? $this->annotation_reader->get_class_annotation($class, $annotation_name);
     }
-
     /**
      * @return Annotation[]
      */
-    public function getPropertyAnnotations(\ReflectionProperty $property): array
+    public function get_property_annotations(\ReflectionProperty $property): array
     {
-        $propertyAnnotations = $this->attributeReader->getPropertyAnnotations($property);
-
-        if ([] !== $propertyAnnotations) {
-            return $propertyAnnotations;
+        $property_annotations = $this->attribute_reader->get_property_annotations($property);
+        if ([] !== $property_annotations) {
+            return $property_annotations;
         }
-
-        return $this->annotationReader->getPropertyAnnotations($property);
+        return $this->annotation_reader->get_property_annotations($property);
     }
-
     /**
      * @param class-string<T> $annotationName the name of the annotation
      *
@@ -87,19 +73,16 @@ final class AttributeAnnotationReader implements Reader
      *
      * @template T
      */
-    public function getPropertyAnnotation(\ReflectionProperty $property, string $annotationName)
+    public function get_property_annotation(\ReflectionProperty $property, string $annotation_name)
     {
-        $annotation = $this->attributeReader->getPropertyAnnotation($property, $annotationName);
-
-        return $annotation ?? $this->annotationReader->getPropertyAnnotation($property, $annotationName);
+        $annotation = $this->attribute_reader->get_property_annotation($property, $annotation_name);
+        return $annotation ?? $this->annotation_reader->get_property_annotation($property, $annotation_name);
     }
-
-    public function getMethodAnnotations(\ReflectionMethod $method): array
+    public function get_method_annotations(\ReflectionMethod $method): array
     {
         throw new \BadMethodCallException('Not implemented');
     }
-
-    public function getMethodAnnotation(\ReflectionMethod $method, $annotationName): void
+    public function get_method_annotation(\ReflectionMethod $method, $annotation_name): void
     {
         throw new \BadMethodCallException('Not implemented');
     }

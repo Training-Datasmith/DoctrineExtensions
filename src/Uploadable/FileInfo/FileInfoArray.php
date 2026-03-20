@@ -1,15 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of the Doctrine Behavioral Extensions package.
  * (c) Gediminas Morkevicius <gediminas.morkevicius@gmail.com> http://www.gediminasm.org
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
-namespace Gedmo\Uploadable\FileInfo;
+namespace Gedmo\Uploadable\File_Info;
 
 /**
  * FileInfoArray
@@ -19,60 +17,50 @@ namespace Gedmo\Uploadable\FileInfo;
  *
  * @final since gedmo/doctrine-extensions 3.11
  */
-class FileInfoArray implements FileInfoInterface
+class File_Info_Array implements File_Info_Interface
 {
     /**
      * @var array<string, int|string>
      *
      * @phpstan-var array{error: int, size: int, type: string, tmp_name: string, name: string}
      */
-    protected array $fileInfo;
-
+    protected array $file_info;
     /**
      * @param array<string, int|string> $fileInfo
      */
-    public function __construct(array $fileInfo)
+    public function __construct(array $file_info)
     {
         $keys = ['error', 'size', 'type', 'tmp_name', 'name'];
-
         foreach ($keys as $k) {
-            if (!isset($fileInfo[$k])) {
+            if (!isset($file_info[$k])) {
                 $msg = 'There are missing keys in the fileInfo. ';
-                $msg .= 'Keys needed: '.implode(',', $keys);
-
+                $msg .= 'Keys needed: ' . implode(',', $keys);
                 throw new \RuntimeException($msg);
             }
         }
-
-        $this->fileInfo = $fileInfo;
+        $this->file_info = $file_info;
     }
-
-    public function getTmpName()
+    public function get_tmp_name()
     {
-        return $this->fileInfo['tmp_name'];
+        return $this->file_info['tmp_name'];
     }
-
-    public function getName()
+    public function get_name()
     {
-        return $this->fileInfo['name'];
+        return $this->file_info['name'];
     }
-
-    public function getSize()
+    public function get_size()
     {
-        return $this->fileInfo['size'];
+        return $this->file_info['size'];
     }
-
-    public function getType()
+    public function get_type()
     {
-        return $this->fileInfo['type'];
+        return $this->file_info['type'];
     }
-
-    public function getError()
+    public function get_error()
     {
-        return $this->fileInfo['error'];
+        return $this->file_info['error'];
     }
-
-    public function isUploadedFile(): bool
+    public function is_uploaded_file(): bool
     {
         return true;
     }

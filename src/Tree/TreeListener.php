@@ -1,29 +1,26 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of the Doctrine Behavioral Extensions package.
  * (c) Gediminas Morkevicius <gediminas.morkevicius@gmail.com> http://www.gediminasm.org
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Gedmo\Tree;
 
-use Doctrine\Common\EventArgs;
-use Doctrine\ODM\MongoDB\DocumentManager;
-use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\Persistence\Event\LifecycleEventArgs;
-use Doctrine\Persistence\Event\LoadClassMetadataEventArgs;
-use Doctrine\Persistence\Event\ManagerEventArgs;
-use Doctrine\Persistence\Mapping\ClassMetadata;
-use Doctrine\Persistence\ObjectManager;
+use Doctrine\Common\Event_Args;
+use Doctrine\ODM\Mongo_Db\Document_Manager;
+use Doctrine\ORM\Entity_Manager_Interface;
+use Doctrine\Persistence\Event\Lifecycle_Event_Args;
+use Doctrine\Persistence\Event\Load_Class_Metadata_Event_Args;
+use Doctrine\Persistence\Event\Manager_Event_Args;
+use Doctrine\Persistence\Mapping\Class_Metadata;
+use Doctrine\Persistence\Object_Manager;
 use Gedmo\Exception\InvalidArgumentException;
 use Gedmo\Exception\UnexpectedValueException;
-use Gedmo\Mapping\MappedEventSubscriber;
-use Gedmo\Tree\Mapping\Event\TreeAdapter;
-
+use Gedmo\Mapping\Mapped_Event_Subscriber;
+use Gedmo\Tree\Mapping\Event\Tree_Adapter;
 /**
  * The tree listener handles the synchronization of
  * tree nodes. Can implement different
@@ -56,7 +53,7 @@ use Gedmo\Tree\Mapping\Event\TreeAdapter;
  *
  * @phpstan-extends MappedEventSubscriber<TreeConfiguration, TreeAdapter>
  */
-class TreeListener extends MappedEventSubscriber
+class Tree_Listener extends Mapped_Event_Subscriber
 {
     /**
      * Tree processing strategies for object classes
@@ -66,7 +63,6 @@ class TreeListener extends MappedEventSubscriber
      * @phpstan-var array<class-string, string>
      */
     private array $strategies = [];
-
     /**
      * List of strategy instances
      *
@@ -74,8 +70,7 @@ class TreeListener extends MappedEventSubscriber
      *
      * @phpstan-var array<value-of<self::strategies>, Strategy>
      */
-    private array $strategyInstances = [];
-
+    private array $strategy_instances = [];
     /**
      * List of used classes on flush
      *
@@ -83,27 +78,16 @@ class TreeListener extends MappedEventSubscriber
      *
      * @phpstan-var array<class-string, null>
      */
-    private array $usedClassesOnFlush = [];
-
+    private array $used_classes_on_flush = [];
     /**
      * Specifies the list of events to listen
      *
      * @return string[]
      */
-    public function getSubscribedEvents(): array
+    public function get_subscribed_events(): array
     {
-        return [
-            'prePersist',
-            'preRemove',
-            'preUpdate',
-            'onFlush',
-            'loadClassMetadata',
-            'postPersist',
-            'postUpdate',
-            'postRemove',
-        ];
+        return ['prePersist', 'preRemove', 'preUpdate', 'onFlush', 'loadClassMetadata', 'postPersist', 'postUpdate', 'postRemove'];
     }
-
     /**
      * Get the used strategy for tree processing
      *
@@ -111,33 +95,30 @@ class TreeListener extends MappedEventSubscriber
      *
      * @return Strategy
      */
-    public function getStrategy(ObjectManager $om, $class)
+    public function get_strategy(Object_Manager $om, $class)
     {
         if (!isset($this->strategies[$class])) {
-            $config = $this->getConfiguration($om, $class);
+            $config = $this->get_configuration($om, $class);
             if ([] === $config) {
                 throw new UnexpectedValueException("Tree object class: {$class} must have tree metadata at this point");
             }
-            $managerName = 'UnsupportedManager';
-            if ($om instanceof EntityManagerInterface) {
-                $managerName = 'ORM';
-            } elseif ($om instanceof DocumentManager) {
-                $managerName = 'ODM\\MongoDB';
+            $manager_name = 'UnsupportedManager';
+            if ($om instanceof Entity_Manager_Interface) {
+                $manager_name = 'ORM';
+            } elseif ($om instanceof Document_Manager) {
+                $manager_name = 'ODM\MongoDB';
             }
-            if (!isset($this->strategyInstances[$config['strategy']])) {
-                $strategyClass = $this->getNamespace().'\\Strategy\\'.$managerName.'\\'.ucfirst($config['strategy']);
-
-                if (!class_exists($strategyClass)) {
-                    throw new InvalidArgumentException($managerName." TreeListener does not support tree type: {$config['strategy']}");
+            if (!isset($this->strategy_instances[$config['strategy']])) {
+                $strategy_class = $this->get_namespace() . '\Strategy\\' . $manager_name . '\\' . ucfirst($config['strategy']);
+                if (!class_exists($strategy_class)) {
+                    throw new InvalidArgumentException($manager_name . " TreeListener does not support tree type: {$config['strategy']}");
                 }
-                $this->strategyInstances[$config['strategy']] = new $strategyClass($this);
+                $this->strategy_instances[$config['strategy']] = new $strategy_class($this);
             }
             $this->strategies[$class] = $config['strategy'];
         }
-
-        return $this->strategyInstances[$this->strategies[$class]];
+        return $this->strategy_instances[$this->strategies[$class]];
     }
-
     /**
      * Looks for Tree objects being updated
      * for further processing
@@ -146,43 +127,38 @@ class TreeListener extends MappedEventSubscriber
      *
      * @phpstan-param ManagerEventArgs<ObjectManager> $args
      */
-    public function onFlush(EventArgs $args): void
+    public function on_flush(Event_Args $args): void
     {
-        $ea = $this->getEventAdapter($args);
-        $om = $ea->getObjectManager();
-        $uow = $om->getUnitOfWork();
-
+        $ea = $this->get_event_adapter($args);
+        $om = $ea->get_object_manager();
+        $uow = $om->get_unit_of_work();
         // check all scheduled updates for TreeNodes
-        foreach ($ea->getScheduledObjectInsertions($uow) as $object) {
-            $meta = $om->getClassMetadata(get_class($object));
-            if ($this->getConfiguration($om, $meta->getName())) {
-                $this->usedClassesOnFlush[$meta->getName()] = null;
-                $this->getStrategy($om, $meta->getName())->processScheduledInsertion($om, $object, $ea);
-                $ea->recomputeSingleObjectChangeSet($uow, $meta, $object);
+        foreach ($ea->get_scheduled_object_insertions($uow) as $object) {
+            $meta = $om->get_class_metadata(get_class($object));
+            if ($this->get_configuration($om, $meta->get_name())) {
+                $this->used_classes_on_flush[$meta->get_name()] = null;
+                $this->get_strategy($om, $meta->get_name())->process_scheduled_insertion($om, $object, $ea);
+                $ea->recompute_single_object_change_set($uow, $meta, $object);
             }
         }
-
-        foreach ($ea->getScheduledObjectUpdates($uow) as $object) {
-            $meta = $om->getClassMetadata(get_class($object));
-            if ($this->getConfiguration($om, $meta->getName())) {
-                $this->usedClassesOnFlush[$meta->getName()] = null;
-                $this->getStrategy($om, $meta->getName())->processScheduledUpdate($om, $object, $ea);
+        foreach ($ea->get_scheduled_object_updates($uow) as $object) {
+            $meta = $om->get_class_metadata(get_class($object));
+            if ($this->get_configuration($om, $meta->get_name())) {
+                $this->used_classes_on_flush[$meta->get_name()] = null;
+                $this->get_strategy($om, $meta->get_name())->process_scheduled_update($om, $object, $ea);
             }
         }
-
-        foreach ($ea->getScheduledObjectDeletions($uow) as $object) {
-            $meta = $om->getClassMetadata(get_class($object));
-            if ($this->getConfiguration($om, $meta->getName())) {
-                $this->usedClassesOnFlush[$meta->getName()] = null;
-                $this->getStrategy($om, $meta->getName())->processScheduledDelete($om, $object);
+        foreach ($ea->get_scheduled_object_deletions($uow) as $object) {
+            $meta = $om->get_class_metadata(get_class($object));
+            if ($this->get_configuration($om, $meta->get_name())) {
+                $this->used_classes_on_flush[$meta->get_name()] = null;
+                $this->get_strategy($om, $meta->get_name())->process_scheduled_delete($om, $object);
             }
         }
-
-        foreach ($this->getStrategiesUsedForObjects($this->usedClassesOnFlush) as $strategy) {
-            $strategy->onFlushEnd($om, $ea);
+        foreach ($this->get_strategies_used_for_objects($this->used_classes_on_flush) as $strategy) {
+            $strategy->on_flush_end($om, $ea);
         }
     }
-
     /**
      * Updates tree on Node removal
      *
@@ -190,18 +166,16 @@ class TreeListener extends MappedEventSubscriber
      *
      * @phpstan-param LifecycleEventArgs<ObjectManager> $args
      */
-    public function preRemove(EventArgs $args): void
+    public function pre_remove(Event_Args $args): void
     {
-        $ea = $this->getEventAdapter($args);
-        $om = $ea->getObjectManager();
-        $object = $ea->getObject();
-        $meta = $om->getClassMetadata(get_class($object));
-
-        if ($this->getConfiguration($om, $meta->getName())) {
-            $this->getStrategy($om, $meta->getName())->processPreRemove($om, $object);
+        $ea = $this->get_event_adapter($args);
+        $om = $ea->get_object_manager();
+        $object = $ea->get_object();
+        $meta = $om->get_class_metadata(get_class($object));
+        if ($this->get_configuration($om, $meta->get_name())) {
+            $this->get_strategy($om, $meta->get_name())->process_pre_remove($om, $object);
         }
     }
-
     /**
      * Checks for persisted Nodes
      *
@@ -209,18 +183,16 @@ class TreeListener extends MappedEventSubscriber
      *
      * @phpstan-param LifecycleEventArgs<ObjectManager> $args
      */
-    public function prePersist(EventArgs $args): void
+    public function pre_persist(Event_Args $args): void
     {
-        $ea = $this->getEventAdapter($args);
-        $om = $ea->getObjectManager();
-        $object = $ea->getObject();
-        $meta = $om->getClassMetadata(get_class($object));
-
-        if ($this->getConfiguration($om, $meta->getName())) {
-            $this->getStrategy($om, $meta->getName())->processPrePersist($om, $object);
+        $ea = $this->get_event_adapter($args);
+        $om = $ea->get_object_manager();
+        $object = $ea->get_object();
+        $meta = $om->get_class_metadata(get_class($object));
+        if ($this->get_configuration($om, $meta->get_name())) {
+            $this->get_strategy($om, $meta->get_name())->process_pre_persist($om, $object);
         }
     }
-
     /**
      * Checks for updated Nodes
      *
@@ -228,18 +200,16 @@ class TreeListener extends MappedEventSubscriber
      *
      * @phpstan-param LifecycleEventArgs<ObjectManager> $args
      */
-    public function preUpdate(EventArgs $args): void
+    public function pre_update(Event_Args $args): void
     {
-        $ea = $this->getEventAdapter($args);
-        $om = $ea->getObjectManager();
-        $object = $ea->getObject();
-        $meta = $om->getClassMetadata(get_class($object));
-
-        if ($this->getConfiguration($om, $meta->getName())) {
-            $this->getStrategy($om, $meta->getName())->processPreUpdate($om, $object);
+        $ea = $this->get_event_adapter($args);
+        $om = $ea->get_object_manager();
+        $object = $ea->get_object();
+        $meta = $om->get_class_metadata(get_class($object));
+        if ($this->get_configuration($om, $meta->get_name())) {
+            $this->get_strategy($om, $meta->get_name())->process_pre_update($om, $object);
         }
     }
-
     /**
      * Checks for pending Nodes to fully synchronize
      * the tree
@@ -248,18 +218,16 @@ class TreeListener extends MappedEventSubscriber
      *
      * @phpstan-param LifecycleEventArgs<ObjectManager> $args
      */
-    public function postPersist(EventArgs $args): void
+    public function post_persist(Event_Args $args): void
     {
-        $ea = $this->getEventAdapter($args);
-        $om = $ea->getObjectManager();
-        $object = $ea->getObject();
-        $meta = $om->getClassMetadata(get_class($object));
-
-        if ($this->getConfiguration($om, $meta->getName())) {
-            $this->getStrategy($om, $meta->getName())->processPostPersist($om, $object, $ea);
+        $ea = $this->get_event_adapter($args);
+        $om = $ea->get_object_manager();
+        $object = $ea->get_object();
+        $meta = $om->get_class_metadata(get_class($object));
+        if ($this->get_configuration($om, $meta->get_name())) {
+            $this->get_strategy($om, $meta->get_name())->process_post_persist($om, $object, $ea);
         }
     }
-
     /**
      * Checks for pending Nodes to fully synchronize
      * the tree
@@ -268,18 +236,16 @@ class TreeListener extends MappedEventSubscriber
      *
      * @phpstan-param LifecycleEventArgs<ObjectManager> $args
      */
-    public function postUpdate(EventArgs $args): void
+    public function post_update(Event_Args $args): void
     {
-        $ea = $this->getEventAdapter($args);
-        $om = $ea->getObjectManager();
-        $object = $ea->getObject();
-        $meta = $om->getClassMetadata(get_class($object));
-
-        if ($this->getConfiguration($om, $meta->getName())) {
-            $this->getStrategy($om, $meta->getName())->processPostUpdate($om, $object, $ea);
+        $ea = $this->get_event_adapter($args);
+        $om = $ea->get_object_manager();
+        $object = $ea->get_object();
+        $meta = $om->get_class_metadata(get_class($object));
+        if ($this->get_configuration($om, $meta->get_name())) {
+            $this->get_strategy($om, $meta->get_name())->process_post_update($om, $object, $ea);
         }
     }
-
     /**
      * Checks for pending Nodes to fully synchronize
      * the tree
@@ -288,18 +254,16 @@ class TreeListener extends MappedEventSubscriber
      *
      * @phpstan-param LifecycleEventArgs<ObjectManager> $args
      */
-    public function postRemove(EventArgs $args): void
+    public function post_remove(Event_Args $args): void
     {
-        $ea = $this->getEventAdapter($args);
-        $om = $ea->getObjectManager();
-        $object = $ea->getObject();
-        $meta = $om->getClassMetadata(get_class($object));
-
-        if ($this->getConfiguration($om, $meta->getName())) {
-            $this->getStrategy($om, $meta->getName())->processPostRemove($om, $object, $ea);
+        $ea = $this->get_event_adapter($args);
+        $om = $ea->get_object_manager();
+        $object = $ea->get_object();
+        $meta = $om->get_class_metadata(get_class($object));
+        if ($this->get_configuration($om, $meta->get_name())) {
+            $this->get_strategy($om, $meta->get_name())->process_post_remove($om, $object, $ea);
         }
     }
-
     /**
      * Maps additional metadata
      *
@@ -307,21 +271,19 @@ class TreeListener extends MappedEventSubscriber
      *
      * @phpstan-param LoadClassMetadataEventArgs<ClassMetadata<object>, ObjectManager> $eventArgs
      */
-    public function loadClassMetadata(EventArgs $eventArgs): void
+    public function load_class_metadata(Event_Args $event_args): void
     {
-        $om = $eventArgs->getObjectManager();
-        $meta = $eventArgs->getClassMetadata();
-        $this->loadMetadataForObjectClass($om, $meta);
-        if (isset(self::$configurations[$this->name][$meta->getName()]) && self::$configurations[$this->name][$meta->getName()]) {
-            $this->getStrategy($om, $meta->getName())->processMetadataLoad($om, $meta);
+        $om = $event_args->get_object_manager();
+        $meta = $event_args->get_class_metadata();
+        $this->load_metadata_for_object_class($om, $meta);
+        if (isset(self::$configurations[$this->name][$meta->get_name()]) && self::$configurations[$this->name][$meta->get_name()]) {
+            $this->get_strategy($om, $meta->get_name())->process_metadata_load($om, $meta);
         }
     }
-
-    protected function getNamespace(): string
+    protected function get_namespace(): string
     {
         return __NAMESPACE__;
     }
-
     /**
      * Get the list of strategy instances used for
      * given object classes
@@ -332,15 +294,14 @@ class TreeListener extends MappedEventSubscriber
      *
      * @phpstan-return array<value-of<self::strategies>, Strategy>
      */
-    protected function getStrategiesUsedForObjects(array $classes): array
+    protected function get_strategies_used_for_objects(array $classes): array
     {
         $strategies = [];
         foreach ($classes as $name => $opt) {
             if (isset($this->strategies[$name]) && !isset($strategies[$this->strategies[$name]])) {
-                $strategies[$this->strategies[$name]] = $this->strategyInstances[$this->strategies[$name]];
+                $strategies[$this->strategies[$name]] = $this->strategy_instances[$this->strategies[$name]];
             }
         }
-
         return $strategies;
     }
 }

@@ -1,30 +1,27 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of the Doctrine Behavioral Extensions package.
  * (c) Gediminas Morkevicius <gediminas.morkevicius@gmail.com> http://www.gediminasm.org
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Gedmo\Loggable;
 
-use Doctrine\Common\EventArgs;
-use Doctrine\ORM\Mapping\ClassMetadata as ORMClassMetadata;
-use Doctrine\Persistence\Event\LifecycleEventArgs;
-use Doctrine\Persistence\Event\LoadClassMetadataEventArgs;
-use Doctrine\Persistence\Event\ManagerEventArgs;
-use Doctrine\Persistence\Mapping\ClassMetadata;
-use Doctrine\Persistence\ObjectManager;
+use Doctrine\Common\Event_Args;
+use Doctrine\ORM\Mapping\Class_Metadata as ORMClassMetadata;
+use Doctrine\Persistence\Event\Lifecycle_Event_Args;
+use Doctrine\Persistence\Event\Load_Class_Metadata_Event_Args;
+use Doctrine\Persistence\Event\Manager_Event_Args;
+use Doctrine\Persistence\Mapping\Class_Metadata;
+use Doctrine\Persistence\Object_Manager;
 use Gedmo\Exception\InvalidArgumentException;
 use Gedmo\Exception\UnexpectedValueException;
-use Gedmo\Loggable\Mapping\Event\LoggableAdapter;
-use Gedmo\Mapping\MappedEventSubscriber;
-use Gedmo\Tool\ActorProviderInterface;
-use Gedmo\Tool\Wrapper\AbstractWrapper;
-
+use Gedmo\Loggable\Mapping\Event\Loggable_Adapter;
+use Gedmo\Mapping\Mapped_Event_Subscriber;
+use Gedmo\Tool\Actor_Provider_Interface;
+use Gedmo\Tool\Wrapper\Abstract_Wrapper;
 /**
  * Loggable listener
  *
@@ -42,32 +39,27 @@ use Gedmo\Tool\Wrapper\AbstractWrapper;
  *
  * @phpstan-extends MappedEventSubscriber<LoggableConfiguration, LoggableAdapter>
  */
-class LoggableListener extends MappedEventSubscriber
+class Loggable_Listener extends Mapped_Event_Subscriber
 {
     /**
      * @deprecated use `LogEntryInterface::ACTION_CREATE` instead
      */
-    public const ACTION_CREATE = LogEntryInterface::ACTION_CREATE;
-
+    public const ACTION_CREATE = Log_Entry_Interface::ACTION_CREATE;
     /**
      * @deprecated use `LogEntryInterface::ACTION_UPDATE` instead
      */
-    public const ACTION_UPDATE = LogEntryInterface::ACTION_UPDATE;
-
+    public const ACTION_UPDATE = Log_Entry_Interface::ACTION_UPDATE;
     /**
      * @deprecated use `LogEntryInterface::ACTION_REMOVE` instead
      */
-    public const ACTION_REMOVE = LogEntryInterface::ACTION_REMOVE;
-
-    protected ?ActorProviderInterface $actorProvider = null;
-
+    public const ACTION_REMOVE = Log_Entry_Interface::ACTION_REMOVE;
+    protected ?Actor_Provider_Interface $actor_provider = null;
     /**
      * Username for identification
      *
      * @var string
      */
     protected $username;
-
     /**
      * List of log entries which do not have the foreign
      * key generated yet - MySQL case. These entries
@@ -77,8 +69,7 @@ class LoggableListener extends MappedEventSubscriber
      *
      * @phpstan-var array<int, LogEntryInterface<T>>
      */
-    protected $pendingLogEntryInserts = [];
-
+    protected $pending_log_entry_inserts = [];
     /**
      * For log of changed relations we use
      * its identifiers to avoid storing serialized Proxies.
@@ -89,16 +80,14 @@ class LoggableListener extends MappedEventSubscriber
      *
      * @phpstan-var array<int, array<int, array{log: LogEntryInterface<T>, field: string}>>
      */
-    protected $pendingRelatedObjects = [];
-
+    protected $pending_related_objects = [];
     /**
      * Set an actor provider for the user value.
      */
-    public function setActorProvider(ActorProviderInterface $actorProvider): void
+    public function set_actor_provider(Actor_Provider_Interface $actor_provider): void
     {
-        $this->actorProvider = $actorProvider;
+        $this->actor_provider = $actor_provider;
     }
-
     /**
      * Set username for identification
      *
@@ -108,33 +97,27 @@ class LoggableListener extends MappedEventSubscriber
      *
      * @throws InvalidArgumentException Invalid username
      */
-    public function setUsername($username): void
+    public function set_username($username): void
     {
         if (is_string($username)) {
             $this->username = $username;
         } elseif (is_object($username) && method_exists($username, 'getUserIdentifier')) {
-            $this->username = (string) $username->getUserIdentifier();
+            $this->username = (string) $username->get_user_identifier();
         } elseif (is_object($username) && method_exists($username, 'getUsername')) {
-            $this->username = (string) $username->getUsername();
+            $this->username = (string) $username->get_username();
         } elseif (is_object($username) && method_exists($username, '__toString')) {
             $this->username = $username->__toString();
         } else {
             throw new InvalidArgumentException('Username must be a string, or object should have method getUserIdentifier, getUsername or __toString');
         }
     }
-
     /**
      * @return string[]
      */
-    public function getSubscribedEvents(): array
+    public function get_subscribed_events(): array
     {
-        return [
-            'onFlush',
-            'loadClassMetadata',
-            'postPersist',
-        ];
+        return ['onFlush', 'loadClassMetadata', 'postPersist'];
     }
-
     /**
      * Maps additional metadata
      *
@@ -142,11 +125,10 @@ class LoggableListener extends MappedEventSubscriber
      *
      * @phpstan-param LoadClassMetadataEventArgs<ClassMetadata<object>, ObjectManager> $eventArgs
      */
-    public function loadClassMetadata(EventArgs $eventArgs): void
+    public function load_class_metadata(Event_Args $event_args): void
     {
-        $this->loadMetadataForObjectClass($eventArgs->getObjectManager(), $eventArgs->getClassMetadata());
+        $this->load_metadata_for_object_class($event_args->get_object_manager(), $event_args->get_class_metadata());
     }
-
     /**
      * Checks for inserted object to update its logEntry
      * foreign key
@@ -155,47 +137,38 @@ class LoggableListener extends MappedEventSubscriber
      *
      * @phpstan-param LifecycleEventArgs<ObjectManager> $args
      */
-    public function postPersist(EventArgs $args): void
+    public function post_persist(Event_Args $args): void
     {
-        $ea = $this->getEventAdapter($args);
-        $object = $ea->getObject();
-        $om = $ea->getObjectManager();
+        $ea = $this->get_event_adapter($args);
+        $object = $ea->get_object();
+        $om = $ea->get_object_manager();
         $oid = spl_object_id($object);
-        $uow = $om->getUnitOfWork();
-        if ($this->pendingLogEntryInserts && array_key_exists($oid, $this->pendingLogEntryInserts)) {
-            $wrapped = AbstractWrapper::wrap($object, $om);
-
-            $logEntry = $this->pendingLogEntryInserts[$oid];
-            $logEntryMeta = $om->getClassMetadata(get_class($logEntry));
-
-            $id = $wrapped->getIdentifier(false, true);
-            $logEntryMeta->setFieldValue($logEntry, 'objectId', $id);
-            $uow->scheduleExtraUpdate($logEntry, [
-                'objectId' => [null, $id],
-            ]);
-            $ea->setOriginalObjectProperty($uow, $logEntry, 'objectId', $id);
-            unset($this->pendingLogEntryInserts[$oid]);
+        $uow = $om->get_unit_of_work();
+        if ($this->pending_log_entry_inserts && array_key_exists($oid, $this->pending_log_entry_inserts)) {
+            $wrapped = Abstract_Wrapper::wrap($object, $om);
+            $log_entry = $this->pending_log_entry_inserts[$oid];
+            $log_entry_meta = $om->get_class_metadata(get_class($log_entry));
+            $id = $wrapped->get_identifier(false, true);
+            $log_entry_meta->set_field_value($log_entry, 'objectId', $id);
+            $uow->schedule_extra_update($log_entry, ['objectId' => [null, $id]]);
+            $ea->set_original_object_property($uow, $log_entry, 'objectId', $id);
+            unset($this->pending_log_entry_inserts[$oid]);
         }
-        if ($this->pendingRelatedObjects && array_key_exists($oid, $this->pendingRelatedObjects)) {
-            $wrapped = AbstractWrapper::wrap($object, $om);
-            $identifiers = $wrapped->getIdentifier(false);
-            foreach ($this->pendingRelatedObjects[$oid] as $props) {
-                $logEntry = $props['log'];
-                $logEntryMeta = $om->getClassMetadata(get_class($logEntry));
-                $oldData = $data = $logEntry->getData();
+        if ($this->pending_related_objects && array_key_exists($oid, $this->pending_related_objects)) {
+            $wrapped = Abstract_Wrapper::wrap($object, $om);
+            $identifiers = $wrapped->get_identifier(false);
+            foreach ($this->pending_related_objects[$oid] as $props) {
+                $log_entry = $props['log'];
+                $log_entry_meta = $om->get_class_metadata(get_class($log_entry));
+                $old_data = $data = $log_entry->get_data();
                 $data[$props['field']] = $identifiers;
-
-                $logEntry->setData($data);
-
-                $uow->scheduleExtraUpdate($logEntry, [
-                    'data' => [$oldData, $data],
-                ]);
-                $ea->setOriginalObjectProperty($uow, $logEntry, 'data', $data);
+                $log_entry->set_data($data);
+                $uow->schedule_extra_update($log_entry, ['data' => [$old_data, $data]]);
+                $ea->set_original_object_property($uow, $log_entry, 'data', $data);
             }
-            unset($this->pendingRelatedObjects[$oid]);
+            unset($this->pending_related_objects[$oid]);
         }
     }
-
     /**
      * Looks for loggable objects being inserted or updated
      * for further processing
@@ -204,23 +177,21 @@ class LoggableListener extends MappedEventSubscriber
      *
      * @phpstan-param ManagerEventArgs<ObjectManager> $eventArgs
      */
-    public function onFlush(EventArgs $eventArgs): void
+    public function on_flush(Event_Args $event_args): void
     {
-        $ea = $this->getEventAdapter($eventArgs);
-        $om = $ea->getObjectManager();
-        $uow = $om->getUnitOfWork();
-
-        foreach ($ea->getScheduledObjectInsertions($uow) as $object) {
-            $this->createLogEntry(LogEntryInterface::ACTION_CREATE, $object, $ea);
+        $ea = $this->get_event_adapter($event_args);
+        $om = $ea->get_object_manager();
+        $uow = $om->get_unit_of_work();
+        foreach ($ea->get_scheduled_object_insertions($uow) as $object) {
+            $this->create_log_entry(Log_Entry_Interface::ACTION_CREATE, $object, $ea);
         }
-        foreach ($ea->getScheduledObjectUpdates($uow) as $object) {
-            $this->createLogEntry(LogEntryInterface::ACTION_UPDATE, $object, $ea);
+        foreach ($ea->get_scheduled_object_updates($uow) as $object) {
+            $this->create_log_entry(Log_Entry_Interface::ACTION_UPDATE, $object, $ea);
         }
-        foreach ($ea->getScheduledObjectDeletions($uow) as $object) {
-            $this->createLogEntry(LogEntryInterface::ACTION_REMOVE, $object, $ea);
+        foreach ($ea->get_scheduled_object_deletions($uow) as $object) {
+            $this->create_log_entry(Log_Entry_Interface::ACTION_REMOVE, $object, $ea);
         }
     }
-
     /**
      * Get the LogEntry class
      *
@@ -230,11 +201,10 @@ class LoggableListener extends MappedEventSubscriber
      * @return string
      * @phpstan-return class-string<LogEntryInterface<T>>
      */
-    protected function getLogEntryClass(LoggableAdapter $ea, string $class)
+    protected function get_log_entry_class(Loggable_Adapter $ea, string $class)
     {
-        return self::$configurations[$this->name][$class]['logEntryClass'] ?? $ea->getDefaultLogEntryClass();
+        return self::$configurations[$this->name][$class]['logEntryClass'] ?? $ea->get_default_log_entry_class();
     }
-
     /**
      * Retrieve the username to use for the log entry.
      *
@@ -243,33 +213,26 @@ class LoggableListener extends MappedEventSubscriber
      *
      * @throws UnexpectedValueException if the actor provider provides an unsupported username value
      */
-    protected function getUsername(): ?string
+    protected function get_username(): ?string
     {
-        if ($this->actorProvider instanceof ActorProviderInterface) {
-            $actor = $this->actorProvider->getActor();
-
+        if ($this->actor_provider instanceof Actor_Provider_Interface) {
+            $actor = $this->actor_provider->get_actor();
             if (is_string($actor) || null === $actor) {
                 return $actor;
             }
-
             if (method_exists($actor, 'getUserIdentifier')) {
-                return (string) $actor->getUserIdentifier();
+                return (string) $actor->get_user_identifier();
             }
-
             if (method_exists($actor, 'getUsername')) {
-                return (string) $actor->getUsername();
+                return (string) $actor->get_username();
             }
-
             if (method_exists($actor, '__toString')) {
                 return $actor->__toString();
             }
-
             throw new UnexpectedValueException(\sprintf('The loggable extension requires the actor provider to return a string or an object implementing the "getUserIdentifier()", "getUsername()", or "__toString()" methods. "%s" cannot be used as an actor.', get_class($actor)));
         }
-
         return $this->username;
     }
-
     /**
      * Handle any custom LogEntry functionality that needs to be performed
      * before persisting it
@@ -282,15 +245,13 @@ class LoggableListener extends MappedEventSubscriber
      *
      * @return void
      */
-    protected function prePersistLogEntry($logEntry, $object)
+    protected function pre_persist_log_entry($log_entry, $object)
     {
     }
-
-    protected function getNamespace(): string
+    protected function get_namespace(): string
     {
         return __NAMESPACE__;
     }
-
     /**
      * Returns an objects changeset data
      *
@@ -303,16 +264,15 @@ class LoggableListener extends MappedEventSubscriber
      *
      * @return array<string, mixed>
      */
-    protected function getObjectChangeSetData($ea, $object, $logEntry): array
+    protected function get_object_change_set_data($ea, $object, $log_entry): array
     {
-        $om = $ea->getObjectManager();
-        $wrapped = AbstractWrapper::wrap($object, $om);
-        $meta = $wrapped->getMetadata();
-        $config = $this->getConfiguration($om, $meta->getName());
-        $uow = $om->getUnitOfWork();
-        $newValues = [];
-
-        foreach ($ea->getObjectChangeSet($uow, $object) as $field => $changes) {
+        $om = $ea->get_object_manager();
+        $wrapped = Abstract_Wrapper::wrap($object, $om);
+        $meta = $wrapped->get_metadata();
+        $config = $this->get_configuration($om, $meta->get_name());
+        $uow = $om->get_unit_of_work();
+        $new_values = [];
+        foreach ($ea->get_object_change_set($uow, $object) as $field => $changes) {
             if (empty($config['versioned'])) {
                 continue;
             }
@@ -320,27 +280,22 @@ class LoggableListener extends MappedEventSubscriber
                 continue;
             }
             $value = $changes[1];
-            if ($meta->isSingleValuedAssociation($field) && $value) {
-                if ($wrapped->isEmbeddedAssociation($field)) {
-                    $value = $this->getObjectChangeSetData($ea, $value, $logEntry);
+            if ($meta->is_single_valued_association($field) && $value) {
+                if ($wrapped->is_embedded_association($field)) {
+                    $value = $this->get_object_change_set_data($ea, $value, $log_entry);
                 } else {
                     $oid = spl_object_id($value);
-                    $wrappedAssoc = AbstractWrapper::wrap($value, $om);
-                    $value = $wrappedAssoc->getIdentifier(false);
+                    $wrapped_assoc = Abstract_Wrapper::wrap($value, $om);
+                    $value = $wrapped_assoc->get_identifier(false);
                     if (!is_array($value) && !$value) {
-                        $this->pendingRelatedObjects[$oid][] = [
-                            'log' => $logEntry,
-                            'field' => $field,
-                        ];
+                        $this->pending_related_objects[$oid][] = ['log' => $log_entry, 'field' => $field];
                     }
                 }
             }
-            $newValues[$field] = $value;
+            $new_values[$field] = $value;
         }
-
-        return $newValues;
+        return $new_values;
     }
-
     /**
      * Create a new Log instance
      *
@@ -354,63 +309,53 @@ class LoggableListener extends MappedEventSubscriber
      *
      * @phpstan-return LogEntryInterface<T>|null
      */
-    protected function createLogEntry($action, $object, LoggableAdapter $ea)
+    protected function create_log_entry($action, $object, Loggable_Adapter $ea)
     {
-        $om = $ea->getObjectManager();
-        $wrapped = AbstractWrapper::wrap($object, $om);
-        $meta = $wrapped->getMetadata();
-
+        $om = $ea->get_object_manager();
+        $wrapped = Abstract_Wrapper::wrap($object, $om);
+        $meta = $wrapped->get_metadata();
         // Filter embedded documents
-        if (isset($meta->isEmbeddedDocument) && $meta->isEmbeddedDocument) {
+        if (isset($meta->is_embedded_document) && $meta->is_embedded_document) {
             return null;
         }
-
-        if ($config = $this->getConfiguration($om, $meta->getName())) {
-            $logEntryClass = $this->getLogEntryClass($ea, $meta->getName());
-            $logEntryMeta = $om->getClassMetadata($logEntryClass);
+        if ($config = $this->get_configuration($om, $meta->get_name())) {
+            $log_entry_class = $this->get_log_entry_class($ea, $meta->get_name());
+            $log_entry_meta = $om->get_class_metadata($log_entry_class);
             /** @var LogEntryInterface<T> $logEntry */
-            $logEntry = $logEntryMeta->newInstance();
-
-            $logEntry->setAction($action);
-            $logEntry->setUsername($this->getUsername());
-            $logEntry->setObjectClass($meta->getName());
-            $logEntry->setLoggedAt();
-
+            $log_entry = $log_entry_meta->new_instance();
+            $log_entry->set_action($action);
+            $log_entry->set_username($this->get_username());
+            $log_entry->set_object_class($meta->get_name());
+            $log_entry->set_logged_at();
             // check for the availability of the primary key
-            $uow = $om->getUnitOfWork();
-            if (LogEntryInterface::ACTION_CREATE === $action && ($ea->isPostInsertGenerator($meta) || ($meta instanceof ORMClassMetadata && $meta->isIdentifierComposite))) {
-                $this->pendingLogEntryInserts[spl_object_id($object)] = $logEntry;
+            $uow = $om->get_unit_of_work();
+            if (Log_Entry_Interface::ACTION_CREATE === $action && ($ea->is_post_insert_generator($meta) || $meta instanceof Orm_Class_Metadata && $meta->is_identifier_composite)) {
+                $this->pending_log_entry_inserts[spl_object_id($object)] = $log_entry;
             } else {
-                $logEntry->setObjectId($wrapped->getIdentifier(false, true));
+                $log_entry->set_object_id($wrapped->get_identifier(false, true));
             }
-            $newValues = [];
-            if (LogEntryInterface::ACTION_REMOVE !== $action && isset($config['versioned'])) {
-                $newValues = $this->getObjectChangeSetData($ea, $object, $logEntry);
-                $logEntry->setData($newValues);
+            $new_values = [];
+            if (Log_Entry_Interface::ACTION_REMOVE !== $action && isset($config['versioned'])) {
+                $new_values = $this->get_object_change_set_data($ea, $object, $log_entry);
+                $log_entry->set_data($new_values);
             }
-
-            if (LogEntryInterface::ACTION_UPDATE === $action && [] === $newValues) {
+            if (Log_Entry_Interface::ACTION_UPDATE === $action && [] === $new_values) {
                 return null;
             }
-
             $version = 1;
-            if (LogEntryInterface::ACTION_CREATE !== $action) {
-                $version = $ea->getNewVersion($logEntryMeta, $object);
+            if (Log_Entry_Interface::ACTION_CREATE !== $action) {
+                $version = $ea->get_new_version($log_entry_meta, $object);
                 if (empty($version)) {
                     // was versioned later
                     $version = 1;
                 }
             }
-            $logEntry->setVersion($version);
-
-            $this->prePersistLogEntry($logEntry, $object);
-
-            $om->persist($logEntry);
-            $uow->computeChangeSet($logEntryMeta, $logEntry);
-
-            return $logEntry;
+            $log_entry->set_version($version);
+            $this->pre_persist_log_entry($log_entry, $object);
+            $om->persist($log_entry);
+            $uow->compute_change_set($log_entry_meta, $log_entry);
+            return $log_entry;
         }
-
         return null;
     }
 }

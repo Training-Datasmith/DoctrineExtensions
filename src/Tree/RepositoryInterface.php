@@ -1,18 +1,15 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of the Doctrine Behavioral Extensions package.
  * (c) Gediminas Morkevicius <gediminas.morkevicius@gmail.com> http://www.gediminasm.org
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Gedmo\Tree;
 
 use Gedmo\Exception\InvalidArgumentException;
-
 /**
  * This interface ensures a consistent API between repositories for the ORM and the ODM.
  *
@@ -21,7 +18,7 @@ use Gedmo\Exception\InvalidArgumentException;
  *
  * @template T of object
  */
-interface RepositoryInterface extends RepositoryUtilsInterface
+interface Repository_Interface extends Repository_Utils_Interface
 {
     /**
      * Get all root nodes.
@@ -33,8 +30,7 @@ interface RepositoryInterface extends RepositoryUtilsInterface
      *
      * @phpstan-return iterable<int|string, T>
      */
-    public function getRootNodes($sortByField = null, $direction = 'asc');
-
+    public function get_root_nodes($sort_by_field = null, $direction = 'asc');
     /**
      * Returns an array of nodes optimized for building a tree.
      *
@@ -49,8 +45,7 @@ interface RepositoryInterface extends RepositoryUtilsInterface
      *
      * @phpstan-return iterable<int|string, T>
      */
-    public function getNodesHierarchy($node = null, $direct = false, array $options = [], $includeNode = false);
-
+    public function get_nodes_hierarchy($node = null, $direct = false, array $options = [], $include_node = false);
     /**
      * Get the list of children for the given node.
      *
@@ -67,8 +62,7 @@ interface RepositoryInterface extends RepositoryUtilsInterface
      *
      * @phpstan-return iterable<int|string, T>
      */
-    public function getChildren($node = null, $direct = false, $sortByField = null, $direction = 'ASC', $includeNode = false);
-
+    public function get_children($node = null, $direct = false, $sort_by_field = null, $direction = 'ASC', $include_node = false);
     /**
      * Counts the children of the given node
      *
@@ -79,5 +73,5 @@ interface RepositoryInterface extends RepositoryUtilsInterface
      *
      * @return int
      */
-    public function childCount($node = null, $direct = false);
+    public function child_count($node = null, $direct = false);
 }

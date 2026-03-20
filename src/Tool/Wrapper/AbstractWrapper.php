@@ -1,24 +1,21 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of the Doctrine Behavioral Extensions package.
  * (c) Gediminas Morkevicius <gediminas.morkevicius@gmail.com> http://www.gediminasm.org
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Gedmo\Tool\Wrapper;
 
 use Doctrine\Deprecations\Deprecation;
-use Doctrine\ODM\MongoDB\DocumentManager;
-use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\Persistence\Mapping\ClassMetadata;
-use Doctrine\Persistence\ObjectManager;
-use Gedmo\Exception\UnsupportedObjectManagerException;
-use Gedmo\Tool\WrapperInterface;
-
+use Doctrine\ODM\Mongo_Db\Document_Manager;
+use Doctrine\ORM\Entity_Manager_Interface;
+use Doctrine\Persistence\Mapping\Class_Metadata;
+use Doctrine\Persistence\Object_Manager;
+use Gedmo\Exception\Unsupported_Object_Manager_Exception;
+use Gedmo\Tool\Wrapper_Interface;
 /**
  * Wraps entity or proxy for more convenient
  * manipulation
@@ -31,7 +28,7 @@ use Gedmo\Tool\WrapperInterface;
  *
  * @author Gediminas Morkevicius <gediminas.morkevicius@gmail.com>
  */
-abstract class AbstractWrapper implements WrapperInterface
+abstract class Abstract_Wrapper implements Wrapper_Interface
 {
     /**
      * Object metadata
@@ -39,21 +36,18 @@ abstract class AbstractWrapper implements WrapperInterface
      * @var TClassMetadata
      */
     protected $meta;
-
     /**
      * Wrapped object
      *
      * @var TObject
      */
     protected $object;
-
     /**
      * Object manager instance
      *
      * @var TObjectManager
      */
     protected $om;
-
     /**
      * Wrap object factory method
      *
@@ -67,57 +61,40 @@ abstract class AbstractWrapper implements WrapperInterface
      *
      * @return WrapperInterface<TClassMetadata, TObject, TObjectManager>
      */
-    public static function wrap($object, ObjectManager $om)
+    public static function wrap($object, Object_Manager $om)
     {
-        if ($om instanceof EntityManagerInterface) {
-            return new EntityWrapper($object, $om);
+        if ($om instanceof Entity_Manager_Interface) {
+            return new Entity_Wrapper($object, $om);
         }
-        if ($om instanceof DocumentManager) {
-            return new MongoDocumentWrapper($object, $om);
+        if ($om instanceof Document_Manager) {
+            return new Mongo_Document_Wrapper($object, $om);
         }
-
-        throw new UnsupportedObjectManagerException('Given object manager is not managed by wrapper');
+        throw new Unsupported_Object_Manager_Exception('Given object manager is not managed by wrapper');
     }
-
     public static function clear(): void
     {
-        Deprecation::trigger(
-            'gedmo/doctrine-extensions',
-            'https://github.com/doctrine-extensions/DoctrineExtensions/pull/2410',
-            'Using "%s()" method is deprecated since gedmo/doctrine-extensions 3.5 and will be removed in version 4.0.',
-            __METHOD__
-        );
+        Deprecation::trigger('gedmo/doctrine-extensions', 'https://github.com/doctrine-extensions/DoctrineExtensions/pull/2410', 'Using "%s()" method is deprecated since gedmo/doctrine-extensions 3.5 and will be removed in version 4.0.', __METHOD__);
     }
-
     /**
      * @return TObject
      */
-    public function getObject()
+    public function get_object()
     {
         return $this->object;
     }
-
     /**
      * @return TClassMetadata
      */
-    public function getMetadata()
+    public function get_metadata()
     {
         return $this->meta;
     }
-
     public function populate(array $data)
     {
-        Deprecation::trigger(
-            'gedmo/doctrine-extensions',
-            'https://github.com/doctrine-extensions/DoctrineExtensions/pull/2410',
-            'Using "%s()" method is deprecated since gedmo/doctrine-extensions 3.5 and will be removed in version 4.0.',
-            __METHOD__
-        );
-
+        Deprecation::trigger('gedmo/doctrine-extensions', 'https://github.com/doctrine-extensions/DoctrineExtensions/pull/2410', 'Using "%s()" method is deprecated since gedmo/doctrine-extensions 3.5 and will be removed in version 4.0.', __METHOD__);
         foreach ($data as $field => $value) {
-            $this->setPropertyValue($field, $value);
+            $this->set_property_value($field, $value);
         }
-
         return $this;
     }
 }

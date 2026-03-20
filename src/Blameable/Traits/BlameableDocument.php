@@ -1,20 +1,17 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of the Doctrine Behavioral Extensions package.
  * (c) Gediminas Morkevicius <gediminas.morkevicius@gmail.com> http://www.gediminasm.org
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Gedmo\Blameable\Traits;
 
-use Doctrine\ODM\MongoDB\Mapping\Annotations as ODM;
-use Doctrine\ODM\MongoDB\Types\Type;
+use Doctrine\ODM\Mongo_Db\Mapping\Annotations as ODM;
+use Doctrine\ODM\Mongo_Db\Types\Type;
 use Gedmo\Mapping\Annotation as Gedmo;
-
 /**
  * Trait for blamable objects.
  *
@@ -22,7 +19,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  *
  * @author David Buchmann <mail@davidbu.ch>
  */
-trait BlameableDocument
+trait Blameable_Document
 {
     /**
      * @var string
@@ -33,8 +30,7 @@ trait BlameableDocument
      */
     #[ODM\Field(type: Type::STRING)]
     #[Gedmo\Blameable(on: 'create')]
-    protected $createdBy;
-
+    protected $created_by;
     /**
      * @var string
      *
@@ -44,8 +40,7 @@ trait BlameableDocument
      */
     #[ODM\Field(type: Type::STRING)]
     #[Gedmo\Blameable(on: 'update')]
-    protected $updatedBy;
-
+    protected $updated_by;
     /**
      * Sets createdBy.
      *
@@ -53,23 +48,20 @@ trait BlameableDocument
      *
      * @return $this
      */
-    public function setCreatedBy($createdBy)
+    public function set_created_by($created_by)
     {
-        $this->createdBy = $createdBy;
-
+        $this->created_by = $created_by;
         return $this;
     }
-
     /**
      * Returns createdBy.
      *
      * @return string
      */
-    public function getCreatedBy()
+    public function get_created_by()
     {
-        return $this->createdBy;
+        return $this->created_by;
     }
-
     /**
      * Sets updatedBy.
      *
@@ -77,20 +69,18 @@ trait BlameableDocument
      *
      * @return $this
      */
-    public function setUpdatedBy($updatedBy)
+    public function set_updated_by($updated_by)
     {
-        $this->updatedBy = $updatedBy;
-
+        $this->updated_by = $updated_by;
         return $this;
     }
-
     /**
      * Returns updatedBy.
      *
      * @return string
      */
-    public function getUpdatedBy()
+    public function get_updated_by()
     {
-        return $this->updatedBy;
+        return $this->updated_by;
     }
 }

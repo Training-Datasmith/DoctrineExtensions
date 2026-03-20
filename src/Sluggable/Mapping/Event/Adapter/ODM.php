@@ -1,127 +1,90 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of the Doctrine Behavioral Extensions package.
  * (c) Gediminas Morkevicius <gediminas.morkevicius@gmail.com> http://www.gediminasm.org
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Gedmo\Sluggable\Mapping\Event\Adapter;
 
 use Gedmo\Mapping\Event\Adapter\ODM as BaseAdapterODM;
-use Gedmo\Sluggable\Mapping\Event\SluggableAdapter;
-use Gedmo\Tool\Wrapper\AbstractWrapper;
-use MongoDB\BSON\Regex;
-
+use Gedmo\Sluggable\Mapping\Event\Sluggable_Adapter;
+use Gedmo\Tool\Wrapper\Abstract_Wrapper;
+use Mongo_Db\BSON\Regex;
 /**
  * Doctrine event adapter for ODM adapted
  * for sluggable behavior
  *
  * @author Gediminas Morkevicius <gediminas.morkevicius@gmail.com>
  */
-final class ODM extends BaseAdapterODM implements SluggableAdapter
+final class ODM extends Base_Adapter_Odm implements Sluggable_Adapter
 {
-    public function getSimilarSlugs($object, $meta, array $config, $slug)
+    public function get_similar_slugs($object, $meta, array $config, $slug)
     {
-        $dm = $this->getObjectManager();
-        $wrapped = AbstractWrapper::wrap($object, $dm);
-        $qb = $dm->createQueryBuilder($config['useObjectClass']);
-        if (($identifier = $wrapped->getIdentifier()) && !$meta->isIdentifier($config['slug'])) {
-            $qb->field($meta->getIdentifier()[0])->notEqual($identifier);
+        $dm = $this->get_object_manager();
+        $wrapped = Abstract_Wrapper::wrap($object, $dm);
+        $qb = $dm->create_query_builder($config['useObjectClass']);
+        if (($identifier = $wrapped->get_identifier()) && !$meta->is_identifier($config['slug'])) {
+            $qb->field($meta->get_identifier()[0])->not_equal($identifier);
         }
-        $qb->field($config['slug'])->equals(new Regex('^'.preg_quote($slug, '/')));
-
+        $qb->field($config['slug'])->equals(new Regex('^' . preg_quote($slug, '/')));
         // use the unique_base to restrict the uniqueness check
         if ($config['unique'] && isset($config['unique_base'])) {
-            if (is_object($ubase = $wrapped->getPropertyValue($config['unique_base']))) {
-                $qb->field($config['unique_base'].'.$id')->equals(new \MongoId($ubase->getId()));
+            if (is_object($ubase = $wrapped->get_property_value($config['unique_base']))) {
+                $qb->field($config['unique_base'] . '.$id')->equals(new \Mongo_Id($ubase->get_id()));
             } elseif ($ubase) {
-                $qb->where('/^'.preg_quote($ubase, '/').'/.test(this.'.$config['unique_base'].')');
+                $qb->where('/^' . preg_quote($ubase, '/') . '/.test(this.' . $config['unique_base'] . ')');
             } else {
                 $qb->field($config['unique_base'])->equals(null);
             }
         }
-
-        $q = $qb->getQuery();
-        $q->setHydrate(false);
-
-        return $q->getIterator()->toArray();
+        $q = $qb->get_query();
+        $q->set_hydrate(false);
+        return $q->getIterator()->to_array();
     }
-
     /**
      * This query can cause some data integrity failures since it does not
      * execute automatically
      *
      * {@inheritdoc}
      */
-    public function replaceRelative($object, array $config, $target, $replacement): int
+    public function replace_relative($object, array $config, $target, $replacement): int
     {
-        $dm = $this->getObjectManager();
-        $meta = $dm->getClassMetadata($config['useObjectClass']);
-
-        $q = $dm
-            ->createQueryBuilder($config['useObjectClass'])
-            ->where("function() {
-                return this.{$config['slug']}.indexOf('{$target}') === 0;
-            }")
-            ->getQuery()
-        ;
-        $q->setHydrate(false);
+        $dm = $this->get_object_manager();
+        $meta = $dm->get_class_metadata($config['useObjectClass']);
+        $q = $dm->create_query_builder($config['useObjectClass'])->where("function() {\n                return this.{$config['slug']}.indexOf('{$target}') === 0;\n            }")->get_query();
+        $q->set_hydrate(false);
         $result = $q->getIterator();
         $count = 0;
-
-        foreach ($result as $targetObject) {
+        foreach ($result as $target_object) {
             ++$count;
-            $slug = preg_replace("@^{$target}@smi", $replacement.$config['pathSeparator'], $targetObject[$config['slug']]);
-            $dm
-                ->createQueryBuilder()
-                ->updateMany($config['useObjectClass'])
-                ->field($config['slug'])->set($slug)
-                ->field($meta->getIdentifier()[0])->equals($targetObject['_id'])
-                ->getQuery()
-                ->execute()
-            ;
+            $slug = preg_replace("@^{$target}@smi", $replacement . $config['pathSeparator'], $target_object[$config['slug']]);
+            $dm->create_query_builder()->update_many($config['useObjectClass'])->field($config['slug'])->set($slug)->field($meta->get_identifier()[0])->equals($target_object['_id'])->get_query()->execute();
         }
-
         return $count;
     }
-
     /**
      * This query can cause some data integrity failures since it does not
      * execute atomically
      *
      * {@inheritdoc}
      */
-    public function replaceInverseRelative($object, array $config, $target, $replacement): int
+    public function replace_inverse_relative($object, array $config, $target, $replacement): int
     {
-        $dm = $this->getObjectManager();
-        $wrapped = AbstractWrapper::wrap($object, $dm);
-        $meta = $dm->getClassMetadata($config['useObjectClass']);
-        $q = $dm
-            ->createQueryBuilder($config['useObjectClass'])
-            ->field($config['mappedBy'].'.'.$meta->getIdentifier()[0])->equals($wrapped->getIdentifier())
-            ->getQuery()
-        ;
-        $q->setHydrate(false);
+        $dm = $this->get_object_manager();
+        $wrapped = Abstract_Wrapper::wrap($object, $dm);
+        $meta = $dm->get_class_metadata($config['useObjectClass']);
+        $q = $dm->create_query_builder($config['useObjectClass'])->field($config['mappedBy'] . '.' . $meta->get_identifier()[0])->equals($wrapped->get_identifier())->get_query();
+        $q->set_hydrate(false);
         $result = $q->getIterator();
         $count = 0;
-
-        foreach ($result as $targetObject) {
+        foreach ($result as $target_object) {
             ++$count;
-            $slug = preg_replace("@^{$replacement}@smi", $target, $targetObject[$config['slug']]);
-            $dm
-                ->createQueryBuilder()
-                ->updateMany($config['useObjectClass'])
-                ->field($config['slug'])->set($slug)
-                ->field($meta->getIdentifier()[0])->equals($targetObject['_id'])
-                ->getQuery()
-                ->execute()
-            ;
+            $slug = preg_replace("@^{$replacement}@smi", $target, $target_object[$config['slug']]);
+            $dm->create_query_builder()->update_many($config['useObjectClass'])->field($config['slug'])->set($slug)->field($meta->get_identifier()[0])->equals($target_object['_id'])->get_query()->execute();
         }
-
         return $count;
     }
 }

@@ -1,22 +1,19 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of the Doctrine Behavioral Extensions package.
  * (c) Gediminas Morkevicius <gediminas.morkevicius@gmail.com> http://www.gediminasm.org
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Gedmo\Mapping;
 
-use Doctrine\ODM\MongoDB\Mapping\ClassMetadata as OdmClassMetadata;
-use Doctrine\ORM\Mapping\ClassMetadata as OrmClassMetadata;
-use Doctrine\Persistence\Mapping\ClassMetadata;
-use Doctrine\Persistence\Mapping\Driver\MappingDriver;
-use Gedmo\Exception\InvalidMappingException;
-
+use Doctrine\ODM\Mongo_Db\Mapping\Class_Metadata as OdmClassMetadata;
+use Doctrine\ORM\Mapping\Class_Metadata as OrmClassMetadata;
+use Doctrine\Persistence\Mapping\Class_Metadata;
+use Doctrine\Persistence\Mapping\Driver\Mapping_Driver;
+use Gedmo\Exception\Invalid_Mapping_Exception;
 /**
  * The mapping driver interface defines the metadata extraction functions
  * common among all drivers used on these extensions.
@@ -41,8 +38,7 @@ interface Driver
      *
      * @return void
      */
-    public function readExtendedMetadata($meta, array &$config);
-
+    public function read_extended_metadata($meta, array &$config);
     /**
      * Sets the original mapping driver.
      *
@@ -50,5 +46,5 @@ interface Driver
      *
      * @return void
      */
-    public function setOriginalDriver($driver);
+    public function set_original_driver($driver);
 }

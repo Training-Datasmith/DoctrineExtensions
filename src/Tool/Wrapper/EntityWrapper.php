@@ -1,20 +1,17 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of the Doctrine Behavioral Extensions package.
  * (c) Gediminas Morkevicius <gediminas.morkevicius@gmail.com> http://www.gediminasm.org
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Gedmo\Tool\Wrapper;
 
-use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\Mapping\ClassMetadata;
-use Gedmo\Tool\ClassUtils;
-
+use Doctrine\ORM\Entity_Manager_Interface;
+use Doctrine\ORM\Mapping\Class_Metadata;
+use Gedmo\Tool\Class_Utils;
 /**
  * Wraps entity or proxy for more convenient
  * manipulation
@@ -27,7 +24,7 @@ use Gedmo\Tool\ClassUtils;
  *
  * @final since gedmo/doctrine-extensions 3.11
  */
-class EntityWrapper extends AbstractWrapper
+class Entity_Wrapper extends Abstract_Wrapper
 {
     /**
      * Entity identifier
@@ -35,55 +32,45 @@ class EntityWrapper extends AbstractWrapper
      * @var array<string, mixed>|null
      */
     private $identifier;
-
     /**
      * Wrap entity
      *
      * @param TObject $entity
      */
-    public function __construct($entity, EntityManagerInterface $em)
+    public function __construct($entity, Entity_Manager_Interface $em)
     {
         $this->om = $em;
         $this->object = $entity;
-        $this->meta = $em->getClassMetadata(get_class($this->object));
+        $this->meta = $em->get_class_metadata(get_class($this->object));
     }
-
-    public function getPropertyValue($property)
+    public function get_property_value($property)
     {
         $this->initialize();
-
-        return $this->meta->getFieldValue($this->object, $property);
+        return $this->meta->get_field_value($this->object, $property);
     }
-
-    public function setPropertyValue($property, $value): self
+    public function set_property_value($property, $value): self
     {
         $this->initialize();
-        $this->meta->setFieldValue($this->object, $property, $value);
-
+        $this->meta->set_field_value($this->object, $property, $value);
         return $this;
     }
-
-    public function hasValidIdentifier(): bool
+    public function has_valid_identifier(): bool
     {
-        return null !== $this->getIdentifier();
+        return null !== $this->get_identifier();
     }
-
-    public function getRootObjectName()
+    public function get_root_object_name()
     {
-        return $this->meta->rootEntityName;
+        return $this->meta->root_entity_name;
     }
-
     /**
      * @param bool $flatten
      */
-    public function getIdentifier($single = true, $flatten = false)
+    public function get_identifier($single = true, $flatten = false)
     {
         $flatten = 1 < \func_num_args() && true === func_get_arg(1);
         if (null === $this->identifier) {
-            $uow = $this->om->getUnitOfWork();
-            $this->identifier = $uow->isInIdentityMap($this->object)
-                ? $uow->getEntityIdentifier($this->object)
-                : $this->meta->getIdentifierValues($this->object);
+            $uow = $this->om->get_unit_of_work();
+            $this->identifier = $uow->is_in_identity_map($this->object) ? $uow->get_entity_identifier($this->object) : $this->meta->get_identifier_values($this->object);
             if (is_array($this->identifier) && empty($this->identifier)) {
                 $this->identifier = null;
             }
@@ -95,23 +82,19 @@ class EntityWrapper extends AbstractWrapper
             if ($flatten) {
                 $id = $this->identifier;
                 foreach ($id as $i => $value) {
-                    if (is_object($value) && $this->om->getMetadataFactory()->hasMetadataFor(ClassUtils::getClass($value))) {
-                        $id[$i] = (new self($value, $this->om))->getIdentifier(false, true);
+                    if (is_object($value) && $this->om->get_metadata_factory()->has_metadata_for(Class_Utils::get_class($value))) {
+                        $id[$i] = (new self($value, $this->om))->get_identifier(false, true);
                     }
                 }
-
                 return implode(' ', $id);
             }
         }
-
         return $this->identifier;
     }
-
-    public function isEmbeddedAssociation($field): bool
+    public function is_embedded_association($field): bool
     {
         return false;
     }
-
     /**
      * Initialize the entity if it is proxy
      * required when is detached or not initialized
@@ -120,8 +103,8 @@ class EntityWrapper extends AbstractWrapper
      */
     protected function initialize()
     {
-        if ($this->om->isUninitializedObject($this->object)) {
-            $this->om->initializeObject($this->object);
+        if ($this->om->is_uninitialized_object($this->object)) {
+            $this->om->initialize_object($this->object);
         }
     }
 }

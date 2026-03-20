@@ -1,28 +1,25 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of the Doctrine Behavioral Extensions package.
  * (c) Gediminas Morkevicius <gediminas.morkevicius@gmail.com> http://www.gediminasm.org
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Gedmo\Mapping\Driver;
 
 use Doctrine\Common\Annotations\Reader;
 use Doctrine\Deprecations\Deprecation;
-use Doctrine\Persistence\Mapping\ClassMetadata;
-use Doctrine\Persistence\Mapping\Driver\MappingDriver;
-
+use Doctrine\Persistence\Mapping\Class_Metadata;
+use Doctrine\Persistence\Mapping\Driver\Mapping_Driver;
 /**
  * This is an abstract class to implement common functionality
  * for extension annotation mapping drivers.
  *
  * @author Derek J. Lambert <dlambert@dereklambert.com>
  */
-abstract class AbstractAnnotationDriver implements AttributeDriverInterface
+abstract class Abstract_Annotation_Driver implements Attribute_Driver_Interface
 {
     /**
      * Annotation reader instance
@@ -32,21 +29,18 @@ abstract class AbstractAnnotationDriver implements AttributeDriverInterface
      * @todo Remove the support for the `object` type in the next major release.
      */
     protected $reader;
-
     /**
      * Original driver if it is available
      *
      * @var MappingDriver
      */
-    protected $_originalDriver;
-
+    protected $_original_driver;
     /**
      * List of types which are valid for extension
      *
      * @var string[]
      */
-    protected $validTypes = [];
-
+    protected $valid_types = [];
     /**
      * Set the annotation reader instance
      *
@@ -63,60 +57,42 @@ abstract class AbstractAnnotationDriver implements AttributeDriverInterface
      *
      * @note Providing any object is deprecated, as of 4.0 an {@see AttributeReader} will be required
      */
-    public function setAnnotationReader($reader): void
+    public function set_annotation_reader($reader): void
     {
         if ($reader instanceof Reader) {
-            Deprecation::trigger(
-                'gedmo/doctrine-extensions',
-                'https://github.com/doctrine-extensions/DoctrineExtensions/pull/2772',
-                'Annotations support is deprecated, migrate your application to use attributes and pass an instance of %s to the %s() method instead.',
-                AttributeReader::class,
-                __METHOD__
-            );
-        } elseif (!$reader instanceof AttributeReader) {
-            Deprecation::trigger(
-                'gedmo/doctrine-extensions',
-                'https://github.com/doctrine-extensions/DoctrineExtensions/pull/2558',
-                'Providing an annotation reader which does not implement %s or is not an instance of %s to %s() is deprecated.',
-                Reader::class,
-                AttributeReader::class,
-                __METHOD__
-            );
+            Deprecation::trigger('gedmo/doctrine-extensions', 'https://github.com/doctrine-extensions/DoctrineExtensions/pull/2772', 'Annotations support is deprecated, migrate your application to use attributes and pass an instance of %s to the %s() method instead.', Attribute_Reader::class, __METHOD__);
+        } elseif (!$reader instanceof Attribute_Reader) {
+            Deprecation::trigger('gedmo/doctrine-extensions', 'https://github.com/doctrine-extensions/DoctrineExtensions/pull/2558', 'Providing an annotation reader which does not implement %s or is not an instance of %s to %s() is deprecated.', Reader::class, Attribute_Reader::class, __METHOD__);
         }
-
         $this->reader = $reader;
     }
-
     /**
      * Passes in the mapping read by original driver
      *
      * @param MappingDriver $driver
      */
-    public function setOriginalDriver($driver): void
+    public function set_original_driver($driver): void
     {
-        $this->_originalDriver = $driver;
+        $this->_original_driver = $driver;
     }
-
     /**
      * @param ClassMetadata<object> $meta
      *
      * @return \ReflectionClass<covariant object>
      */
-    public function getMetaReflectionClass($meta)
+    public function get_meta_reflection_class($meta)
     {
-        return $meta->getReflectionClass();
+        return $meta->get_reflection_class();
     }
-
     /**
      * @param ClassMetadata<object> $meta
      * @param array<string, mixed>  $config
      *
      * @return void
      */
-    public function validateFullMetadata(ClassMetadata $meta, array $config)
+    public function validate_full_metadata(Class_Metadata $meta, array $config)
     {
     }
-
     /**
      * Checks if $field type is valid
      *
@@ -125,13 +101,11 @@ abstract class AbstractAnnotationDriver implements AttributeDriverInterface
      *
      * @return bool
      */
-    protected function isValidField($meta, $field)
+    protected function is_valid_field($meta, $field)
     {
-        $mapping = $meta->getFieldMapping($field);
-
-        return $mapping && in_array($mapping->type ?? $mapping['type'], $this->validTypes, true);
+        $mapping = $meta->get_field_mapping($field);
+        return $mapping && in_array($mapping->type ?? $mapping['type'], $this->valid_types, true);
     }
-
     /**
      * Try to find out related class name out of mapping
      *
@@ -144,15 +118,14 @@ abstract class AbstractAnnotationDriver implements AttributeDriverInterface
      *
      * @phpstan-return class-string|''
      */
-    protected function getRelatedClassName($metadata, string $name)
+    protected function get_related_class_name($metadata, string $name)
     {
         if (class_exists($name) || interface_exists($name)) {
             return $name;
         }
-        $refl = $metadata->getReflectionClass();
-        $ns = $refl->getNamespaceName();
-        $className = $ns.'\\'.$name;
-
-        return class_exists($className) ? $className : '';
+        $refl = $metadata->get_reflection_class();
+        $ns = $refl->get_namespace_name();
+        $class_name = $ns . '\\' . $name;
+        return class_exists($class_name) ? $class_name : '';
     }
 }

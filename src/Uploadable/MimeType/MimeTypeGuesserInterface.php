@@ -1,15 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of the Doctrine Behavioral Extensions package.
  * (c) Gediminas Morkevicius <gediminas.morkevicius@gmail.com> http://www.gediminasm.org
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
-namespace Gedmo\Uploadable\MimeType;
+namespace Gedmo\Uploadable\Mime_Type;
 
 /**
  * Interface for mime type guessers
@@ -17,12 +15,12 @@ namespace Gedmo\Uploadable\MimeType;
  * @author Gustavo Falco <comfortablynumb84@gmail.com>
  * @author Gediminas Morkevicius <gediminas.morkevicius@gmail.com>
  */
-interface MimeTypeGuesserInterface
+interface Mime_Type_Guesser_Interface
 {
     /**
      * @param string $filePath
      *
      * @return string|null
      */
-    public function guess($filePath);
+    public function guess($file_path);
 }

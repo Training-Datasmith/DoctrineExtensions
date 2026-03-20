@@ -1,29 +1,26 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of the Doctrine Behavioral Extensions package.
  * (c) Gediminas Morkevicius <gediminas.morkevicius@gmail.com> http://www.gediminasm.org
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Gedmo\Tree\Entity\Repository;
 
-use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\EntityRepository;
-use Doctrine\ORM\Mapping\ClassMetadata;
+use Doctrine\ORM\Entity_Manager_Interface;
+use Doctrine\ORM\Entity_Repository;
+use Doctrine\ORM\Mapping\Class_Metadata;
 use Doctrine\ORM\Query;
-use Doctrine\ORM\QueryBuilder;
+use Doctrine\ORM\Query_Builder;
 use Gedmo\Exception\InvalidArgumentException;
-use Gedmo\Exception\InvalidMappingException;
-use Gedmo\Tool\Wrapper\EntityWrapper;
-use Gedmo\Tree\RepositoryInterface;
-use Gedmo\Tree\RepositoryUtils;
-use Gedmo\Tree\RepositoryUtilsInterface;
-use Gedmo\Tree\TreeListener;
-
+use Gedmo\Exception\Invalid_Mapping_Exception;
+use Gedmo\Tool\Wrapper\Entity_Wrapper;
+use Gedmo\Tree\Repository_Interface;
+use Gedmo\Tree\Repository_Utils;
+use Gedmo\Tree\Repository_Utils_Interface;
+use Gedmo\Tree\Tree_Listener;
 /**
  * @template T of object
  *
@@ -31,145 +28,120 @@ use Gedmo\Tree\TreeListener;
  *
  * @template-implements RepositoryInterface<T>
  */
-abstract class AbstractTreeRepository extends EntityRepository implements RepositoryInterface
+abstract class Abstract_Tree_Repository extends Entity_Repository implements Repository_Interface
 {
     /**
      * Tree listener on event manager
      */
-    protected \Gedmo\Tree\TreeListener $listener;
-
+    protected \Gedmo\Tree\Tree_Listener $listener;
     /**
      * Repository utils
      *
      * @var RepositoryUtilsInterface
      */
-    protected $repoUtils;
-
+    protected $repo_utils;
     /** @param ClassMetadata<T> $class */
-    public function __construct(EntityManagerInterface $em, ClassMetadata $class)
+    public function __construct(Entity_Manager_Interface $em, Class_Metadata $class)
     {
         parent::__construct($em, $class);
-        $treeListener = null;
-        foreach ($em->getEventManager()->getAllListeners() as $listeners) {
+        $tree_listener = null;
+        foreach ($em->get_event_manager()->get_all_listeners() as $listeners) {
             foreach ($listeners as $listener) {
-                if ($listener instanceof TreeListener) {
-                    $treeListener = $listener;
-
+                if ($listener instanceof Tree_Listener) {
+                    $tree_listener = $listener;
                     break 2;
                 }
             }
         }
-
-        if (null === $treeListener) {
-            throw new InvalidMappingException('Tree listener was not found on your entity manager, it must be hooked into the event manager');
+        if (null === $tree_listener) {
+            throw new Invalid_Mapping_Exception('Tree listener was not found on your entity manager, it must be hooked into the event manager');
         }
-
-        $this->listener = $treeListener;
+        $this->listener = $tree_listener;
         if (!$this->validate()) {
-            throw new InvalidMappingException('This repository cannot be used for tree type: '.$treeListener->getStrategy($em, $class->getName())->getName());
+            throw new Invalid_Mapping_Exception('This repository cannot be used for tree type: ' . $tree_listener->get_strategy($em, $class->get_name())->get_name());
         }
-
-        $this->repoUtils = new RepositoryUtils($this->getEntityManager(), $this->getClassMetadata(), $this->listener, $this);
+        $this->repo_utils = new Repository_Utils($this->get_entity_manager(), $this->get_class_metadata(), $this->listener, $this);
     }
-
     /**
      * Sets the RepositoryUtilsInterface instance
      *
      * @return static
      */
-    public function setRepoUtils(RepositoryUtilsInterface $repoUtils)
+    public function set_repo_utils(Repository_Utils_Interface $repo_utils)
     {
-        $this->repoUtils = $repoUtils;
-
+        $this->repo_utils = $repo_utils;
         return $this;
     }
-
     /**
      * Returns the RepositoryUtilsInterface instance
      *
      * @return RepositoryUtilsInterface|null
      */
-    public function getRepoUtils()
+    public function get_repo_utils()
     {
-        return $this->repoUtils;
+        return $this->repo_utils;
     }
-
-    public function childCount($node = null, $direct = false)
+    public function child_count($node = null, $direct = false)
     {
-        $meta = $this->getClassMetadata();
-
+        $meta = $this->get_class_metadata();
         if (is_object($node)) {
-            if (!is_a($node, $meta->getName())) {
+            if (!is_a($node, $meta->get_name())) {
                 throw new InvalidArgumentException('Node is not related to this repository');
             }
-
-            $wrapped = new EntityWrapper($node, $this->getEntityManager());
-
-            if (!$wrapped->hasValidIdentifier()) {
+            $wrapped = new Entity_Wrapper($node, $this->get_entity_manager());
+            if (!$wrapped->has_valid_identifier()) {
                 throw new InvalidArgumentException('Node is not managed by UnitOfWork');
             }
         }
-
-        $qb = $this->getChildrenQueryBuilder($node, $direct);
-
+        $qb = $this->get_children_query_builder($node, $direct);
         // We need to remove the ORDER BY DQL part since some vendors could throw an error
         // in count queries
-        $dqlParts = $qb->getDQLParts();
-
+        $dql_parts = $qb->get_dql_parts();
         // We need to check first if there's an ORDER BY DQL part, because resetDQLPart doesn't
         // check if its internal array has an "orderby" index
-        if (isset($dqlParts['orderBy'])) {
-            $qb->resetDQLPart('orderBy');
+        if (isset($dql_parts['orderBy'])) {
+            $qb->reset_dql_part('orderBy');
         }
-
-        $aliases = $qb->getRootAliases();
+        $aliases = $qb->get_root_aliases();
         $alias = $aliases[0];
-
-        $qb->select('COUNT('.$alias.')');
-
-        return (int) $qb->getQuery()->getSingleScalarResult();
+        $qb->select('COUNT(' . $alias . ')');
+        return (int) $qb->get_query()->get_single_scalar_result();
     }
-
     /**
      * @see RepositoryUtilsInterface::childrenHierarchy
      */
-    public function childrenHierarchy($node = null, $direct = false, array $options = [], $includeNode = false)
+    public function children_hierarchy($node = null, $direct = false, array $options = [], $include_node = false)
     {
-        return $this->repoUtils->childrenHierarchy($node, $direct, $options, $includeNode);
+        return $this->repo_utils->children_hierarchy($node, $direct, $options, $include_node);
     }
-
     /**
      * @see RepositoryUtilsInterface::buildTree
      */
-    public function buildTree(array $nodes, array $options = [])
+    public function build_tree(array $nodes, array $options = [])
     {
-        return $this->repoUtils->buildTree($nodes, $options);
+        return $this->repo_utils->build_tree($nodes, $options);
     }
-
     /**
      * @see RepositoryUtilsInterface::buildTreeArray
      */
-    public function buildTreeArray(array $nodes)
+    public function build_tree_array(array $nodes)
     {
-        return $this->repoUtils->buildTreeArray($nodes);
+        return $this->repo_utils->build_tree_array($nodes);
     }
-
     /**
      * @see RepositoryUtilsInterface::setChildrenIndex
      */
-    public function setChildrenIndex($childrenIndex): void
+    public function set_children_index($children_index): void
     {
-        $this->repoUtils->setChildrenIndex($childrenIndex);
+        $this->repo_utils->set_children_index($children_index);
     }
-
     /**
      * @see RepositoryUtilsInterface::getChildrenIndex
      */
-    public function getChildrenIndex()
+    public function get_children_index()
     {
-        return $this->repoUtils->getChildrenIndex();
+        return $this->repo_utils->get_children_index();
     }
-
     /**
      * Get all root nodes query builder
      *
@@ -178,8 +150,7 @@ abstract class AbstractTreeRepository extends EntityRepository implements Reposi
      *
      * @return QueryBuilder QueryBuilder object
      */
-    abstract public function getRootNodesQueryBuilder($sortByField = null, $direction = 'asc');
-
+    abstract public function get_root_nodes_query_builder($sort_by_field = null, $direction = 'asc');
     /**
      * Get all root nodes query
      *
@@ -188,8 +159,7 @@ abstract class AbstractTreeRepository extends EntityRepository implements Reposi
      *
      * @return Query Query object
      */
-    abstract public function getRootNodesQuery($sortByField = null, $direction = 'asc');
-
+    abstract public function get_root_nodes_query($sort_by_field = null, $direction = 'asc');
     /**
      * Returns a QueryBuilder configured to return an array of nodes suitable for buildTree method
      *
@@ -200,8 +170,7 @@ abstract class AbstractTreeRepository extends EntityRepository implements Reposi
      *
      * @return QueryBuilder QueryBuilder object
      */
-    abstract public function getNodesHierarchyQueryBuilder($node = null, $direct = false, array $options = [], $includeNode = false);
-
+    abstract public function get_nodes_hierarchy_query_builder($node = null, $direct = false, array $options = [], $include_node = false);
     /**
      * Returns a Query configured to return an array of nodes suitable for buildTree method
      *
@@ -212,8 +181,7 @@ abstract class AbstractTreeRepository extends EntityRepository implements Reposi
      *
      * @return Query Query object
      */
-    abstract public function getNodesHierarchyQuery($node = null, $direct = false, array $options = [], $includeNode = false);
-
+    abstract public function get_nodes_hierarchy_query($node = null, $direct = false, array $options = [], $include_node = false);
     /**
      * Get list of children followed by given $node. This returns a QueryBuilder object
      *
@@ -227,8 +195,7 @@ abstract class AbstractTreeRepository extends EntityRepository implements Reposi
      *
      * @return QueryBuilder QueryBuilder object
      */
-    abstract public function getChildrenQueryBuilder($node = null, $direct = false, $sortByField = null, $direction = 'ASC', $includeNode = false);
-
+    abstract public function get_children_query_builder($node = null, $direct = false, $sort_by_field = null, $direction = 'ASC', $include_node = false);
     /**
      * Get list of children followed by given $node. This returns a Query
      *
@@ -242,16 +209,14 @@ abstract class AbstractTreeRepository extends EntityRepository implements Reposi
      *
      * @return Query Query object
      */
-    abstract public function getChildrenQuery($node = null, $direct = false, $sortByField = null, $direction = 'ASC', $includeNode = false);
-
+    abstract public function get_children_query($node = null, $direct = false, $sort_by_field = null, $direction = 'ASC', $include_node = false);
     /**
      * @return QueryBuilder
      */
-    protected function getQueryBuilder()
+    protected function get_query_builder()
     {
-        return $this->getEntityManager()->createQueryBuilder();
+        return $this->get_entity_manager()->create_query_builder();
     }
-
     /**
      * Checks if current repository is right
      * for currently used tree strategy

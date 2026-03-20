@@ -1,35 +1,32 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of the Doctrine Behavioral Extensions package.
  * (c) Gediminas Morkevicius <gediminas.morkevicius@gmail.com> http://www.gediminasm.org
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
-namespace Gedmo\SoftDeleteable\Query\TreeWalker;
+namespace Gedmo\Soft_Deleteable\Query\Tree_Walker;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\ORM\Mapping\ClassMetadata;
-use Doctrine\ORM\Mapping\QuoteStrategy;
-use Doctrine\ORM\Query\AST\DeleteClause;
-use Doctrine\ORM\Query\AST\DeleteStatement;
-use Doctrine\ORM\Query\AST\SelectStatement;
-use Doctrine\ORM\Query\AST\UpdateStatement;
-use Doctrine\ORM\Query\Exec\AbstractSqlExecutor;
-use Doctrine\ORM\Query\Exec\PreparedExecutorFinalizer;
-use Doctrine\ORM\Query\Exec\SingleTableDeleteUpdateExecutor;
-use Doctrine\ORM\Query\Exec\SqlFinalizer;
-use Doctrine\ORM\Query\SqlOutputWalker;
+use Doctrine\DBAL\Platforms\Abstract_Platform;
+use Doctrine\ORM\Mapping\Class_Metadata;
+use Doctrine\ORM\Mapping\Quote_Strategy;
+use Doctrine\ORM\Query\AST\Delete_Clause;
+use Doctrine\ORM\Query\AST\Delete_Statement;
+use Doctrine\ORM\Query\AST\Select_Statement;
+use Doctrine\ORM\Query\AST\Update_Statement;
+use Doctrine\ORM\Query\Exec\Abstract_Sql_Executor;
+use Doctrine\ORM\Query\Exec\Prepared_Executor_Finalizer;
+use Doctrine\ORM\Query\Exec\Single_Table_Delete_Update_Executor;
+use Doctrine\ORM\Query\Exec\Sql_Finalizer;
+use Doctrine\ORM\Query\Sql_Output_Walker;
 use Gedmo\Exception\RuntimeException;
 use Gedmo\Exception\UnexpectedValueException;
-use Gedmo\SoftDeleteable\Query\TreeWalker\Exec\MultiTableDeleteExecutor;
-use Gedmo\SoftDeleteable\SoftDeleteableListener;
-use Gedmo\Tool\ORM\Walker\SqlWalkerCompat;
-
+use Gedmo\Soft_Deleteable\Query\Tree_Walker\Exec\Multi_Table_Delete_Executor;
+use Gedmo\Soft_Deleteable\Soft_Deleteable_Listener;
+use Gedmo\Tool\ORM\Walker\Sql_Walker_Compat;
 /**
  * This SqlWalker is needed when you need to use a DELETE DQL query.
  * It will update the "deletedAt" field with the actual date, instead
@@ -40,62 +37,50 @@ use Gedmo\Tool\ORM\Walker\SqlWalkerCompat;
  *
  * @final since gedmo/doctrine-extensions 3.11
  */
-class SoftDeleteableWalker extends SqlOutputWalker
+class Soft_Deleteable_Walker extends Sql_Output_Walker
 {
-    use SqlWalkerCompat;
-
+    use Sql_Walker_Compat;
     /**
      * @var Connection
      *
      * @deprecated to be removed in 4.0, use the `getConnection()` method instead.
      */
     protected $conn;
-
     /**
      * @var AbstractPlatform
      *
      * @deprecated to be removed in 4.0, fetch the platform from the connection instead
      */
     protected $platform;
-
-    protected \Gedmo\SoftDeleteable\SoftDeleteableListener $listener;
-
+    protected \Gedmo\Soft_Deleteable\Soft_Deleteable_Listener $listener;
     /**
      * @var array<string, mixed>
      */
     protected $configuration;
-
     /**
      * @var string|null
      *
      * @deprecated to be removed in 4.0, unused
      */
     protected $alias;
-
     /**
      * @var string
      */
-    protected $deletedAtField;
-
+    protected $deleted_at_field;
     /**
      * @var ClassMetadata<object>
      */
     protected $meta;
-
-    private QuoteStrategy $quoteStrategy;
-
-    public function __construct($query, $parserResult, array $queryComponents)
+    private Quote_Strategy $quote_strategy;
+    public function __construct($query, $parser_result, array $query_components)
     {
-        parent::__construct($query, $parserResult, $queryComponents);
-
-        $this->conn = $this->getConnection();
-        $this->platform = $this->getConnection()->getDatabasePlatform();
-        $this->listener = $this->getSoftDeleteableListener();
-        $this->quoteStrategy = $this->getEntityManager()->getConfiguration()->getQuoteStrategy();
-
-        $this->extractComponents($this->getQueryComponents());
+        parent::__construct($query, $parser_result, $query_components);
+        $this->conn = $this->get_connection();
+        $this->platform = $this->get_connection()->get_database_platform();
+        $this->listener = $this->get_soft_deleteable_listener();
+        $this->quote_strategy = $this->get_entity_manager()->get_configuration()->get_quote_strategy();
+        $this->extract_components($this->get_query_components());
     }
-
     /**
      * @param SelectStatement|UpdateStatement|DeleteStatement $statement
      *
@@ -103,15 +88,13 @@ class SoftDeleteableWalker extends SqlOutputWalker
      *
      * @phpstan-assert DeleteStatement $statement
      */
-    protected function doGetExecutorWithCompat($statement): AbstractSqlExecutor
+    protected function do_get_executor_with_compat($statement): Abstract_Sql_Executor
     {
-        if (!$statement instanceof DeleteStatement) {
+        if (!$statement instanceof Delete_Statement) {
             throw new UnexpectedValueException('SoftDeleteable walker should be used only on delete statement');
         }
-
-        return $this->createDeleteStatementExecutor($statement);
+        return $this->create_delete_statement_executor($statement);
     }
-
     /**
      * @param DeleteStatement|UpdateStatement|SelectStatement $AST
      *
@@ -119,90 +102,71 @@ class SoftDeleteableWalker extends SqlOutputWalker
      *
      * @phpstan-assert DeleteStatement $AST
      */
-    protected function doGetFinalizerWithCompat($AST): SqlFinalizer
+    protected function do_get_finalizer_with_compat($AST): Sql_Finalizer
     {
-        if (!$AST instanceof DeleteStatement) {
+        if (!$AST instanceof Delete_Statement) {
             throw new UnexpectedValueException('SoftDeleteable walker should be used only on delete statement');
         }
-
-        return new PreparedExecutorFinalizer($this->createDeleteStatementExecutor($AST));
+        return new Prepared_Executor_Finalizer($this->create_delete_statement_executor($AST));
     }
-
-    protected function createDeleteStatementExecutor(DeleteStatement $AST): AbstractSqlExecutor
+    protected function create_delete_statement_executor(Delete_Statement $AST): Abstract_Sql_Executor
     {
-        assert(class_exists($AST->deleteClause->abstractSchemaName));
-
-        $primaryClass = $this->getEntityManager()->getClassMetadata($AST->deleteClause->abstractSchemaName);
-
-        return $primaryClass->isInheritanceTypeJoined()
-            ? new MultiTableDeleteExecutor($AST, $this, $this->meta, $this->getConnection()->getDatabasePlatform(), $this->configuration)
-            : new SingleTableDeleteUpdateExecutor($AST, $this);
+        assert(class_exists($AST->delete_clause->abstract_schema_name));
+        $primary_class = $this->get_entity_manager()->get_class_metadata($AST->delete_clause->abstract_schema_name);
+        return $primary_class->is_inheritance_type_joined() ? new Multi_Table_Delete_Executor($AST, $this, $this->meta, $this->get_connection()->get_database_platform(), $this->configuration) : new Single_Table_Delete_Update_Executor($AST, $this);
     }
-
     /**
      * Changes a DELETE clause into an UPDATE clause for a soft-deleteable entity.
      */
-    protected function doWalkDeleteClauseWithCompat(DeleteClause $deleteClause): string
+    protected function do_walk_delete_clause_with_compat(Delete_Clause $delete_clause): string
     {
-        $em = $this->getEntityManager();
-
-        assert(class_exists($deleteClause->abstractSchemaName));
-
-        $class = $em->getClassMetadata($deleteClause->abstractSchemaName);
-        $tableName = $class->getTableName();
-        $this->setSQLTableAlias($tableName, $tableName, $deleteClause->aliasIdentificationVariable);
-
-        $platform = $this->getConnection()->getDatabasePlatform();
-
-        $quotedTableName = $this->quoteStrategy->getTableName($class, $platform);
-        $quotedColumnName = $this->quoteStrategy->getColumnName($this->deletedAtField, $class, $platform);
-
-        return 'UPDATE '.$quotedTableName.' SET '.$quotedColumnName.' = '.$platform->getCurrentTimestampSQL();
+        $em = $this->get_entity_manager();
+        assert(class_exists($delete_clause->abstract_schema_name));
+        $class = $em->get_class_metadata($delete_clause->abstract_schema_name);
+        $table_name = $class->get_table_name();
+        $this->set_sql_table_alias($table_name, $table_name, $delete_clause->alias_identification_variable);
+        $platform = $this->get_connection()->get_database_platform();
+        $quoted_table_name = $this->quote_strategy->get_table_name($class, $platform);
+        $quoted_column_name = $this->quote_strategy->get_column_name($this->deleted_at_field, $class, $platform);
+        return 'UPDATE ' . $quoted_table_name . ' SET ' . $quoted_column_name . ' = ' . $platform->get_current_timestamp_sql();
     }
-
     /**
      * Get the currently used SoftDeleteableListener
      *
      * @throws RuntimeException if listener is not found
      */
-    private function getSoftDeleteableListener(): SoftDeleteableListener
+    private function get_soft_deleteable_listener(): Soft_Deleteable_Listener
     {
         if (null === $this->listener) {
-            $em = $this->getEntityManager();
-
-            foreach ($em->getEventManager()->getAllListeners() as $listeners) {
+            $em = $this->get_entity_manager();
+            foreach ($em->get_event_manager()->get_all_listeners() as $listeners) {
                 foreach ($listeners as $listener) {
-                    if ($listener instanceof SoftDeleteableListener) {
+                    if ($listener instanceof Soft_Deleteable_Listener) {
                         $this->listener = $listener;
-
                         break 2;
                     }
                 }
             }
-
             if (null === $this->listener) {
                 throw new RuntimeException('The SoftDeleteable listener could not be found.');
             }
         }
-
         return $this->listener;
     }
-
     /**
      * Search for components in the delete clause
      *
      * @param array<string, array<string, mixed>> $queryComponents
      */
-    private function extractComponents(array $queryComponents): void
+    private function extract_components(array $query_components): void
     {
-        $em = $this->getEntityManager();
-
-        foreach ($queryComponents as $comp) {
+        $em = $this->get_entity_manager();
+        foreach ($query_components as $comp) {
             $meta = $comp['metadata'];
-            $config = $this->listener->getConfiguration($em, $meta->getName());
+            $config = $this->listener->get_configuration($em, $meta->get_name());
             if ($config && isset($config['softDeleteable']) && $config['softDeleteable']) {
                 $this->configuration = $config;
-                $this->deletedAtField = $config['fieldName'];
+                $this->deleted_at_field = $config['fieldName'];
                 $this->meta = $meta;
             }
         }

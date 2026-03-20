@@ -1,21 +1,18 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of the Doctrine Behavioral Extensions package.
  * (c) Gediminas Morkevicius <gediminas.morkevicius@gmail.com> http://www.gediminasm.org
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+namespace Gedmo\Soft_Deleteable\Mapping\Driver;
 
-namespace Gedmo\SoftDeleteable\Mapping\Driver;
-
-use Gedmo\Exception\InvalidMappingException;
+use Gedmo\Exception\Invalid_Mapping_Exception;
 use Gedmo\Mapping\Driver;
 use Gedmo\Mapping\Driver\File;
-use Gedmo\SoftDeleteable\Mapping\Validator;
-
+use Gedmo\Soft_Deleteable\Mapping\Validator;
 /**
  * This is a yaml mapping driver for Timestampable
  * behavioral extension. Used for extraction of extended
@@ -37,48 +34,38 @@ class Yaml extends File implements Driver
      * @var string
      */
     protected $_extension = '.dcm.yml';
-
-    public function readExtendedMetadata($meta, array &$config): array
+    public function read_extended_metadata($meta, array &$config): array
     {
-        $mapping = $this->_getMapping($meta->getName());
-
+        $mapping = $this->_get_mapping($meta->get_name());
         if (isset($mapping['gedmo'])) {
-            $classMapping = $mapping['gedmo'];
-            if (isset($classMapping['soft_deleteable'])) {
+            $class_mapping = $mapping['gedmo'];
+            if (isset($class_mapping['soft_deleteable'])) {
                 $config['softDeleteable'] = true;
-
-                if (!isset($classMapping['soft_deleteable']['field_name'])) {
-                    throw new InvalidMappingException('Field name for SoftDeleteable class is mandatory.');
+                if (!isset($class_mapping['soft_deleteable']['field_name'])) {
+                    throw new Invalid_Mapping_Exception('Field name for SoftDeleteable class is mandatory.');
                 }
-
-                $fieldName = $classMapping['soft_deleteable']['field_name'];
-
-                Validator::validateField($meta, $fieldName);
-
-                $config['fieldName'] = $fieldName;
-
+                $field_name = $class_mapping['soft_deleteable']['field_name'];
+                Validator::validate_field($meta, $field_name);
+                $config['fieldName'] = $field_name;
                 $config['timeAware'] = false;
-                if (isset($classMapping['soft_deleteable']['time_aware'])) {
-                    if (!is_bool($classMapping['soft_deleteable']['time_aware'])) {
-                        throw new InvalidMappingException('timeAware must be boolean. '.gettype($classMapping['soft_deleteable']['time_aware']).' provided.');
+                if (isset($class_mapping['soft_deleteable']['time_aware'])) {
+                    if (!is_bool($class_mapping['soft_deleteable']['time_aware'])) {
+                        throw new Invalid_Mapping_Exception('timeAware must be boolean. ' . gettype($class_mapping['soft_deleteable']['time_aware']) . ' provided.');
                     }
-                    $config['timeAware'] = $classMapping['soft_deleteable']['time_aware'];
+                    $config['timeAware'] = $class_mapping['soft_deleteable']['time_aware'];
                 }
-
                 $config['hardDelete'] = true;
-                if (isset($classMapping['soft_deleteable']['hard_delete'])) {
-                    if (!is_bool($classMapping['soft_deleteable']['hard_delete'])) {
-                        throw new InvalidMappingException('hardDelete must be boolean. '.gettype($classMapping['soft_deleteable']['hard_delete']).' provided.');
+                if (isset($class_mapping['soft_deleteable']['hard_delete'])) {
+                    if (!is_bool($class_mapping['soft_deleteable']['hard_delete'])) {
+                        throw new Invalid_Mapping_Exception('hardDelete must be boolean. ' . gettype($class_mapping['soft_deleteable']['hard_delete']) . ' provided.');
                     }
-                    $config['hardDelete'] = $classMapping['soft_deleteable']['hard_delete'];
+                    $config['hardDelete'] = $class_mapping['soft_deleteable']['hard_delete'];
                 }
             }
         }
-
         return $config;
     }
-
-    protected function _loadMappingFile($file)
+    protected function _load_mapping_file($file)
     {
         return \Symfony\Component\Yaml\Yaml::parse(file_get_contents($file));
     }

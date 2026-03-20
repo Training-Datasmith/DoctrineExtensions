@@ -1,26 +1,23 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of the Doctrine Behavioral Extensions package.
  * (c) Gediminas Morkevicius <gediminas.morkevicius@gmail.com> http://www.gediminasm.org
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Gedmo\Loggable\Entity\Repository;
 
-use Doctrine\ORM\EntityRepository;
-use Doctrine\ORM\Mapping\ClassMetadata;
+use Doctrine\ORM\Entity_Repository;
+use Doctrine\ORM\Mapping\Class_Metadata;
 use Doctrine\ORM\Query;
 use Gedmo\Exception\RuntimeException;
 use Gedmo\Exception\UnexpectedValueException;
-use Gedmo\Loggable\Entity\MappedSuperclass\AbstractLogEntry;
+use Gedmo\Loggable\Entity\Mapped_Superclass\Abstract_Log_Entry;
 use Gedmo\Loggable\Loggable;
-use Gedmo\Loggable\LoggableListener;
-use Gedmo\Tool\Wrapper\EntityWrapper;
-
+use Gedmo\Loggable\Loggable_Listener;
+use Gedmo\Tool\Wrapper\Entity_Wrapper;
 /**
  * The LogEntryRepository has some useful functions
  * to interact with log entries.
@@ -31,15 +28,14 @@ use Gedmo\Tool\Wrapper\EntityWrapper;
  *
  * @template-extends EntityRepository<AbstractLogEntry<T>>
  */
-class LogEntryRepository extends EntityRepository
+class Log_Entry_Repository extends Entity_Repository
 {
     /**
      * Currently used loggable listener
      *
      * @var LoggableListener<T>|null
      */
-    private ?LoggableListener $listener = null;
-
+    private ?Loggable_Listener $listener = null;
     /**
      * Loads all log entries for the given entity
      *
@@ -47,11 +43,10 @@ class LogEntryRepository extends EntityRepository
      *
      * @return array<array-key, AbstractLogEntry<T>>
      */
-    public function getLogEntries($entity)
+    public function get_log_entries($entity)
     {
-        return $this->getLogEntriesQuery($entity)->getResult();
+        return $this->get_log_entries_query($entity)->get_result();
     }
-
     /**
      * Get the query for loading of log entries
      *
@@ -59,26 +54,20 @@ class LogEntryRepository extends EntityRepository
      *
      * @return Query
      */
-    public function getLogEntriesQuery($entity)
+    public function get_log_entries_query($entity)
     {
-        $wrapped = new EntityWrapper($entity, $this->getEntityManager());
-        $objectClass = $wrapped->getMetadata()->getName();
-        $meta = $this->getClassMetadata();
-        $dql = "SELECT log FROM {$meta->getName()} log";
+        $wrapped = new Entity_Wrapper($entity, $this->get_entity_manager());
+        $object_class = $wrapped->get_metadata()->get_name();
+        $meta = $this->get_class_metadata();
+        $dql = "SELECT log FROM {$meta->get_name()} log";
         $dql .= ' WHERE log.objectId = :objectId';
         $dql .= ' AND log.objectClass = :objectClass';
         $dql .= ' ORDER BY log.version DESC';
-
-        $objectId = (string) $wrapped->getIdentifier(false, true);
-        $q = $this->getEntityManager()->createQuery($dql);
-        $q->setParameters([
-            'objectId' => $objectId,
-            'objectClass' => $objectClass,
-        ]);
-
+        $object_id = (string) $wrapped->get_identifier(false, true);
+        $q = $this->get_entity_manager()->create_query($dql);
+        $q->set_parameters(['objectId' => $object_id, 'objectClass' => $object_class]);
         return $q;
     }
-
     /**
      * Reverts given $entity to $revision by
      * restoring all fields from that $revision.
@@ -92,56 +81,45 @@ class LogEntryRepository extends EntityRepository
      */
     public function revert($entity, $version = 1): void
     {
-        $wrapped = new EntityWrapper($entity, $this->getEntityManager());
-        $objectMeta = $wrapped->getMetadata();
-        $objectClass = $objectMeta->getName();
-        $meta = $this->getClassMetadata();
-        $dql = "SELECT log FROM {$meta->getName()} log";
+        $wrapped = new Entity_Wrapper($entity, $this->get_entity_manager());
+        $object_meta = $wrapped->get_metadata();
+        $object_class = $object_meta->get_name();
+        $meta = $this->get_class_metadata();
+        $dql = "SELECT log FROM {$meta->get_name()} log";
         $dql .= ' WHERE log.objectId = :objectId';
         $dql .= ' AND log.objectClass = :objectClass';
         $dql .= ' AND log.version <= :version';
         $dql .= ' ORDER BY log.version DESC';
-
-        $objectId = (string) $wrapped->getIdentifier(false, true);
-        $q = $this->getEntityManager()->createQuery($dql);
-        $q->setParameters([
-            'objectId' => $objectId,
-            'objectClass' => $objectClass,
-            'version' => $version,
-        ]);
-
-        $config = $this->getLoggableListener()->getConfiguration($this->getEntityManager(), $objectMeta->getName());
+        $object_id = (string) $wrapped->get_identifier(false, true);
+        $q = $this->get_entity_manager()->create_query($dql);
+        $q->set_parameters(['objectId' => $object_id, 'objectClass' => $object_class, 'version' => $version]);
+        $config = $this->get_loggable_listener()->get_configuration($this->get_entity_manager(), $object_meta->get_name());
         $fields = $config['versioned'];
         $filled = false;
-        $logsFound = false;
-
-        $logs = $q->toIterable();
+        $logs_found = false;
+        $logs = $q->to_iterable();
         assert($logs instanceof \Generator);
-
-        while ((null !== $log = $logs->current()) && !$filled) {
-            $logsFound = true;
+        while (null !== ($log = $logs->current()) && !$filled) {
+            $logs_found = true;
             $logs->next();
-            if ($data = $log->getData()) {
+            if ($data = $log->get_data()) {
                 foreach ($data as $field => $value) {
                     if (in_array($field, $fields, true)) {
-                        $this->mapValue($objectMeta, $field, $value);
-                        $wrapped->setPropertyValue($field, $value);
+                        $this->map_value($object_meta, $field, $value);
+                        $wrapped->set_property_value($field, $value);
                         unset($fields[array_search($field, $fields, true)]);
                     }
                 }
             }
             $filled = [] === $fields;
         }
-
-        if (!$logsFound) {
-            throw new UnexpectedValueException('Could not find any log entries under version: '.$version);
+        if (!$logs_found) {
+            throw new UnexpectedValueException('Could not find any log entries under version: ' . $version);
         }
-
         /*if (count($fields)) {
-            throw new \Gedmo\Exception\UnexpectedValueException('Could not fully revert the entity to version: '.$version);
-        }*/
+              throw new \Gedmo\Exception\UnexpectedValueException('Could not fully revert the entity to version: '.$version);
+          }*/
     }
-
     /**
      * @param ClassMetadata<T> $objectMeta
      * @param string           $field
@@ -149,16 +127,14 @@ class LogEntryRepository extends EntityRepository
      *
      * @return void
      */
-    protected function mapValue(ClassMetadata $objectMeta, $field, &$value)
+    protected function map_value(Class_Metadata $object_meta, $field, &$value)
     {
-        if (!$objectMeta->isSingleValuedAssociation($field)) {
+        if (!$object_meta->is_single_valued_association($field)) {
             return;
         }
-
-        $mapping = $objectMeta->getAssociationMapping($field);
-        $value = $value ? $this->getEntityManager()->getReference($mapping->targetEntity ?? $mapping['targetEntity'], $value) : null;
+        $mapping = $object_meta->get_association_mapping($field);
+        $value = $value ? $this->get_entity_manager()->get_reference($mapping->target_entity ?? $mapping['targetEntity'], $value) : null;
     }
-
     /**
      * Get the currently used LoggableListener
      *
@@ -166,24 +142,21 @@ class LogEntryRepository extends EntityRepository
      *
      * @return LoggableListener<T>
      */
-    private function getLoggableListener(): LoggableListener
+    private function get_loggable_listener(): Loggable_Listener
     {
         if (null === $this->listener) {
-            foreach ($this->getEntityManager()->getEventManager()->getAllListeners() as $listeners) {
+            foreach ($this->get_entity_manager()->get_event_manager()->get_all_listeners() as $listeners) {
                 foreach ($listeners as $listener) {
-                    if ($listener instanceof LoggableListener) {
+                    if ($listener instanceof Loggable_Listener) {
                         $this->listener = $listener;
-
                         break 2;
                     }
                 }
             }
-
             if (null === $this->listener) {
                 throw new RuntimeException('The loggable listener could not be found');
             }
         }
-
         return $this->listener;
     }
 }

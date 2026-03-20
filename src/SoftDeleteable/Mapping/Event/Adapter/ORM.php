@@ -1,52 +1,42 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of the Doctrine Behavioral Extensions package.
  * (c) Gediminas Morkevicius <gediminas.morkevicius@gmail.com> http://www.gediminasm.org
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
-namespace Gedmo\SoftDeleteable\Mapping\Event\Adapter;
+namespace Gedmo\Soft_Deleteable\Mapping\Event\Adapter;
 
 use Doctrine\DBAL\Types\Types;
-use Doctrine\ORM\Mapping\ClassMetadata;
-use Doctrine\ORM\Mapping\FieldMapping;
+use Doctrine\ORM\Mapping\Class_Metadata;
+use Doctrine\ORM\Mapping\Field_Mapping;
 use Gedmo\Mapping\Event\Adapter\ORM as BaseAdapterORM;
-use Gedmo\Mapping\Event\ClockAwareAdapterInterface;
-use Gedmo\SoftDeleteable\Mapping\Event\SoftDeleteableAdapter;
-use Psr\Clock\ClockInterface;
-
+use Gedmo\Mapping\Event\Clock_Aware_Adapter_Interface;
+use Gedmo\Soft_Deleteable\Mapping\Event\Soft_Deleteable_Adapter;
+use Psr\Clock\Clock_Interface;
 /**
  * Doctrine event adapter for ORM adapted
  * for SoftDeleteable behavior.
  *
  * @author David Buchmann <mail@davidbu.ch>
  */
-final class ORM extends BaseAdapterORM implements SoftDeleteableAdapter, ClockAwareAdapterInterface
+final class ORM extends Base_Adapter_Orm implements Soft_Deleteable_Adapter, Clock_Aware_Adapter_Interface
 {
-    private ?ClockInterface $clock = null;
-
-    public function setClock(ClockInterface $clock): void
+    private ?Clock_Interface $clock = null;
+    public function set_clock(Clock_Interface $clock): void
     {
         $this->clock = $clock;
     }
-
     /**
      * @param ClassMetadata<object> $meta
      */
-    public function getDateValue($meta, $field)
+    public function get_date_value($meta, $field)
     {
-        $mapping = $meta->getFieldMapping($field);
-
-        return $this->getObjectManager()->getConnection()->convertToPHPValue(
-            $this->getRawDateValue($mapping),
-            $mapping instanceof FieldMapping ? $mapping->type : ($mapping['type'] ?? Types::DATETIME_MUTABLE)
-        );
+        $mapping = $meta->get_field_mapping($field);
+        return $this->get_object_manager()->get_connection()->convert_to_php_value($this->get_raw_date_value($mapping), $mapping instanceof Field_Mapping ? $mapping->type : $mapping['type'] ?? Types::DATETIME_MUTABLE);
     }
-
     /**
      * Generates current timestamp for the specified mapping
      *
@@ -54,19 +44,16 @@ final class ORM extends BaseAdapterORM implements SoftDeleteableAdapter, ClockAw
      *
      * @return \DateTimeInterface|int
      */
-    private function getRawDateValue(array $mapping)
+    private function get_raw_date_value(array $mapping)
     {
-        $datetime = $this->clock instanceof ClockInterface ? $this->clock->now() : new \DateTimeImmutable();
-        $type = $mapping instanceof FieldMapping ? $mapping->type : ($mapping['type'] ?? '');
-
+        $datetime = $this->clock instanceof Clock_Interface ? $this->clock->now() : new \DateTimeImmutable();
+        $type = $mapping instanceof Field_Mapping ? $mapping->type : $mapping['type'] ?? '';
         if ('integer' === $type) {
             return (int) $datetime->format('U');
         }
-
         if (in_array($type, ['date_immutable', 'time_immutable', 'datetime_immutable', 'datetimetz_immutable'], true)) {
             return $datetime;
         }
-
-        return \DateTime::createFromImmutable($datetime);
+        return \DateTime::create_from_immutable($datetime);
     }
 }

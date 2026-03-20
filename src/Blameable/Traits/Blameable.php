@@ -1,14 +1,12 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of the Doctrine Behavioral Extensions package.
  * (c) Gediminas Morkevicius <gediminas.morkevicius@gmail.com> http://www.gediminasm.org
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Gedmo\Blameable\Traits;
 
 /**
@@ -23,13 +21,11 @@ trait Blameable
     /**
      * @var string
      */
-    private $createdBy;
-
+    private $created_by;
     /**
      * @var string
      */
-    private $updatedBy;
-
+    private $updated_by;
     /**
      * Sets createdBy.
      *
@@ -37,23 +33,20 @@ trait Blameable
      *
      * @return $this
      */
-    public function setCreatedBy($createdBy)
+    public function set_created_by($created_by)
     {
-        $this->createdBy = $createdBy;
-
+        $this->created_by = $created_by;
         return $this;
     }
-
     /**
      * Returns createdBy.
      *
      * @return string
      */
-    public function getCreatedBy()
+    public function get_created_by()
     {
-        return $this->createdBy;
+        return $this->created_by;
     }
-
     /**
      * Sets updatedBy.
      *
@@ -61,20 +54,18 @@ trait Blameable
      *
      * @return $this
      */
-    public function setUpdatedBy($updatedBy)
+    public function set_updated_by($updated_by)
     {
-        $this->updatedBy = $updatedBy;
-
+        $this->updated_by = $updated_by;
         return $this;
     }
-
     /**
      * Returns updatedBy.
      *
      * @return string
      */
-    public function getUpdatedBy()
+    public function get_updated_by()
     {
-        return $this->updatedBy;
+        return $this->updated_by;
     }
 }

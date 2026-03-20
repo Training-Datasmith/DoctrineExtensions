@@ -1,26 +1,23 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of the Doctrine Behavioral Extensions package.
  * (c) Gediminas Morkevicius <gediminas.morkevicius@gmail.com> http://www.gediminasm.org
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
-namespace Gedmo\Translatable\Entity\MappedSuperclass;
+namespace Gedmo\Translatable\Entity\Mapped_Superclass;
 
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-
 /**
  * Gedmo\Translatable\Entity\MappedSuperclass\AbstractTranslation
  *
  * @ORM\MappedSuperclass
  */
-#[ORM\MappedSuperclass]
-abstract class AbstractTranslation
+#[ORM\Mapped_Superclass]
+abstract class Abstract_Translation
 {
     /**
      * @var int
@@ -31,9 +28,8 @@ abstract class AbstractTranslation
      */
     #[ORM\Column(type: Types::INTEGER)]
     #[ORM\Id]
-    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
+    #[ORM\Generated_Value(strategy: 'IDENTITY')]
     protected $id;
-
     /**
      * @var string
      *
@@ -41,15 +37,13 @@ abstract class AbstractTranslation
      */
     #[ORM\Column(type: Types::STRING, length: 8)]
     protected $locale;
-
     /**
      * @var string
      *
      * @ORM\Column(name="object_class", type="string", length=191)
      */
     #[ORM\Column(name: 'object_class', type: Types::STRING, length: 191)]
-    protected $objectClass;
-
+    protected $object_class;
     /**
      * @var string
      *
@@ -57,15 +51,13 @@ abstract class AbstractTranslation
      */
     #[ORM\Column(type: Types::STRING, length: 32)]
     protected $field;
-
     /**
      * @var string
      *
      * @ORM\Column(name="foreign_key", type="string", length=64)
      */
     #[ORM\Column(name: 'foreign_key', type: Types::STRING, length: 64)]
-    protected $foreignKey;
-
+    protected $foreign_key;
     /**
      * @var string
      *
@@ -73,17 +65,15 @@ abstract class AbstractTranslation
      */
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     protected $content;
-
     /**
      * Get id
      *
      * @return int $id
      */
-    public function getId()
+    public function get_id()
     {
         return $this->id;
     }
-
     /**
      * Set locale
      *
@@ -91,23 +81,20 @@ abstract class AbstractTranslation
      *
      * @return static
      */
-    public function setLocale($locale)
+    public function set_locale($locale)
     {
         $this->locale = $locale;
-
         return $this;
     }
-
     /**
      * Get locale
      *
      * @return string
      */
-    public function getLocale()
+    public function get_locale()
     {
         return $this->locale;
     }
-
     /**
      * Set field
      *
@@ -115,23 +102,20 @@ abstract class AbstractTranslation
      *
      * @return static
      */
-    public function setField($field)
+    public function set_field($field)
     {
         $this->field = $field;
-
         return $this;
     }
-
     /**
      * Get field
      *
      * @return string
      */
-    public function getField()
+    public function get_field()
     {
         return $this->field;
     }
-
     /**
      * Set object class
      *
@@ -139,23 +123,20 @@ abstract class AbstractTranslation
      *
      * @return static
      */
-    public function setObjectClass($objectClass)
+    public function set_object_class($object_class)
     {
-        $this->objectClass = $objectClass;
-
+        $this->object_class = $object_class;
         return $this;
     }
-
     /**
      * Get objectClass
      *
      * @return string
      */
-    public function getObjectClass()
+    public function get_object_class()
     {
-        return $this->objectClass;
+        return $this->object_class;
     }
-
     /**
      * Set foreignKey
      *
@@ -163,23 +144,20 @@ abstract class AbstractTranslation
      *
      * @return static
      */
-    public function setForeignKey($foreignKey)
+    public function set_foreign_key($foreign_key)
     {
-        $this->foreignKey = $foreignKey;
-
+        $this->foreign_key = $foreign_key;
         return $this;
     }
-
     /**
      * Get foreignKey
      *
      * @return string
      */
-    public function getForeignKey()
+    public function get_foreign_key()
     {
-        return $this->foreignKey;
+        return $this->foreign_key;
     }
-
     /**
      * Set content
      *
@@ -187,19 +165,17 @@ abstract class AbstractTranslation
      *
      * @return static
      */
-    public function setContent($content)
+    public function set_content($content)
     {
         $this->content = $content;
-
         return $this;
     }
-
     /**
      * Get content
      *
      * @return string
      */
-    public function getContent()
+    public function get_content()
     {
         return $this->content;
     }

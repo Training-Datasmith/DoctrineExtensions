@@ -1,25 +1,22 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of the Doctrine Behavioral Extensions package.
  * (c) Gediminas Morkevicius <gediminas.morkevicius@gmail.com> http://www.gediminasm.org
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Gedmo\Loggable\Document\Repository;
 
-use Doctrine\ODM\MongoDB\Mapping\ClassMetadata;
-use Doctrine\ODM\MongoDB\Repository\DocumentRepository;
+use Doctrine\ODM\Mongo_Db\Mapping\Class_Metadata;
+use Doctrine\ODM\Mongo_Db\Repository\Document_Repository;
 use Gedmo\Exception\RuntimeException;
 use Gedmo\Exception\UnexpectedValueException;
-use Gedmo\Loggable\Document\LogEntry;
+use Gedmo\Loggable\Document\Log_Entry;
 use Gedmo\Loggable\Loggable;
-use Gedmo\Loggable\LoggableListener;
-use Gedmo\Tool\Wrapper\MongoDocumentWrapper;
-
+use Gedmo\Loggable\Loggable_Listener;
+use Gedmo\Tool\Wrapper\Mongo_Document_Wrapper;
 /**
  * The LogEntryRepository has some useful functions
  * to interact with log entries.
@@ -30,15 +27,14 @@ use Gedmo\Tool\Wrapper\MongoDocumentWrapper;
  *
  * @phpstan-extends DocumentRepository<T>
  */
-class LogEntryRepository extends DocumentRepository
+class Log_Entry_Repository extends Document_Repository
 {
     /**
      * Currently used loggable listener
      *
      * @var LoggableListener<T>|null
      */
-    private ?LoggableListener $listener = null;
-
+    private ?Loggable_Listener $listener = null;
     /**
      * Loads all log entries for the
      * given $document
@@ -51,19 +47,16 @@ class LogEntryRepository extends DocumentRepository
      *
      * @phpstan-return array<array-key, LogEntry<T>>
      */
-    public function getLogEntries($document)
+    public function get_log_entries($document)
     {
-        $wrapped = new MongoDocumentWrapper($document, $this->dm);
-        $objectId = $wrapped->getIdentifier();
-
-        $qb = $this->createQueryBuilder();
-        $qb->field('objectId')->equals($objectId);
-        $qb->field('objectClass')->equals($wrapped->getMetadata()->getName());
+        $wrapped = new Mongo_Document_Wrapper($document, $this->dm);
+        $object_id = $wrapped->get_identifier();
+        $qb = $this->create_query_builder();
+        $qb->field('objectId')->equals($object_id);
+        $qb->field('objectClass')->equals($wrapped->get_metadata()->get_name());
         $qb->sort('version', 'DESC');
-
-        return $qb->getQuery()->getIterator()->toArray();
+        return $qb->get_query()->getIterator()->to_array();
     }
-
     /**
      * Reverts given $document to $revision by
      * restoring all fields from that $revision.
@@ -79,30 +72,25 @@ class LogEntryRepository extends DocumentRepository
      */
     public function revert($document, $version = 1): void
     {
-        $wrapped = new MongoDocumentWrapper($document, $this->dm);
-        $objectMeta = $wrapped->getMetadata();
-        $objectId = $wrapped->getIdentifier();
-
-        $qb = $this->createQueryBuilder();
-        $qb->field('objectId')->equals($objectId);
-        $qb->field('objectClass')->equals($objectMeta->getName());
+        $wrapped = new Mongo_Document_Wrapper($document, $this->dm);
+        $object_meta = $wrapped->get_metadata();
+        $object_id = $wrapped->get_identifier();
+        $qb = $this->create_query_builder();
+        $qb->field('objectId')->equals($object_id);
+        $qb->field('objectClass')->equals($object_meta->get_name());
         $qb->field('version')->lte((int) $version);
         $qb->sort('version', 'ASC');
-
-        $logs = $qb->getQuery()->getIterator()->toArray();
-
+        $logs = $qb->get_query()->getIterator()->to_array();
         if ([] === $logs) {
-            throw new UnexpectedValueException('Count not find any log entries under version: '.$version);
+            throw new UnexpectedValueException('Count not find any log entries under version: ' . $version);
         }
-
         $data = [[]];
         while ($log = array_shift($logs)) {
-            $data[] = $log->getData();
+            $data[] = $log->get_data();
         }
         $data = array_merge(...$data);
-        $this->fillDocument($document, $data);
+        $this->fill_document($document, $data);
     }
-
     /**
      * Fills a documents versioned fields with data
      *
@@ -113,46 +101,40 @@ class LogEntryRepository extends DocumentRepository
      *
      * @return void
      */
-    protected function fillDocument($document, array $data)
+    protected function fill_document($document, array $data)
     {
-        $wrapped = new MongoDocumentWrapper($document, $this->dm);
-        $objectMeta = $wrapped->getMetadata();
-
-        assert($objectMeta instanceof ClassMetadata);
-
-        $config = $this->getLoggableListener()->getConfiguration($this->dm, $objectMeta->getName());
+        $wrapped = new Mongo_Document_Wrapper($document, $this->dm);
+        $object_meta = $wrapped->get_metadata();
+        assert($object_meta instanceof Class_Metadata);
+        $config = $this->get_loggable_listener()->get_configuration($this->dm, $object_meta->get_name());
         $fields = $config['versioned'];
         foreach ($data as $field => $value) {
             if (!in_array($field, $fields, true)) {
                 continue;
             }
-            $mapping = $objectMeta->getFieldMapping($field);
+            $mapping = $object_meta->get_field_mapping($field);
             // Fill the embedded document
-            if ($wrapped->isEmbeddedAssociation($field)) {
+            if ($wrapped->is_embedded_association($field)) {
                 if (!empty($value)) {
                     assert(class_exists($mapping['targetDocument']));
-
-                    $embeddedMetadata = $this->dm->getClassMetadata($mapping['targetDocument']);
-                    $document = $embeddedMetadata->newInstance();
-                    $this->fillDocument($document, $value);
+                    $embedded_metadata = $this->dm->get_class_metadata($mapping['targetDocument']);
+                    $document = $embedded_metadata->new_instance();
+                    $this->fill_document($document, $value);
                     $value = $document;
                 }
-            } elseif ($objectMeta->isSingleValuedAssociation($field)) {
+            } elseif ($object_meta->is_single_valued_association($field)) {
                 assert(class_exists($mapping['targetDocument']));
-
-                $value = $value ? $this->dm->getReference($mapping['targetDocument'], $value) : null;
+                $value = $value ? $this->dm->get_reference($mapping['targetDocument'], $value) : null;
             }
-            $wrapped->setPropertyValue($field, $value);
+            $wrapped->set_property_value($field, $value);
             unset($fields[$field]);
         }
-
         /*
         if (count($fields)) {
             throw new \Gedmo\Exception\UnexpectedValueException('Cound not fully revert the document to version: '.$version);
         }
         */
     }
-
     /**
      * Get the currently used LoggableListener
      *
@@ -160,24 +142,21 @@ class LogEntryRepository extends DocumentRepository
      *
      * @phpstan-return LoggableListener<T>
      */
-    private function getLoggableListener(): LoggableListener
+    private function get_loggable_listener(): Loggable_Listener
     {
         if (null === $this->listener) {
-            foreach ($this->dm->getEventManager()->getAllListeners() as $listeners) {
+            foreach ($this->dm->get_event_manager()->get_all_listeners() as $listeners) {
                 foreach ($listeners as $listener) {
-                    if ($listener instanceof LoggableListener) {
+                    if ($listener instanceof Loggable_Listener) {
                         $this->listener = $listener;
-
                         break 2;
                     }
                 }
             }
-
             if (null === $this->listener) {
                 throw new RuntimeException('The loggable listener could not be found');
             }
         }
-
         return $this->listener;
     }
 }

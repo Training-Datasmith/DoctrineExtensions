@@ -1,20 +1,17 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of the Doctrine Behavioral Extensions package.
  * (c) Gediminas Morkevicius <gediminas.morkevicius@gmail.com> http://www.gediminasm.org
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Gedmo\Sortable\Mapping\Driver;
 
-use Doctrine\Persistence\Mapping\ClassMetadata;
-use Gedmo\Exception\InvalidMappingException;
+use Doctrine\Persistence\Mapping\Class_Metadata;
+use Gedmo\Exception\Invalid_Mapping_Exception;
 use Gedmo\Mapping\Driver\Xml as BaseXml;
-
 /**
  * This is a xml mapping driver for Sortable
  * behavioral extension. Used for extraction of extended
@@ -25,85 +22,69 @@ use Gedmo\Mapping\Driver\Xml as BaseXml;
  *
  * @internal
  */
-class Xml extends BaseXml
+class Xml extends Base_Xml
 {
     /**
      * List of types which are valid for position field
      *
      * @var string[]
      */
-    private const VALID_TYPES = [
-        'int',
-        'integer',
-        'smallint',
-        'bigint',
-    ];
-
-    public function readExtendedMetadata($meta, array &$config)
+    private const VALID_TYPES = ['int', 'integer', 'smallint', 'bigint'];
+    public function read_extended_metadata($meta, array &$config)
     {
         /**
          * @var \SimpleXmlElement
          */
-        $xml = $this->_getMapping($meta->getName());
-
+        $xml = $this->_get_mapping($meta->get_name());
         if (isset($xml->field)) {
-            foreach ($xml->field as $mappingDoctrine) {
-                $mapping = $mappingDoctrine->children(self::GEDMO_NAMESPACE_URI);
-
-                $field = $this->_getAttribute($mappingDoctrine, 'name');
+            foreach ($xml->field as $mapping_doctrine) {
+                $mapping = $mapping_doctrine->children(self::GEDMO_NAMESPACE_URI);
+                $field = $this->_get_attribute($mapping_doctrine, 'name');
                 if (isset($mapping->{'sortable-position'})) {
-                    if (!$this->isValidField($meta, $field)) {
-                        throw new InvalidMappingException("Sortable position field - [{$field}] type is not valid and must be 'integer' in class - {$meta->getName()}");
+                    if (!$this->is_valid_field($meta, $field)) {
+                        throw new Invalid_Mapping_Exception("Sortable position field - [{$field}] type is not valid and must be 'integer' in class - {$meta->get_name()}");
                     }
                     $config['position'] = $field;
                 }
             }
-            $config = $this->readSortableGroups($xml->field, $config, 'name');
+            $config = $this->read_sortable_groups($xml->field, $config, 'name');
         }
-
         // Search for sortable-groups in association mappings
         if (isset($xml->{'many-to-one'})) {
-            $config = $this->readSortableGroups($xml->{'many-to-one'}, $config);
+            $config = $this->read_sortable_groups($xml->{'many-to-one'}, $config);
         }
-
         // Search for sortable-groups in association mappings
         if (isset($xml->{'many-to-many'})) {
-            $config = $this->readSortableGroups($xml->{'many-to-many'}, $config);
+            $config = $this->read_sortable_groups($xml->{'many-to-many'}, $config);
         }
-
-        if (!$meta->isMappedSuperclass && $config) {
+        if (!$meta->is_mapped_superclass && $config) {
             if (!isset($config['position'])) {
-                throw new InvalidMappingException("Missing property: 'position' in class - {$meta->getName()}");
+                throw new Invalid_Mapping_Exception("Missing property: 'position' in class - {$meta->get_name()}");
             }
         }
-
         return $config;
     }
-
     /**
      * Checks if $field type is valid as Sortable Position field
      *
      * @param ClassMetadata<object> $meta
      * @param string                $field
      */
-    protected function isValidField($meta, $field): bool
+    protected function is_valid_field($meta, $field): bool
     {
-        $mapping = $meta->getFieldMapping($field);
-
+        $mapping = $meta->get_field_mapping($field);
         return $mapping && in_array($mapping->type ?? $mapping['type'], self::VALID_TYPES, true);
     }
-
     /**
      * @param array<string, mixed> $config
      *
      * @return array<string, mixed>
      */
-    private function readSortableGroups(\SimpleXMLElement $mapping, array $config, string $fieldAttr = 'field'): array
+    private function read_sortable_groups(\Simple_Xml_Element $mapping, array $config, string $field_attr = 'field'): array
     {
-        foreach ($mapping as $mappingDoctrine) {
-            $map = $mappingDoctrine->children(self::GEDMO_NAMESPACE_URI);
-
-            $field = $this->_getAttribute($mappingDoctrine, $fieldAttr);
+        foreach ($mapping as $mapping_doctrine) {
+            $map = $mapping_doctrine->children(self::GEDMO_NAMESPACE_URI);
+            $field = $this->_get_attribute($mapping_doctrine, $field_attr);
             if (isset($map->{'sortable-group'})) {
                 if (!isset($config['groups'])) {
                     $config['groups'] = [];
@@ -111,7 +92,6 @@ class Xml extends BaseXml
                 $config['groups'][] = $field;
             }
         }
-
         return $config;
     }
 }

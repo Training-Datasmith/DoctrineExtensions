@@ -1,20 +1,17 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of the Doctrine Behavioral Extensions package.
  * (c) Gediminas Morkevicius <gediminas.morkevicius@gmail.com> http://www.gediminasm.org
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Gedmo\Translator\Entity;
 
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Translator\Translation as BaseTranslation;
-
 /**
  * Entity translation class.
  *
@@ -22,8 +19,8 @@ use Gedmo\Translator\Translation as BaseTranslation;
  *
  * @ORM\MappedSuperclass
  */
-#[ORM\MappedSuperclass]
-abstract class Translation extends BaseTranslation
+#[ORM\Mapped_Superclass]
+abstract class Translation extends Base_Translation
 {
     /**
      * @var int
@@ -34,9 +31,8 @@ abstract class Translation extends BaseTranslation
      */
     #[ORM\Column(type: Types::INTEGER)]
     #[ORM\Id]
-    #[ORM\GeneratedValue]
+    #[ORM\Generated_Value]
     protected $id;
-
     /**
      * @var string
      *
@@ -44,7 +40,6 @@ abstract class Translation extends BaseTranslation
      */
     #[ORM\Column(type: Types::STRING, length: 8)]
     protected $locale;
-
     /**
      * @var string
      *
@@ -52,7 +47,6 @@ abstract class Translation extends BaseTranslation
      */
     #[ORM\Column(type: Types::STRING, length: 32)]
     protected $property;
-
     /**
      * @var string
      *
@@ -60,13 +54,12 @@ abstract class Translation extends BaseTranslation
      */
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     protected $value;
-
     /**
      * Get id
      *
      * @return int $id
      */
-    public function getId()
+    public function get_id()
     {
         return $this->id;
     }

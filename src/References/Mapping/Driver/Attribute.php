@@ -1,22 +1,19 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of the Doctrine Behavioral Extensions package.
  * (c) Gediminas Morkevicius <gediminas.morkevicius@gmail.com> http://www.gediminasm.org
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Gedmo\References\Mapping\Driver;
 
 use Gedmo\Mapping\Annotation\Reference;
-use Gedmo\Mapping\Annotation\ReferenceMany;
-use Gedmo\Mapping\Annotation\ReferenceManyEmbed;
-use Gedmo\Mapping\Annotation\ReferenceOne;
-use Gedmo\Mapping\Driver\AbstractAnnotationDriver;
-
+use Gedmo\Mapping\Annotation\Reference_Many;
+use Gedmo\Mapping\Annotation\Reference_Many_Embed;
+use Gedmo\Mapping\Annotation\Reference_One;
+use Gedmo\Mapping\Driver\Abstract_Annotation_Driver;
 /**
  * Mapping driver for the references extension which reads extended metadata from attributes on a class with references.
  *
@@ -26,64 +23,45 @@ use Gedmo\Mapping\Driver\AbstractAnnotationDriver;
  *
  * @internal
  */
-class Attribute extends AbstractAnnotationDriver
+class Attribute extends Abstract_Annotation_Driver
 {
     /**
      * Mapping object declaring a field as having a reference to one object.
      */
-    public const REFERENCE_ONE = ReferenceOne::class;
-
+    public const REFERENCE_ONE = Reference_One::class;
     /**
      * Mapping object declaring a field as having a reference to many objects.
      */
-    public const REFERENCE_MANY = ReferenceMany::class;
-
+    public const REFERENCE_MANY = Reference_Many::class;
     /**
      * Mapping object declaring a field as having a reference to an embedded collection of many objects.
      */
-    public const REFERENCE_MANY_EMBED = ReferenceManyEmbed::class;
-
+    public const REFERENCE_MANY_EMBED = Reference_Many_Embed::class;
     /**
      * @var array<string, self::REFERENCE_ONE|self::REFERENCE_MANY|self::REFERENCE_MANY_EMBED>
      */
-    private const ANNOTATIONS = [
-        'referenceOne' => self::REFERENCE_ONE,
-        'referenceMany' => self::REFERENCE_MANY,
-        'referenceManyEmbed' => self::REFERENCE_MANY_EMBED,
-    ];
-
-    public function readExtendedMetadata($meta, array &$config): array
+    private const ANNOTATIONS = ['referenceOne' => self::REFERENCE_ONE, 'referenceMany' => self::REFERENCE_MANY, 'referenceManyEmbed' => self::REFERENCE_MANY_EMBED];
+    public function read_extended_metadata($meta, array &$config): array
     {
-        $class = $meta->getReflectionClass();
-
+        $class = $meta->get_reflection_class();
         foreach (self::ANNOTATIONS as $key => $annotation) {
             $config[$key] = [];
-
-            foreach ($class->getProperties() as $property) {
-                if ($meta->isMappedSuperclass && !$property->isPrivate()) {
+            foreach ($class->get_properties() as $property) {
+                if ($meta->is_mapped_superclass && !$property->is_private()) {
                     continue;
                 }
-                if ($meta->isInheritedField($property->name)) {
+                if ($meta->is_inherited_field($property->name)) {
                     continue;
                 }
-                if (isset($meta->associationMappings[$property->name]['inherited'])) {
+                if (isset($meta->association_mappings[$property->name]['inherited'])) {
                     continue;
                 }
-                if ($reference = $this->reader->getPropertyAnnotation($property, $annotation)) {
+                if ($reference = $this->reader->get_property_annotation($property, $annotation)) {
                     \assert($reference instanceof Reference);
-
-                    $config[$key][$property->getName()] = [
-                        'field' => $property->getName(),
-                        'type' => $reference->type,
-                        'class' => $reference->class,
-                        'identifier' => $reference->identifier,
-                        'mappedBy' => $reference->mappedBy,
-                        'inversedBy' => $reference->inversedBy,
-                    ];
+                    $config[$key][$property->get_name()] = ['field' => $property->get_name(), 'type' => $reference->type, 'class' => $reference->class, 'identifier' => $reference->identifier, 'mappedBy' => $reference->mapped_by, 'inversedBy' => $reference->inversed_by];
                 }
             }
         }
-
         return $config;
     }
 }

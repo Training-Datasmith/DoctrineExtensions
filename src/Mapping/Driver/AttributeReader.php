@@ -1,65 +1,57 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of the Doctrine Behavioral Extensions package.
  * (c) Gediminas Morkevicius <gediminas.morkevicius@gmail.com> http://www.gediminasm.org
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Gedmo\Mapping\Driver;
 
 use Gedmo\Mapping\Annotation\Annotation;
-
 /**
  * @author Gediminas Morkevicius <gediminas.morkevicius@gmail.com>
  */
-final class AttributeReader
+final class Attribute_Reader
 {
     /** @var array<string,bool> */
-    private array $isRepeatableAttribute = [];
-
+    private array $is_repeatable_attribute = [];
     /**
      * @phpstan-param \ReflectionClass<object> $class
      *
      * @return array<Annotation|Annotation[]>
      */
-    public function getClassAnnotations(\ReflectionClass $class): array
+    public function get_class_annotations(\ReflectionClass $class): array
     {
-        return $this->convertToAttributeInstances($class->getAttributes());
+        return $this->convert_to_attribute_instances($class->get_attributes());
     }
-
     /**
      * @phpstan-param \ReflectionClass<object> $class
      * @phpstan-param class-string $annotationName
      *
      * @return Annotation|Annotation[]|null
      */
-    public function getClassAnnotation(\ReflectionClass $class, string $annotationName)
+    public function get_class_annotation(\ReflectionClass $class, string $annotation_name)
     {
-        return $this->getClassAnnotations($class)[$annotationName] ?? null;
+        return $this->get_class_annotations($class)[$annotation_name] ?? null;
     }
-
     /**
      * @return array<Annotation|Annotation[]>
      */
-    public function getPropertyAnnotations(\ReflectionProperty $property): array
+    public function get_property_annotations(\ReflectionProperty $property): array
     {
-        return $this->convertToAttributeInstances($property->getAttributes());
+        return $this->convert_to_attribute_instances($property->get_attributes());
     }
-
     /**
      * @phpstan-param class-string $annotationName
      *
      * @return Annotation|Annotation[]|null
      */
-    public function getPropertyAnnotation(\ReflectionProperty $property, string $annotationName)
+    public function get_property_annotation(\ReflectionProperty $property, string $annotation_name)
     {
-        return $this->getPropertyAnnotations($property)[$annotationName] ?? null;
+        return $this->get_property_annotations($property)[$annotation_name] ?? null;
     }
-
     /**
      * @param iterable<\ReflectionAttribute> $attributes
      *
@@ -67,44 +59,36 @@ final class AttributeReader
      *
      * @return array<string, Annotation|Annotation[]>
      */
-    private function convertToAttributeInstances(iterable $attributes): array
+    private function convert_to_attribute_instances(iterable $attributes): array
     {
         $instances = [];
-
         foreach ($attributes as $attribute) {
-            $attributeName = $attribute->getName();
-            assert(is_string($attributeName));
+            $attribute_name = $attribute->get_name();
+            assert(is_string($attribute_name));
             // Make sure we only get Gedmo Annotations
-            if (!is_subclass_of($attributeName, Annotation::class)) {
+            if (!is_subclass_of($attribute_name, Annotation::class)) {
                 continue;
             }
-
-            $instance = $attribute->newInstance();
+            $instance = $attribute->new_instance();
             assert($instance instanceof Annotation);
-
-            if ($this->isRepeatable($attributeName)) {
-                if (!isset($instances[$attributeName])) {
-                    $instances[$attributeName] = [];
+            if ($this->is_repeatable($attribute_name)) {
+                if (!isset($instances[$attribute_name])) {
+                    $instances[$attribute_name] = [];
                 }
-
-                $instances[$attributeName][] = $instance;
+                $instances[$attribute_name][] = $instance;
             } else {
-                $instances[$attributeName] = $instance;
+                $instances[$attribute_name] = $instance;
             }
         }
-
         return $instances;
     }
-
-    private function isRepeatable(string $attributeClassName): bool
+    private function is_repeatable(string $attribute_class_name): bool
     {
-        if (isset($this->isRepeatableAttribute[$attributeClassName])) {
-            return $this->isRepeatableAttribute[$attributeClassName];
+        if (isset($this->is_repeatable_attribute[$attribute_class_name])) {
+            return $this->is_repeatable_attribute[$attribute_class_name];
         }
-
-        $reflectionClass = new \ReflectionClass($attributeClassName);
-        $attribute = $reflectionClass->getAttributes()[0]->newInstance();
-
-        return $this->isRepeatableAttribute[$attributeClassName] = ($attribute->flags & \Attribute::IS_REPEATABLE) > 0;
+        $reflection_class = new \ReflectionClass($attribute_class_name);
+        $attribute = $reflection_class->get_attributes()[0]->new_instance();
+        return $this->is_repeatable_attribute[$attribute_class_name] = ($attribute->flags & \Attribute::IS_REPEATABLE) > 0;
     }
 }

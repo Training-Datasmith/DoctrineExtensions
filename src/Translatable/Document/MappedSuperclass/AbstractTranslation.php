@@ -1,85 +1,75 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of the Doctrine Behavioral Extensions package.
  * (c) Gediminas Morkevicius <gediminas.morkevicius@gmail.com> http://www.gediminasm.org
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+namespace Gedmo\Translatable\Document\Mapped_Superclass;
 
-namespace Gedmo\Translatable\Document\MappedSuperclass;
-
-use Doctrine\ODM\MongoDB\Mapping\Annotations as MongoODM;
-use Doctrine\ODM\MongoDB\Types\Type;
-
+use Doctrine\ODM\Mongo_Db\Mapping\Annotations as MongoODM;
+use Doctrine\ODM\Mongo_Db\Types\Type;
 /**
  * Gedmo\Translatable\Document\MappedSuperclass\AbstractTranslation
  *
  * @MongoODM\MappedSuperclass
  */
-#[MongoODM\MappedSuperclass]
-abstract class AbstractTranslation
+#[Mongo_Odm\Mapped_Superclass]
+abstract class Abstract_Translation
 {
     /**
      * @var int
      *
      * @MongoODM\Id
      */
-    #[MongoODM\Id]
+    #[Mongo_Odm\Id]
     protected $id;
-
     /**
      * @var string
      *
      * @MongoODM\Field(type="string")
      */
-    #[MongoODM\Field(type: Type::STRING)]
+    #[Mongo_Odm\Field(type: Type::STRING)]
     protected $locale;
-
     /**
      * @var string
      *
      * @MongoODM\Field(type="string")
      */
-    #[MongoODM\Field(type: Type::STRING)]
-    protected $objectClass;
-
+    #[Mongo_Odm\Field(type: Type::STRING)]
+    protected $object_class;
     /**
      * @var string
      *
      * @MongoODM\Field(type="string")
      */
-    #[MongoODM\Field(type: Type::STRING)]
+    #[Mongo_Odm\Field(type: Type::STRING)]
     protected $field;
-
     /**
      * @var string
      *
      * @MongoODM\Field(type="string", name="foreign_key")
      */
-    #[MongoODM\Field(name: 'foreign_key', type: Type::STRING)]
-    protected $foreignKey;
-
+    #[Mongo_Odm\Field(name: 'foreign_key', type: Type::STRING)]
+    protected $foreign_key;
     /**
      * @var string
      *
      * @MongoODM\Field(type="string")
      */
-    #[MongoODM\Field(type: Type::STRING)]
+    #[Mongo_Odm\Field(type: Type::STRING)]
     protected $content;
-
     /**
      * Get id
      *
      * @return int $id
      */
-    public function getId()
+    public function get_id()
     {
         return $this->id;
     }
-
     /**
      * Set locale
      *
@@ -87,23 +77,20 @@ abstract class AbstractTranslation
      *
      * @return static
      */
-    public function setLocale($locale)
+    public function set_locale($locale)
     {
         $this->locale = $locale;
-
         return $this;
     }
-
     /**
      * Get locale
      *
      * @return string
      */
-    public function getLocale()
+    public function get_locale()
     {
         return $this->locale;
     }
-
     /**
      * Set field
      *
@@ -111,23 +98,20 @@ abstract class AbstractTranslation
      *
      * @return static
      */
-    public function setField($field)
+    public function set_field($field)
     {
         $this->field = $field;
-
         return $this;
     }
-
     /**
      * Get field
      *
      * @return string
      */
-    public function getField()
+    public function get_field()
     {
         return $this->field;
     }
-
     /**
      * Set object class
      *
@@ -135,23 +119,20 @@ abstract class AbstractTranslation
      *
      * @return static
      */
-    public function setObjectClass($objectClass)
+    public function set_object_class($object_class)
     {
-        $this->objectClass = $objectClass;
-
+        $this->object_class = $object_class;
         return $this;
     }
-
     /**
      * Get objectClass
      *
      * @return string
      */
-    public function getObjectClass()
+    public function get_object_class()
     {
-        return $this->objectClass;
+        return $this->object_class;
     }
-
     /**
      * Set foreignKey
      *
@@ -159,23 +140,20 @@ abstract class AbstractTranslation
      *
      * @return static
      */
-    public function setForeignKey($foreignKey)
+    public function set_foreign_key($foreign_key)
     {
-        $this->foreignKey = $foreignKey;
-
+        $this->foreign_key = $foreign_key;
         return $this;
     }
-
     /**
      * Get foreignKey
      *
      * @return string
      */
-    public function getForeignKey()
+    public function get_foreign_key()
     {
-        return $this->foreignKey;
+        return $this->foreign_key;
     }
-
     /**
      * Set content
      *
@@ -183,19 +161,17 @@ abstract class AbstractTranslation
      *
      * @return static
      */
-    public function setContent($content)
+    public function set_content($content)
     {
         $this->content = $content;
-
         return $this;
     }
-
     /**
      * Get content
      *
      * @return string
      */
-    public function getContent()
+    public function get_content()
     {
         return $this->content;
     }

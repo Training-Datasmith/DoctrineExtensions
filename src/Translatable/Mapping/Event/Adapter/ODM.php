@@ -1,188 +1,136 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of the Doctrine Behavioral Extensions package.
  * (c) Gediminas Morkevicius <gediminas.morkevicius@gmail.com> http://www.gediminasm.org
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Gedmo\Translatable\Mapping\Event\Adapter;
 
-use Doctrine\ODM\MongoDB\Mapping\ClassMetadata;
-use Doctrine\ODM\MongoDB\Types\Type;
+use Doctrine\ODM\Mongo_Db\Mapping\Class_Metadata;
+use Doctrine\ODM\Mongo_Db\Types\Type;
 use Gedmo\Exception\RuntimeException;
 use Gedmo\Mapping\Event\Adapter\ODM as BaseAdapterODM;
-use Gedmo\Tool\Wrapper\AbstractWrapper;
-use Gedmo\Tool\Wrapper\MongoDocumentWrapper;
-use Gedmo\Translatable\Document\MappedSuperclass\AbstractPersonalTranslation;
+use Gedmo\Tool\Wrapper\Abstract_Wrapper;
+use Gedmo\Tool\Wrapper\Mongo_Document_Wrapper;
+use Gedmo\Translatable\Document\Mapped_Superclass\Abstract_Personal_Translation;
 use Gedmo\Translatable\Document\Translation;
-use Gedmo\Translatable\Mapping\Event\TranslatableAdapter;
-
+use Gedmo\Translatable\Mapping\Event\Translatable_Adapter;
 /**
  * Doctrine event adapter for ODM adapted
  * for Translatable behavior
  *
  * @author Gediminas Morkevicius <gediminas.morkevicius@gmail.com>
  */
-final class ODM extends BaseAdapterODM implements TranslatableAdapter
+final class ODM extends Base_Adapter_Odm implements Translatable_Adapter
 {
-    public function usesPersonalTranslation($translationClassName)
+    public function uses_personal_translation($translation_class_name)
     {
-        return $this
-            ->getObjectManager()
-            ->getClassMetadata($translationClassName)
-            ->getReflectionClass()
-            ->isSubclassOf(AbstractPersonalTranslation::class)
-        ;
+        return $this->get_object_manager()->get_class_metadata($translation_class_name)->get_reflection_class()->is_subclass_of(Abstract_Personal_Translation::class);
     }
-
-    public function getDefaultTranslationClass(): string
+    public function get_default_translation_class(): string
     {
         return Translation::class;
     }
-
-    public function loadTranslations($object, $translationClass, $locale, $objectClass)
+    public function load_translations($object, $translation_class, $locale, $object_class)
     {
-        $dm = $this->getObjectManager();
-        $wrapped = AbstractWrapper::wrap($object, $dm);
-        assert($wrapped instanceof MongoDocumentWrapper);
+        $dm = $this->get_object_manager();
+        $wrapped = Abstract_Wrapper::wrap($object, $dm);
+        assert($wrapped instanceof Mongo_Document_Wrapper);
         $result = [];
-
-        if ($this->usesPersonalTranslation($translationClass)) {
+        if ($this->uses_personal_translation($translation_class)) {
             // first try to load it using collection
-            foreach ($wrapped->getMetadata()->fieldMappings as $mapping) {
-                $isRightCollection = isset($mapping['association'])
-                    && ClassMetadata::REFERENCE_MANY === $mapping['association']
-                    && $mapping['targetDocument'] === $translationClass
-                    && 'object' === $mapping['mappedBy']
-                ;
-                if ($isRightCollection) {
-                    $collection = $wrapped->getPropertyValue($mapping['fieldName']);
+            foreach ($wrapped->get_metadata()->field_mappings as $mapping) {
+                $is_right_collection = isset($mapping['association']) && Class_Metadata::REFERENCE_MANY === $mapping['association'] && $mapping['targetDocument'] === $translation_class && 'object' === $mapping['mappedBy'];
+                if ($is_right_collection) {
+                    $collection = $wrapped->get_property_value($mapping['fieldName']);
                     foreach ($collection as $trans) {
-                        if ($trans->getLocale() === $locale) {
-                            $result[] = [
-                                'field' => $trans->getField(),
-                                'content' => $trans->getContent(),
-                            ];
+                        if ($trans->get_locale() === $locale) {
+                            $result[] = ['field' => $trans->get_field(), 'content' => $trans->get_content()];
                         }
                     }
-
                     return $result;
                 }
             }
-            $q = $dm
-                ->createQueryBuilder($translationClass)
-                ->field('object.$id')->equals($wrapped->getIdentifier())
-                ->field('locale')->equals($locale)
-                ->getQuery()
-            ;
+            $q = $dm->create_query_builder($translation_class)->field('object.$id')->equals($wrapped->get_identifier())->field('locale')->equals($locale)->get_query();
         } else {
             // load translated content for all translatable fields
             // construct query
-            $q = $dm
-                ->createQueryBuilder($translationClass)
-                ->field('foreignKey')->equals($wrapped->getIdentifier())
-                ->field('locale')->equals($locale)
-                ->field('objectClass')->equals($objectClass)
-                ->getQuery()
-            ;
+            $q = $dm->create_query_builder($translation_class)->field('foreignKey')->equals($wrapped->get_identifier())->field('locale')->equals($locale)->field('objectClass')->equals($object_class)->get_query();
         }
-        $q->setHydrate(false);
-
-        return $q->getIterator()->toArray();
+        $q->set_hydrate(false);
+        return $q->getIterator()->to_array();
     }
-
-    public function findTranslation(AbstractWrapper $wrapped, $locale, $field, $translationClass, $objectClass)
+    public function find_translation(Abstract_Wrapper $wrapped, $locale, $field, $translation_class, $object_class)
     {
-        $dm = $this->getObjectManager();
-        $qb = $dm
-            ->createQueryBuilder($translationClass)
-            ->field('locale')->equals($locale)
-            ->field('field')->equals($field)
-            ->limit(1)
-        ;
-        if ($this->usesPersonalTranslation($translationClass)) {
-            $qb->field('object.$id')->equals($wrapped->getIdentifier());
+        $dm = $this->get_object_manager();
+        $qb = $dm->create_query_builder($translation_class)->field('locale')->equals($locale)->field('field')->equals($field)->limit(1);
+        if ($this->uses_personal_translation($translation_class)) {
+            $qb->field('object.$id')->equals($wrapped->get_identifier());
         } else {
-            $qb->field('foreignKey')->equals($wrapped->getIdentifier());
-            $qb->field('objectClass')->equals($objectClass);
+            $qb->field('foreignKey')->equals($wrapped->get_identifier());
+            $qb->field('objectClass')->equals($object_class);
         }
-        $q = $qb->getQuery();
-
-        return $q->getSingleResult();
+        $q = $qb->get_query();
+        return $q->get_single_result();
     }
-
-    public function removeAssociatedTranslations(AbstractWrapper $wrapped, $transClass, $objectClass)
+    public function remove_associated_translations(Abstract_Wrapper $wrapped, $trans_class, $object_class)
     {
-        $dm = $this->getObjectManager();
-        $qb = $dm
-            ->createQueryBuilder($transClass)
-            ->remove()
-        ;
-        if ($this->usesPersonalTranslation($transClass)) {
-            $qb->field('object.$id')->equals($wrapped->getIdentifier());
+        $dm = $this->get_object_manager();
+        $qb = $dm->create_query_builder($trans_class)->remove();
+        if ($this->uses_personal_translation($trans_class)) {
+            $qb->field('object.$id')->equals($wrapped->get_identifier());
         } else {
-            $qb->field('foreignKey')->equals($wrapped->getIdentifier());
-            $qb->field('objectClass')->equals($objectClass);
+            $qb->field('foreignKey')->equals($wrapped->get_identifier());
+            $qb->field('objectClass')->equals($object_class);
         }
-        $q = $qb->getQuery();
-
+        $q = $qb->get_query();
         return $q->execute();
     }
-
-    public function insertTranslationRecord($translation): void
+    public function insert_translation_record($translation): void
     {
-        $dm = $this->getObjectManager();
-        $meta = $dm->getClassMetadata(get_class($translation));
-        $collection = $dm->getDocumentCollection($meta->getName());
+        $dm = $this->get_object_manager();
+        $meta = $dm->get_class_metadata(get_class($translation));
+        $collection = $dm->get_document_collection($meta->get_name());
         $data = [];
-
-        foreach ($meta->getReflectionProperties() as $fieldName => $reflProp) {
-            if (!$meta->isIdentifier($fieldName)) {
-                $data[$meta->getFieldMapping($fieldName)['name']] = $reflProp->getValue($translation);
+        foreach ($meta->get_reflection_properties() as $field_name => $refl_prop) {
+            if (!$meta->is_identifier($field_name)) {
+                $data[$meta->get_field_mapping($field_name)['name']] = $refl_prop->get_value($translation);
             }
         }
-
-        $insertResult = $collection->insertOne($data);
-
-        if (false === $insertResult->isAcknowledged()) {
+        $insert_result = $collection->insert_one($data);
+        if (false === $insert_result->is_acknowledged()) {
             throw new RuntimeException('Failed to insert new Translation record');
         }
     }
-
-    public function getTranslationValue($object, $field, $value = false)
+    public function get_translation_value($object, $field, $value = false)
     {
-        $dm = $this->getObjectManager();
-        $wrapped = AbstractWrapper::wrap($object, $dm);
-        assert($wrapped instanceof MongoDocumentWrapper);
-        $meta = $wrapped->getMetadata();
-        $mapping = $meta->getFieldMapping($field);
-        $type = $this->getType($mapping['type']);
+        $dm = $this->get_object_manager();
+        $wrapped = Abstract_Wrapper::wrap($object, $dm);
+        assert($wrapped instanceof Mongo_Document_Wrapper);
+        $meta = $wrapped->get_metadata();
+        $mapping = $meta->get_field_mapping($field);
+        $type = $this->get_type($mapping['type']);
         if (false === $value) {
-            $value = $wrapped->getPropertyValue($field);
+            $value = $wrapped->get_property_value($field);
         }
-
-        return $type->convertToDatabaseValue($value);
+        return $type->convert_to_database_value($value);
     }
-
-    public function setTranslationValue($object, $field, $value): void
+    public function set_translation_value($object, $field, $value): void
     {
-        $dm = $this->getObjectManager();
-        $wrapped = AbstractWrapper::wrap($object, $dm);
-        assert($wrapped instanceof MongoDocumentWrapper);
-        $meta = $wrapped->getMetadata();
-        $mapping = $meta->getFieldMapping($field);
-        $type = $this->getType($mapping['type']);
-
-        $value = $type->convertToPHPValue($value);
-        $wrapped->setPropertyValue($field, $value);
+        $dm = $this->get_object_manager();
+        $wrapped = Abstract_Wrapper::wrap($object, $dm);
+        assert($wrapped instanceof Mongo_Document_Wrapper);
+        $meta = $wrapped->get_metadata();
+        $mapping = $meta->get_field_mapping($field);
+        $type = $this->get_type($mapping['type']);
+        $value = $type->convert_to_php_value($value);
+        $wrapped->set_property_value($field, $value);
     }
-
-    private function getType(string $type): Type
+    private function get_type(string $type): Type
     {
-        return Type::getType($type);
+        return Type::get_type($type);
     }
 }

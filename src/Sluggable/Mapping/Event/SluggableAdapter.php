@@ -1,20 +1,17 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of the Doctrine Behavioral Extensions package.
  * (c) Gediminas Morkevicius <gediminas.morkevicius@gmail.com> http://www.gediminasm.org
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Gedmo\Sluggable\Mapping\Event;
 
-use Doctrine\Persistence\Mapping\ClassMetadata;
-use Gedmo\Mapping\Event\AdapterInterface;
-use Gedmo\Sluggable\SluggableListener;
-
+use Doctrine\Persistence\Mapping\Class_Metadata;
+use Gedmo\Mapping\Event\Adapter_Interface;
+use Gedmo\Sluggable\Sluggable_Listener;
 /**
  * Doctrine event adapter for the Sluggable extension.
  *
@@ -23,7 +20,7 @@ use Gedmo\Sluggable\SluggableListener;
  * @phpstan-import-type SluggableConfiguration from SluggableListener
  * @phpstan-import-type SlugConfiguration from SluggableListener
  */
-interface SluggableAdapter extends AdapterInterface
+interface Sluggable_Adapter extends Adapter_Interface
 {
     /**
      * Loads the similar slugs for a managed object.
@@ -36,8 +33,7 @@ interface SluggableAdapter extends AdapterInterface
      *
      * @return array<int, array<string, mixed>>
      */
-    public function getSimilarSlugs($object, $meta, array $config, $slug);
-
+    public function get_similar_slugs($object, $meta, array $config, $slug);
     /**
      * Replace part of a slug on all objects matching the target pattern.
      *
@@ -49,8 +45,7 @@ interface SluggableAdapter extends AdapterInterface
      *
      * @return int the number of updated records
      */
-    public function replaceRelative($object, array $config, $target, $replacement);
-
+    public function replace_relative($object, array $config, $target, $replacement);
     /**
      * Replace part of a slug on all objects matching the target pattern
      * and having a relation to the managed object.
@@ -63,5 +58,5 @@ interface SluggableAdapter extends AdapterInterface
      *
      * @return int the number of updated records
      */
-    public function replaceInverseRelative($object, array $config, $target, $replacement);
+    public function replace_inverse_relative($object, array $config, $target, $replacement);
 }
