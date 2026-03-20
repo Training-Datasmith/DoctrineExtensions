@@ -22,11 +22,11 @@ Gedmo\Tests\Mapping\Fixture\Yaml\Sortable:
         - sortableGroup
   manyToOne:
     sortable_group:
-      targetEntity: Gedmo\Tests\Mapping\Fixture\SortableGroup
+      targetEntity: Gedmo\Tests\Mapping\Fixture\Sortable_Group
       gedmo:
         - sortableGroup
   manyToMany:
     sortable_groups:
-      targetEntity: Gedmo\Tests\Mapping\Fixture\SortableGroup
+      targetEntity: Gedmo\Tests\Mapping\Fixture\Sortable_Group
       gedmo:
         - sortableGroup

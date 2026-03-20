@@ -9,11 +9,11 @@
         <field name="ean" type="string" length="13"/>
         <field name="slug" type="string" length="156" unique="true">
             <gedmo:slug unique="true" style="camel" updatable="false" separator="_" fields="title, ean, code">
-                <gedmo:handler class="Gedmo\Sluggable\Handler\TreeSlugHandler">
+                <gedmo:handler class="Gedmo\Sluggable\Handler\Tree_Slug_Handler">
                     <gedmo:handler-option name="parentRelationField" value="parent"/>
                     <gedmo:handler-option name="separator" value="/"/>
                 </gedmo:handler>
-                <gedmo:handler class="Gedmo\Sluggable\Handler\RelativeSlugHandler">
+                <gedmo:handler class="Gedmo\Sluggable\Handler\Relative_Slug_Handler">
                     <gedmo:handler-option name="relationField" value="parent"/>
                     <gedmo:handler-option name="relationSlugField" value="test"/>
                     <gedmo:handler-option name="separator" value="-"/>

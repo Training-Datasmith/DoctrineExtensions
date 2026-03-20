@@ -4,7 +4,7 @@ Gedmo\Tests\Mapping\Fixture\Yaml\Loggable:
   table: loggable
   gedmo:
     loggable:
-      logEntryClass: Gedmo\Loggable\Entity\LogEntry
+      logEntryClass: Gedmo\Loggable\Entity\Log_Entry
   id:
     id:
       type: integer

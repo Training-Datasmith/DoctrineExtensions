@@ -3,7 +3,7 @@ Gedmo\Tests\Mapping\Fixture\Yaml\User:
   type: entity
   gedmo:
     translation:
-      entity: Gedmo\Tests\Translatable\Fixture\PersonTranslation
+      entity: Gedmo\Tests\Translatable\Fixture\Person_Translation
       locale: localeField
   table: users
   id:

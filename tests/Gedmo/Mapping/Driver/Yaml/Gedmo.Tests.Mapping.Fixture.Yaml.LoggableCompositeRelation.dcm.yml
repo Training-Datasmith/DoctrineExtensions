@@ -1,10 +1,10 @@
 ---
-Gedmo\Tests\Mapping\Fixture\Yaml\LoggableCompositeRelation:
+Gedmo\Tests\Mapping\Fixture\Yaml\Loggable_Composite_Relation:
   type: entity
   table: loggable_with_composite_relation
   gedmo:
     loggable:
-      logEntryClass: Gedmo\Loggable\Entity\LogEntry
+      logEntryClass: Gedmo\Loggable\Entity\Log_Entry
   id:
     one:
       associationKey: true

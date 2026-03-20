@@ -1,5 +1,5 @@
 ---
-Gedmo\Tests\Mapping\Fixture\Yaml\SoftDeleteable:
+Gedmo\Tests\Mapping\Fixture\Yaml\Soft_Deleteable:
   type: entity
   table: soft_deleteables
   gedmo:

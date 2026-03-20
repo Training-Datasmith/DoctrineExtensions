@@ -1,5 +1,5 @@
 ---
-Gedmo\Tests\Mapping\Fixture\Yaml\BaseCategory:
+Gedmo\Tests\Mapping\Fixture\Yaml\Base_Category:
   type: mappedSuperclass
   fields:
     left:

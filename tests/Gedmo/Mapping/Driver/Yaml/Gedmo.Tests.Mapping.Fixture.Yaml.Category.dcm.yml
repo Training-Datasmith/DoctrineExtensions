@@ -9,12 +9,12 @@ Gedmo\Tests\Mapping\Fixture\Yaml\Category:
         strategy: AUTO
   gedmo:
     translation:
-      entity: Gedmo\Tests\Translatable\Fixture\CategoryTranslation
+      entity: Gedmo\Tests\Translatable\Fixture\Category_Translation
       locale: localeField
     tree:
       type: nested
     loggable:
-      logEntryClass: Gedmo\Loggable\Entity\LogEntry
+      logEntryClass: Gedmo\Loggable\Entity\Log_Entry
   fields:
     title:
       type: string
@@ -31,11 +31,11 @@ Gedmo\Tests\Mapping\Fixture\Yaml\Category:
           fields:
             - title
           handlers:
-            Gedmo\Sluggable\Handler\RelativeSlugHandler:
+            Gedmo\Sluggable\Handler\Relative_Slug_Handler:
               relationField: parent
               relationSlugField: slug
               separator: /
-            Gedmo\Sluggable\Handler\TreeSlugHandler:
+            Gedmo\Sluggable\Handler\Tree_Slug_Handler:
               parentRelationField: parent
               separator: /
     changed:

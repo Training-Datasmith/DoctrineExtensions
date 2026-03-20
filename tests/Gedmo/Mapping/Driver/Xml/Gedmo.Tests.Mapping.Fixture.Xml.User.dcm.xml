@@ -16,6 +16,6 @@
         <field name="company" type="string" column="company" length="128" nullable="true">
             <gedmo:translatable fallback="true"/>
         </field>
-        <gedmo:translation entity="Gedmo\Tests\Translatable\Fixture\PersonTranslation" locale="localeField"/>
+        <gedmo:translation entity="Gedmo\Tests\Translatable\Fixture\Person_Translation" locale="localeField"/>
     </entity>
 </doctrine-mapping>

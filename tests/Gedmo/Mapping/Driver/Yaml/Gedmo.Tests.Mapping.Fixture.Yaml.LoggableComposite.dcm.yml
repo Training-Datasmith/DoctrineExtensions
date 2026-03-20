@@ -1,10 +1,10 @@
 ---
-Gedmo\Tests\Mapping\Fixture\Yaml\LoggableComposite:
+Gedmo\Tests\Mapping\Fixture\Yaml\Loggable_Composite:
   type: entity
   table: loggable_with_composite
   gedmo:
     loggable:
-      logEntryClass: Gedmo\Loggable\Entity\LogEntry
+      logEntryClass: Gedmo\Loggable\Entity\Log_Entry
   id:
     one:
       type: integer

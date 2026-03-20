@@ -1,10 +1,10 @@
 ---
-Gedmo\Tests\Mapping\Fixture\Yaml\LoggableWithEmbedded:
+Gedmo\Tests\Mapping\Fixture\Yaml\Loggable_With_Embedded:
   type: entity
   table: loggable_with_embedded
   gedmo:
     loggable:
-      logEntryClass: Gedmo\Loggable\Entity\LogEntry
+      logEntryClass: Gedmo\Loggable\Entity\Log_Entry
   id:
     id:
       type: integer

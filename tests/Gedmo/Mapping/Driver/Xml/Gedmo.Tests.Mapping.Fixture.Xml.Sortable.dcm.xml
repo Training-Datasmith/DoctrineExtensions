@@ -11,13 +11,13 @@
         <field name="grouping" type="string" length="128">
             <gedmo:sortable-group/>
         </field>
-        <many-to-one field="sortable_group" target-entity="Gedmo\Tests\Mapping\Fixture\SortableGroup">
+        <many-to-one field="sortable_group" target-entity="Gedmo\Tests\Mapping\Fixture\Sortable_Group">
             <join-columns>
                 <join-column name="sortable_group_id" referenced-column-name="id" nullable="false"/>
             </join-columns>
             <gedmo:sortable-group/>
         </many-to-one>
-        <many-to-many field="sortable_groups" target-entity="Gedmo\Tests\Mapping\Fixture\SortableGroup">
+        <many-to-many field="sortable_groups" target-entity="Gedmo\Tests\Mapping\Fixture\Sortable_Group">
             <join-table name="sortable_sortable_groups">
                 <join-columns>
                     <join-column name="sortable_id" referenced-column-name="id"/>
