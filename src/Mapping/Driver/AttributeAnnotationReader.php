@@ -59,7 +59,7 @@ final class AttributeAnnotationReader implements Reader
      * @return T|null the Annotation or NULL, if the requested annotation does not exist
      * @template T
      */
-    public function getClassAnnotation(\ReflectionClass $class, string $annotationName)
+    public function getClassAnnotation(\ReflectionClass $class, $annotationName)
     {
         $annotation = $this->attributeReader->getClassAnnotation($class, $annotationName);
 
@@ -87,7 +87,7 @@ final class AttributeAnnotationReader implements Reader
      *
      * @template T
      */
-    public function getPropertyAnnotation(\ReflectionProperty $property, string $annotationName)
+    public function getPropertyAnnotation(\ReflectionProperty $property, $annotationName)
     {
         $annotation = $this->attributeReader->getPropertyAnnotation($property, $annotationName);
 

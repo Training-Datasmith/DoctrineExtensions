@@ -242,7 +242,7 @@ class Validator
     /**
      * @param FieldMapping|array<string, scalar> $mapping
      */
-    private function getMappingType(array $mapping): string
+    private function getMappingType(array|FieldMapping $mapping): string
     {
         if ($mapping instanceof FieldMapping) {
             return $mapping->type;
