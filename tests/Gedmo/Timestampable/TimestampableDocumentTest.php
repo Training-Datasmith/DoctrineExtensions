@@ -41,7 +41,7 @@ final class TimestampableDocumentTest extends BaseTestCaseMongoODM
 
         $date = new \DateTime();
         $now = time();
-        $created = $article->getCreated()->getTimestamp();
+        $created = $article->getCreated();
         static::assertTrue($created > $now - 5 && $created < $now + 5); // 5 seconds interval if lag
         static::assertSame(
             $date->format('Y-m-d H:i'),
@@ -82,7 +82,7 @@ final class TimestampableDocumentTest extends BaseTestCaseMongoODM
         $sport = $repo->findOneBy(['title' => 'sport forced']);
         static::assertSame(
             $created,
-            $sport->getCreated()->getTimestamp()
+            $sport->getCreated()
         );
         static::assertSame(
             '2000-01-01 12:00:00',
